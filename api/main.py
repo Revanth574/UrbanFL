@@ -61,6 +61,8 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
         "http://127.0.0.1:4173",
+        "https://revanth574.github.io",  # GitHub Pages
+        os.environ.get("RENDER_EXTERNAL_URL", ""),  # Render self-reference
     ],
     allow_credentials=True,
     allow_methods=["*"],

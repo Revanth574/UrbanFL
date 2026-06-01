@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: urbanfl-api
+    runtime: python
+    repo: https://github.com/Revanth574/UrbanFL
+    branch: main
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    healthCheckPath: /api/v1/health
+    plan: free

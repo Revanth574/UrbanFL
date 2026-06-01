@@ -3,9 +3,18 @@
  * =========================
  * Centralized fetch wrappers and WebSocket manager.
  * ALL data comes from the live backend — no demo fallbacks.
+ *
+ * Environment-aware: auto-connects to cloud backend on GitHub Pages,
+ * or uses local proxy in development.
  */
 
-const BASE = '/api/v1';
+// Cloud backend URL (Render.com deployment)
+const RENDER_BACKEND = 'https://urbanfl-api.onrender.com';
+
+// Auto-detect: GitHub Pages → cloud backend, localhost → vite proxy
+const IS_GITHUB_PAGES = window.location.hostname.includes('github.io');
+const API_ORIGIN = IS_GITHUB_PAGES ? RENDER_BACKEND : '';
+const BASE = `${API_ORIGIN}/api/v1`;
 
 // ── Connection State ─────────────────────────────────────────────────
 let _isLive = null;
@@ -123,8 +132,12 @@ export function createLiveSocket(onTick, onBackfill, onStatusChange, onSystemSta
   let reconnectTimer = null;
 
   function getWsUrl() {
+    if (IS_GITHUB_PAGES) {
+      // Connect to cloud backend via WSS
+      return `wss://urbanfl-api.onrender.com/api/v1/ws/live`;
+    }
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${proto}//${window.location.host}${BASE}/ws/live`;
+    return `${proto}//${window.location.host}/api/v1/ws/live`;
   }
 
   function connect() {
