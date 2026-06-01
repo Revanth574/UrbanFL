@@ -2,6 +2,7 @@
 
 [![Deploy](https://github.com/Revanth574/UrbanFL/actions/workflows/deploy.yml/badge.svg)](https://github.com/Revanth574/UrbanFL/actions/workflows/deploy.yml)
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-GitHub_Pages-blue)](https://revanth574.github.io/UrbanFL/)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Revanth574/UrbanFL)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > **Privacy-preserving federated learning pipeline for real-time urban situational awareness, inter-agency coordination, and automated emergency response dispatch.**
@@ -144,11 +145,21 @@ Navigate to `http://localhost:5173` — the frontend proxies API requests to the
 
 ## 🌐 Deployment
 
+### Frontend (GitHub Pages)
 The frontend is automatically deployed to **GitHub Pages** on every push to `main` via GitHub Actions.
 
 **Live URL:** [https://revanth574.github.io/UrbanFL/](https://revanth574.github.io/UrbanFL/)
 
-> **Note:** The GitHub Pages deployment serves the static frontend only. For full functionality (real-time data, WebSocket streaming), run the backend locally.
+### Backend (Render.com)
+The FastAPI backend is deployed on **Render.com** and auto-connects to the frontend.
+
+**API URL:** `https://urbanfl-api.onrender.com`
+
+To deploy your own backend instance:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Revanth574/UrbanFL)
+
+> The frontend automatically detects its environment and connects to the cloud backend when hosted on GitHub Pages, or the local backend in development.
 
 ---
 
@@ -158,12 +169,12 @@ The frontend is automatically deployed to **GitHub Pages** on every push to `mai
 |---------|------|------|----------|
 | CrisisNLP v2 | Crisis text classification | ~50MB | ✅ |
 | Istanbul Geospatial | Roads, hospitals, shelters, traffic | ~12MB | ✅ |
+| Istanbul Roads Network | `.gpickle` graph | ~56MB | ✅ |
+| Palu Network | `.graphml` graph | ~18MB | ✅ |
 | xBD Sample Images | Pre/post disaster satellite | ~2MB | ✅ (samples) |
 | xBD Full Dataset | Satellite imagery corpus | ~91GB | ❌ (download separately) |
-| Istanbul Roads Network | `.gpickle` graph | ~56MB | ❌ (download separately) |
-| Palu Network | `.graphml` graph | ~18MB | ❌ (download separately) |
 
-Large files excluded from Git are listed in `.gitignore`. Download them separately for full simulation.
+Only the 91GB xBD full dataset is excluded. All other data is included in the repository.
 
 ---
 
