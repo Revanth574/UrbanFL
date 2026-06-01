@@ -1,0 +1,20 @@
+# Hospital Network Configuration
+hospital_network:
+  default_hospitals: 8
+  baseline_occupancy_pct: 65
+  surge_threshold_pct: 90
+  critical_threshold_pct: 95
+
+  patient_distribution:
+    weights:
+      time: 0.30
+      specialization: 0.25
+      capacity: 0.25
+      balance: 0.20
+    max_assignment_time_ms: 500
+    preferred_max_load_pct: 70
+
+  monitoring:
+    update_interval_s: 60
+    bed_alert_threshold_pct: 85
+    icu_alert_threshold_pct: 80

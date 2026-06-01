@@ -1,0 +1,26 @@
+# UrbanFL Base Configuration
+city:
+  name: "MetroCity"
+  bbox: [28.9, 40.9, 29.3, 41.2]  # Approx Istanbul for replay
+  area_km2: 500.0
+  population: 2_000_000
+
+compute:
+  device: "auto"          # auto | cpu | cuda | mps
+  num_workers: 4
+  pin_memory: true
+
+paths:
+  data_dir: "data/"
+  model_dir: "models/"
+  paper_dir: "paper/"
+  figures_dir: "paper/figures/"
+  tables_dir: "paper/tables/"
+  logs_dir: "logs/"
+
+logging:
+  level: "INFO"
+  file: "logs/urbanfl.log"
+  console: true
+
+seed: 42

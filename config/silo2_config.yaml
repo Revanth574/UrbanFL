@@ -1,0 +1,41 @@
+# Silo 2 — Aerial Intelligence
+aerostats:
+  count: 3
+  altitude_m: 1000
+  fov_radius_km: 60.0
+  sensors: ["SAR", "optical", "thermal", "LiDAR"]
+  power_redundancy_levels: 4
+  failure_rate_per_hour: 0.001     # MTBF = 1000h
+  max_wind_knots: 60
+
+drones:
+  station_count: 20
+  deploy_time_s: 90
+  speed_mps: 15.0
+  coverage_radius_m: 500.0
+  failure_rate_per_hour: 0.01      # MTBF = 100h
+
+correlated_failures:
+  enabled: true                    # Audit fix: Theorem 2b
+  copula_type: "clayton"           # clayton | gaussian
+  correlation_rho: 0.5             # Strong spatial correlation
+
+change_detection:
+  backbone: "efficientnet_b3"      # Audit fix M7: was ResNet-50
+  in_channels: 4                   # RGB + NIR
+  fpn_channels: 128
+  num_disaster_classes: 6          # flood, collapse, fire, landslide, road_damage, normal
+  loss_weights:
+    bce_change: 0.40
+    dice_change: 0.40
+    ce_disaster: 0.15
+    mse_severity: 0.05
+  lr: 0.0001
+  batch_size: 8
+  epochs: 50
+  gradient_clip: 1.0
+  amp: true                       # Automatic mixed precision
+
+datasets:
+  levir_cd: "data/silo2/LEVIR-CD/"
+  xbd: "data/silo2/xBD/"

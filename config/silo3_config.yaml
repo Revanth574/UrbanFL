@@ -1,0 +1,46 @@
+# Silo 3 — Traffic, Routing & Response Optimization
+traffic:
+  data_sources:
+    loop_detectors:
+      confidence: 0.95
+    connected_vehicles:
+      confidence: 0.85
+    probe_vehicles:
+      confidence: 0.75
+    historical:
+      confidence: 0.40
+    simulated:
+      confidence: 0.70
+  ema_alpha: 0.3
+  staleness_threshold_s: 120
+
+diversion:
+  micro_interval_s: 120            # Minor incidents
+  macro_interval_s: 30             # Major incidents
+  disaster_interval_s: 15          # Full disaster
+  buffer_hops: 2                   # Ego-graph expansion
+
+routing:
+  use_contraction_hierarchies: true  # Audit fix M15: hierarchical graph
+  skeleton_nodes: 10000              # Contracted graph size
+  vehicle_speed_modifiers:
+    ambulance: 1.3
+    fire_engine: 1.2
+    police: 1.4
+
+optimizer:
+  time_limit_ms: 500
+  objectives:
+    - emergency_vehicle_routing
+    - traffic_diversion
+    - hospital_assignment
+    - zone_prioritisation
+    - consequence_guard
+
+road_graph:
+  mode: "synthetic"                # synthetic | osmnx
+  synthetic_nodes: 300
+  osmnx_network_type: "drive"
+
+consequence:
+  saturation_threshold: 0.95       # Frank-Wolfe load ratio warning

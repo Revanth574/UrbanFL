@@ -1,0 +1,51 @@
+# Silo 1 — Alert Ingestion & Verification
+source_trust_weights:
+  iot_sensor: 0.95
+  government_agency: 0.90
+  emergency_call: 0.85
+  news_media: 0.75
+  citizen_app: 0.60
+  social_media: 0.30
+
+credibility:
+  scoring_mode: "weighted_product"   # weighted_product | weighted_sum (ablation)
+  dimension_weights:
+    source_trust: 0.25
+    spatial_cluster: 0.20
+    temporal_recency: 0.15
+    cross_modal: 0.20
+    severity_plausibility: 0.10
+    iot_anomaly: 0.10
+  escalation_threshold: 0.70
+  cluster_radius_m: 500.0
+  cluster_window_s: 600          # 10 minutes
+
+iot_autoencoder:
+  architecture: "conv1d"           # conv1d (audit fix M8, not MLP)
+  input_timesteps: 60
+  input_sensors: 5
+  encoder_channels: [32, 16]
+  kernel_sizes: [5, 3]
+  latent_dim: 16
+  anomaly_threshold_sigma: 3.0
+  lr: 0.001
+
+nlp:
+  model_name: "xlm-roberta-base"
+  num_classes: 8
+  severity_weight: 0.2
+  classification_weight: 0.8
+  dropout: 0.3
+  shared_dim: 256
+  lr: 0.00002
+  max_seq_length: 128
+  batch_size: 32
+  epochs: 10
+
+causal_verifier:
+  mode: "learnable"                # learnable (audit fix C9, not static)
+  initial_dag: "expert"            # expert prior, refined via causal discovery
+  learning_rate: 0.01
+  co_occurrence_window_s: 300
+  min_edge_confidence: 0.3
+  dag_update_interval_rounds: 10

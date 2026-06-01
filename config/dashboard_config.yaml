@@ -1,0 +1,28 @@
+# Dashboard Configuration
+dashboard:
+  snapshot_interval_s: 30
+  zone_grid:
+    rows: 5
+    cols: 5
+  
+  criticality:
+    weights:
+      casualty_density: 0.20
+      structural_damage: 0.15
+      population_density: 0.12
+      infrastructure_loss: 0.12
+      accessibility: 0.10
+      medical_proximity: 0.08
+      secondary_hazard: 0.08
+      time_without_contact: 0.08
+      environmental_risk: 0.07
+    thresholds:
+      P1: 0.80
+      P2: 0.60
+      P3: 0.40
+      P4: 0.20
+  
+  damage_assessment:
+    grid_resolution_m: 100
+    confidence_threshold: 0.3
+    heatmap_resolution: 50

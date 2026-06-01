@@ -1,0 +1,25 @@
+# Infrastructure Grid Configuration
+infrastructure:
+  networks:
+    - power
+    - water
+    - gas
+    - telecom
+  nodes_per_network: 15
+  
+  interdependencies:
+    power_to_water: 0.9
+    power_to_telecom: 0.8
+    power_to_gas: 0.3
+    water_to_power: 0.2
+    telecom_to_power: 0.1
+  
+  cascade_prediction:
+    max_depth: 5
+    min_probability: 0.1
+    backup_power_reduction: 0.3
+  
+  monitoring:
+    update_interval_s: 30
+    failure_alert_threshold: 3
+    stale_data_timeout_s: 300

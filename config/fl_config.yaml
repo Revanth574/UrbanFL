@@ -1,0 +1,103 @@
+# Federated Learning Configuration
+fedhetero:
+  gradient_norm_ema_alpha: 0.10
+  semantic_bridge_dim: 128
+  distillation_temperature: 0.5
+  distillation_weight: 0.10
+  recency_halflife_rounds: 10
+  baselines: ["fedavg", "fedprox", "fednova", "scaffold"]
+
+  # Byzantine resilience (audit fix: Innovation 4)
+  byzantine:
+    enabled: true
+    method: "coordinate_trimmed_mean"   # coordinate_trimmed_mean | krum
+    trim_fraction: 0.1                  # Fraction trimmed per coordinate
+    max_byzantine_silos: 1              # f < N/3, N=3 → f=0..1
+
+  # SCAFFOLD specific
+  scaffold:
+    enabled: true
+
+fedprox:
+  mu: 0.01
+
+dual_aggregator:
+  left_hemisphere_silos: [1]
+  right_hemisphere_silos: [2, 3]
+  sync_interval_rounds: 5
+  divergence_threshold_base: 0.15      # Audit fix M17: adaptive
+  divergence_threshold_decay_tau: 50   # θ_t = θ_0 / sqrt(1 + t/τ)
+  failover_latency_target_ms: 200
+
+# GeoPrivacyFL — 5-Layer Privacy Architecture
+privacy:
+  # Layer 1: Geo-Indistinguishable Input Perturbation
+  geo_indistinguishability:
+    enabled: true
+    epsilon_geo: 1.0
+    sensitivity_scores:
+      public_infrastructure: 0.1
+      commercial_traffic: 0.5
+      residential: 0.9
+      emergency_call_origin: 1.0
+    snap_to_grid: true
+    snap_privacy_overhead_log_degree: 0.1  # Audit fix M4
+
+  # Layer 2: Gradient Spatial Decomposition
+  gradient_decomposition:
+    enabled: true
+    warmup_rounds: 10                   # Audit fix C2: full DP first
+    public_basis_source: "road_graph"   # Derived from OSMnx
+
+  # Layer 3: Secure Aggregation
+  secure_aggregation:
+    enabled: true
+    protocol: "pairwise_masking"        # Audit fix M5: not additive sharing
+    num_zones: 5
+
+  # Layer 4: Per-Silo Adaptive DP
+  per_silo_dp:
+    epsilon_min: 0.5
+    epsilon_max: 5.0
+    delta: 1.0e-5
+    rdp_alphas: [2, 3, 5, 10, 20, 50, 100]
+    silo_sensitivities:
+      silo1: 0.95   # NLP/PII
+      silo2: 0.15   # Aerial (public-like)
+      silo3: 0.60   # Traffic (mixed)
+    max_grad_norm: 1.0
+
+    # Privacy Budget Manager (audit fix M6)
+    budget_manager:
+      enabled: true
+      total_budget_silo1: 0.50
+      total_budget_silo2: 5.00
+      total_budget_silo3: 2.00
+
+  # Layer 5: Verifiable Privacy Commitments
+  verifiable_commitments:
+    enabled: true
+    audit_rounds: 50
+    confidence_delta: 0.1
+    hash_algorithm: "sha256"
+
+# Communication compression (Review §2.3)
+communication:
+  compression_enabled: true
+  method: "topk"                   # topk | random_rotation
+  topk_fraction: 0.1               # Keep top 10% of gradients
+  error_feedback: true             # Accumulate compression error
+
+# Concept drift detection (Review §2.2)
+concept_drift:
+  enabled: true
+  kl_window_size: 100
+  kl_threshold: 0.5
+  accelerated_rounds_multiplier: 3
+  stationarity_halflife: 5
+
+training:
+  fl_rounds: 150
+  local_epochs: 5
+  batch_size: 32
+  learning_rate: 0.01
