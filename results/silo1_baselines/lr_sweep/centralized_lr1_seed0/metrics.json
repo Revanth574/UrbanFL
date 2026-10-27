@@ -1,0 +1,951 @@
+{
+ "metrics": {
+  "pooled_test_macro_f1": 0.6403524224379216,
+  "pooled_test_accuracy": 0.6778212887148451,
+  "pooled_per_class": {
+   "caution": {
+    "precision": 0.525974025974026,
+    "recall": 0.5159235668789809,
+    "f1": 0.5209003215434084,
+    "support": 157
+   },
+   "displaced": {
+    "precision": 0.6712328767123288,
+    "recall": 0.5764705882352941,
+    "f1": 0.620253164556962,
+    "support": 85
+   },
+   "donation": {
+    "precision": 0.710204081632653,
+    "recall": 0.7891156462585034,
+    "f1": 0.7475832438238453,
+    "support": 441
+   },
+   "infra_damage": {
+    "precision": 0.4894894894894895,
+    "recall": 0.7836538461538461,
+    "f1": 0.6025878003696857,
+    "support": 208
+   },
+   "injured_dead": {
+    "precision": 0.9117647058823529,
+    "recall": 0.8461538461538461,
+    "f1": 0.8777348777348777,
+    "support": 403
+   },
+   "missing": {
+    "precision": 0.23444976076555024,
+    "recall": 0.7903225806451613,
+    "f1": 0.36162361623616235,
+    "support": 62
+   },
+   "irrelevant": {
+    "precision": 0.7210031347962382,
+    "recall": 0.6460674157303371,
+    "f1": 0.6814814814814815,
+    "support": 356
+   },
+   "other_info": {
+    "precision": 0.7723880597014925,
+    "recall": 0.5267175572519084,
+    "f1": 0.6263237518910741,
+    "support": 786
+   },
+   "sympathy": {
+    "precision": 0.7133956386292835,
+    "recall": 0.7363344051446945,
+    "f1": 0.7246835443037974,
+    "support": 311
+   }
+  },
+  "per_client_test_accuracy": {
+   "2013_Pakistan_eq": 0.6798561151079137,
+   "2014_California_Earthquake": 0.6947791164658634,
+   "2014_Chile_Earthquake_cl": 0.6810344827586207,
+   "2014_Chile_Earthquake_en": 0.7655172413793103,
+   "2014_Hurricane_Odile_Mexico_en": 0.6629213483146067,
+   "2014_India_floods": 0.7962264150943397,
+   "2014_Pakistan_floods": 0.5946969696969697,
+   "2014_Philippines_Typhoon_Hagupit_en": 0.5973597359735974,
+   "2015_Cyclone_Pam_en": 0.66,
+   "2015_Nepal_Earthquake_en": 0.66
+  },
+  "d4": {
+   "pooled_macro_f1": 0.6403524224379216,
+   "per_client": {
+    "2013_Pakistan_eq": {
+     "macro_f1": 0.5402762773394335,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_California_Earthquake": {
+     "macro_f1": 0.6044507607063725,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Chile_Earthquake_cl": {
+     "macro_f1": 0.4742048393001397,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Chile_Earthquake_en": {
+     "macro_f1": 0.7354051378310313,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      1,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Hurricane_Odile_Mexico_en": {
+     "macro_f1": 0.5899032139939988,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_India_floods": {
+     "macro_f1": 0.6343194627677387,
+     "n_qualifying_classes": 8,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Pakistan_floods": {
+     "macro_f1": 0.484818306973074,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Philippines_Typhoon_Hagupit_en": {
+     "macro_f1": 0.6531573730143994,
+     "n_qualifying_classes": 8,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2015_Cyclone_Pam_en": {
+     "macro_f1": 0.5496429299312944,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2015_Nepal_Earthquake_en": {
+     "macro_f1": 0.5341276061535997,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "client_mean_macro_f1": 0.5800305908011082
+  },
+  "training": {
+   "lr": 1.0,
+   "best_epoch": 2,
+   "best_val_loss": 0.9545532464981079,
+   "n_val": 2809,
+   "history": [
+    {
+     "epoch": 0,
+     "train_ce": null,
+     "val_loss": 2.196430206298828,
+     "val_macro_f1": 0.07220860798721195
+    },
+    {
+     "epoch": 1,
+     "train_ce": 1.153317255382912,
+     "val_loss": 1.0259411334991455,
+     "val_macro_f1": 0.5839281180347874
+    },
+    {
+     "epoch": 2,
+     "train_ce": 0.8935220285418416,
+     "val_loss": 0.9545532464981079,
+     "val_macro_f1": 0.6292994429234844
+    },
+    {
+     "epoch": 3,
+     "train_ce": 0.8303357430375277,
+     "val_loss": 0.9545901417732239,
+     "val_macro_f1": 0.6144001420938119
+    },
+    {
+     "epoch": 4,
+     "train_ce": 0.7830572035819272,
+     "val_loss": 0.9794535636901855,
+     "val_macro_f1": 0.6410031582258806
+    },
+    {
+     "epoch": 5,
+     "train_ce": 0.7552124591986714,
+     "val_loss": 1.0253430604934692,
+     "val_macro_f1": 0.6211962029686292
+    },
+    {
+     "epoch": 6,
+     "train_ce": 0.7065709674686951,
+     "val_loss": 0.9983304142951965,
+     "val_macro_f1": 0.620685961119233
+    },
+    {
+     "epoch": 7,
+     "train_ce": 0.6659942251803849,
+     "val_loss": 1.0149517059326172,
+     "val_macro_f1": 0.6730513765271141
+    },
+    {
+     "epoch": 8,
+     "train_ce": 0.6218815168788654,
+     "val_loss": 1.0282783508300781,
+     "val_macro_f1": 0.6559193768509511
+    },
+    {
+     "epoch": 9,
+     "train_ce": 0.596238306899958,
+     "val_loss": 1.0706489086151123,
+     "val_macro_f1": 0.6556577537547623
+    },
+    {
+     "epoch": 10,
+     "train_ce": 0.554790435369264,
+     "val_loss": 1.140125036239624,
+     "val_macro_f1": 0.6277933281551603
+    },
+    {
+     "epoch": 11,
+     "train_ce": 0.5202709977714363,
+     "val_loss": 1.2144562005996704,
+     "val_macro_f1": 0.6397668792283103
+    },
+    {
+     "epoch": 12,
+     "train_ce": 0.48502638963121325,
+     "val_loss": 1.208964467048645,
+     "val_macro_f1": 0.6412711797567132
+    },
+    {
+     "epoch": 13,
+     "train_ce": 0.4664145489544361,
+     "val_loss": 1.2602925300598145,
+     "val_macro_f1": 0.6290879226301237
+    },
+    {
+     "epoch": 14,
+     "train_ce": 0.43230577165810874,
+     "val_loss": 1.2669758796691895,
+     "val_macro_f1": 0.6384272135681244
+    },
+    {
+     "epoch": 15,
+     "train_ce": 0.42127554407736506,
+     "val_loss": 1.3178637027740479,
+     "val_macro_f1": 0.6483434401108386
+    },
+    {
+     "epoch": 16,
+     "train_ce": 0.39914067421212873,
+     "val_loss": 1.3621916770935059,
+     "val_macro_f1": 0.6327985721480416
+    },
+    {
+     "epoch": 17,
+     "train_ce": 0.3718055363346568,
+     "val_loss": 1.3722929954528809,
+     "val_macro_f1": 0.6480508253298631
+    },
+    {
+     "epoch": 18,
+     "train_ce": 0.3647010199139116,
+     "val_loss": 1.4427598714828491,
+     "val_macro_f1": 0.6549943844019551
+    },
+    {
+     "epoch": 19,
+     "train_ce": 0.3351537222861151,
+     "val_loss": 1.4363017082214355,
+     "val_macro_f1": 0.6442806254439554
+    },
+    {
+     "epoch": 20,
+     "train_ce": 0.3193451461331794,
+     "val_loss": 1.4812650680541992,
+     "val_macro_f1": 0.6484023357736068
+    },
+    {
+     "epoch": 21,
+     "train_ce": 0.3009401082428228,
+     "val_loss": 1.5683916807174683,
+     "val_macro_f1": 0.640077682960647
+    },
+    {
+     "epoch": 22,
+     "train_ce": 0.28103827600070624,
+     "val_loss": 1.5937047004699707,
+     "val_macro_f1": 0.6457107891957286
+    },
+    {
+     "epoch": 23,
+     "train_ce": 0.27601373629815035,
+     "val_loss": 1.592996597290039,
+     "val_macro_f1": 0.6561831747449323
+    },
+    {
+     "epoch": 24,
+     "train_ce": 0.25521419280775176,
+     "val_loss": 1.5833772420883179,
+     "val_macro_f1": 0.6417035342992983
+    },
+    {
+     "epoch": 25,
+     "train_ce": 0.2399553012199836,
+     "val_loss": 1.6979565620422363,
+     "val_macro_f1": 0.6596818175736613
+    },
+    {
+     "epoch": 26,
+     "train_ce": 0.2394258607350443,
+     "val_loss": 1.7614853382110596,
+     "val_macro_f1": 0.6542409073409465
+    },
+    {
+     "epoch": 27,
+     "train_ce": 0.2153807959957433,
+     "val_loss": 1.8649201393127441,
+     "val_macro_f1": 0.65282001448187
+    },
+    {
+     "epoch": 28,
+     "train_ce": 0.2108432140351798,
+     "val_loss": 1.8129206895828247,
+     "val_macro_f1": 0.6473911638307208
+    },
+    {
+     "epoch": 29,
+     "train_ce": 0.20288919188316026,
+     "val_loss": 1.8779855966567993,
+     "val_macro_f1": 0.6370510374780128
+    },
+    {
+     "epoch": 30,
+     "train_ce": 0.19727975484605254,
+     "val_loss": 1.8579351902008057,
+     "val_macro_f1": 0.6396920993935642
+    },
+    {
+     "epoch": 31,
+     "train_ce": 0.21639920744612315,
+     "val_loss": 1.9508230686187744,
+     "val_macro_f1": 0.6505370995993304
+    },
+    {
+     "epoch": 32,
+     "train_ce": 0.18703518771593686,
+     "val_loss": 1.919744610786438,
+     "val_macro_f1": 0.6483661723775884
+    },
+    {
+     "epoch": 33,
+     "train_ce": 0.18200184948127435,
+     "val_loss": 1.9186170101165771,
+     "val_macro_f1": 0.6658175724851135
+    },
+    {
+     "epoch": 34,
+     "train_ce": 0.16720694997542376,
+     "val_loss": 1.9936604499816895,
+     "val_macro_f1": 0.6430306487690685
+    },
+    {
+     "epoch": 35,
+     "train_ce": 0.15941398569925364,
+     "val_loss": 2.064805746078491,
+     "val_macro_f1": 0.6600959052012332
+    },
+    {
+     "epoch": 36,
+     "train_ce": 0.1421622359098219,
+     "val_loss": 2.083730459213257,
+     "val_macro_f1": 0.6458044594056611
+    },
+    {
+     "epoch": 37,
+     "train_ce": 0.13362268263068355,
+     "val_loss": 2.1672871112823486,
+     "val_macro_f1": 0.651237411228572
+    },
+    {
+     "epoch": 38,
+     "train_ce": 0.13372429449193995,
+     "val_loss": 2.273862361907959,
+     "val_macro_f1": 0.6518315068746353
+    },
+    {
+     "epoch": 39,
+     "train_ce": 0.13960419318653605,
+     "val_loss": 2.075984477996826,
+     "val_macro_f1": 0.6395098346565503
+    },
+    {
+     "epoch": 40,
+     "train_ce": 0.13120702886395738,
+     "val_loss": 2.132913112640381,
+     "val_macro_f1": 0.6512591681639088
+    },
+    {
+     "epoch": 41,
+     "train_ce": 0.12306341885009449,
+     "val_loss": 2.234095335006714,
+     "val_macro_f1": 0.6489908378043157
+    },
+    {
+     "epoch": 42,
+     "train_ce": 0.12564104389960487,
+     "val_loss": 2.3669135570526123,
+     "val_macro_f1": 0.6595378100156345
+    },
+    {
+     "epoch": 43,
+     "train_ce": 0.12194009608891826,
+     "val_loss": 2.31917667388916,
+     "val_macro_f1": 0.651573592226302
+    },
+    {
+     "epoch": 44,
+     "train_ce": 0.10795013178411564,
+     "val_loss": 2.3284621238708496,
+     "val_macro_f1": 0.6438280022397717
+    },
+    {
+     "epoch": 45,
+     "train_ce": 0.11407850512641254,
+     "val_loss": 2.3586244583129883,
+     "val_macro_f1": 0.6466582638249153
+    },
+    {
+     "epoch": 46,
+     "train_ce": 0.10158494371325494,
+     "val_loss": 2.436689853668213,
+     "val_macro_f1": 0.6622625689118805
+    },
+    {
+     "epoch": 47,
+     "train_ce": 0.09963144589409788,
+     "val_loss": 2.504547595977783,
+     "val_macro_f1": 0.6560838068979833
+    },
+    {
+     "epoch": 48,
+     "train_ce": 0.1219448308922129,
+     "val_loss": 2.4948842525482178,
+     "val_macro_f1": 0.6450317894093537
+    },
+    {
+     "epoch": 49,
+     "train_ce": 0.11425339459298885,
+     "val_loss": 2.4369659423828125,
+     "val_macro_f1": 0.6531969784569801
+    },
+    {
+     "epoch": 50,
+     "train_ce": 0.09297262545513763,
+     "val_loss": 2.42646861076355,
+     "val_macro_f1": 0.6533362338160402
+    },
+    {
+     "epoch": 51,
+     "train_ce": 0.11011065608118749,
+     "val_loss": 2.3811004161834717,
+     "val_macro_f1": 0.6452555994870879
+    },
+    {
+     "epoch": 52,
+     "train_ce": 0.09326586636312229,
+     "val_loss": 2.589238166809082,
+     "val_macro_f1": 0.6556055804225851
+    },
+    {
+     "epoch": 53,
+     "train_ce": 0.10212709733144995,
+     "val_loss": 2.5179810523986816,
+     "val_macro_f1": 0.6582990249297072
+    },
+    {
+     "epoch": 54,
+     "train_ce": 0.09597122857631996,
+     "val_loss": 2.69218111038208,
+     "val_macro_f1": 0.6536496426698446
+    },
+    {
+     "epoch": 55,
+     "train_ce": 0.09621570473856131,
+     "val_loss": 2.604203462600708,
+     "val_macro_f1": 0.6448855146315292
+    },
+    {
+     "epoch": 56,
+     "train_ce": 0.08722641971026285,
+     "val_loss": 2.66259765625,
+     "val_macro_f1": 0.6424079793982442
+    },
+    {
+     "epoch": 57,
+     "train_ce": 0.11216087251016454,
+     "val_loss": 2.5908403396606445,
+     "val_macro_f1": 0.6417853587376174
+    },
+    {
+     "epoch": 58,
+     "train_ce": 0.09384985029073929,
+     "val_loss": 2.7063519954681396,
+     "val_macro_f1": 0.6533271745201661
+    },
+    {
+     "epoch": 59,
+     "train_ce": 0.07506909923461719,
+     "val_loss": 2.8353734016418457,
+     "val_macro_f1": 0.6510606456333797
+    },
+    {
+     "epoch": 60,
+     "train_ce": 0.07477428782593341,
+     "val_loss": 2.733306884765625,
+     "val_macro_f1": 0.6509969050328768
+    },
+    {
+     "epoch": 61,
+     "train_ce": 0.06955941928345948,
+     "val_loss": 2.64298415184021,
+     "val_macro_f1": 0.6359055747315473
+    },
+    {
+     "epoch": 62,
+     "train_ce": 0.06859357067398546,
+     "val_loss": 2.961886167526245,
+     "val_macro_f1": 0.6672313915294307
+    },
+    {
+     "epoch": 63,
+     "train_ce": 0.060697368112986275,
+     "val_loss": 2.8752944469451904,
+     "val_macro_f1": 0.6615512882125958
+    },
+    {
+     "epoch": 64,
+     "train_ce": 0.059406192846823226,
+     "val_loss": 2.8549251556396484,
+     "val_macro_f1": 0.6466383876952528
+    },
+    {
+     "epoch": 65,
+     "train_ce": 0.06291000320773603,
+     "val_loss": 2.885084867477417,
+     "val_macro_f1": 0.6467584120457507
+    },
+    {
+     "epoch": 66,
+     "train_ce": 0.06528529930071056,
+     "val_loss": 2.7920966148376465,
+     "val_macro_f1": 0.6512860135571612
+    },
+    {
+     "epoch": 67,
+     "train_ce": 0.05614859691747156,
+     "val_loss": 2.9822449684143066,
+     "val_macro_f1": 0.6604735374340348
+    },
+    {
+     "epoch": 68,
+     "train_ce": 0.058297708288097945,
+     "val_loss": 2.884533643722534,
+     "val_macro_f1": 0.6628922843764035
+    },
+    {
+     "epoch": 69,
+     "train_ce": 0.059708894040918246,
+     "val_loss": 2.8596720695495605,
+     "val_macro_f1": 0.6411075353787806
+    },
+    {
+     "epoch": 70,
+     "train_ce": 0.05232405955621994,
+     "val_loss": 2.9824907779693604,
+     "val_macro_f1": 0.6535568173887959
+    },
+    {
+     "epoch": 71,
+     "train_ce": 0.05361146934889669,
+     "val_loss": 2.9996280670166016,
+     "val_macro_f1": 0.6574426707654755
+    },
+    {
+     "epoch": 72,
+     "train_ce": 0.052627977072814865,
+     "val_loss": 3.069502353668213,
+     "val_macro_f1": 0.6555139192477157
+    },
+    {
+     "epoch": 73,
+     "train_ce": 0.051516701030651105,
+     "val_loss": 3.0513205528259277,
+     "val_macro_f1": 0.6464886086374875
+    },
+    {
+     "epoch": 74,
+     "train_ce": 0.062328107067398546,
+     "val_loss": 2.983419895172119,
+     "val_macro_f1": 0.6481852360827526
+    },
+    {
+     "epoch": 75,
+     "train_ce": 0.05252384402200886,
+     "val_loss": 3.082958459854126,
+     "val_macro_f1": 0.64908552863172
+    },
+    {
+     "epoch": 76,
+     "train_ce": 0.05267902533589515,
+     "val_loss": 3.07944917678833,
+     "val_macro_f1": 0.647793318179664
+    },
+    {
+     "epoch": 77,
+     "train_ce": 0.053274883553664484,
+     "val_loss": 3.079824686050415,
+     "val_macro_f1": 0.6429779211618201
+    },
+    {
+     "epoch": 78,
+     "train_ce": 0.047234900973266776,
+     "val_loss": 3.07018780708313,
+     "val_macro_f1": 0.6513206349028763
+    },
+    {
+     "epoch": 79,
+     "train_ce": 0.04776564166501632,
+     "val_loss": 3.2069499492645264,
+     "val_macro_f1": 0.6468932327539861
+    },
+    {
+     "epoch": 80,
+     "train_ce": 0.04754758440029205,
+     "val_loss": 3.0490808486938477,
+     "val_macro_f1": 0.6429432887679644
+    },
+    {
+     "epoch": 81,
+     "train_ce": 0.043689176418621634,
+     "val_loss": 3.2659554481506348,
+     "val_macro_f1": 0.6614477361296374
+    },
+    {
+     "epoch": 82,
+     "train_ce": 0.042816066574466,
+     "val_loss": 3.2108967304229736,
+     "val_macro_f1": 0.6506591515193526
+    },
+    {
+     "epoch": 83,
+     "train_ce": 0.04687023257502911,
+     "val_loss": 3.3776168823242188,
+     "val_macro_f1": 0.6576321150439726
+    },
+    {
+     "epoch": 84,
+     "train_ce": 0.04614969897089982,
+     "val_loss": 3.3041090965270996,
+     "val_macro_f1": 0.6426055972714236
+    },
+    {
+     "epoch": 85,
+     "train_ce": 0.07458813922081392,
+     "val_loss": 3.163067579269409,
+     "val_macro_f1": 0.6456867803032551
+    },
+    {
+     "epoch": 86,
+     "train_ce": 0.06250604433058382,
+     "val_loss": 3.170379161834717,
+     "val_macro_f1": 0.6433852788453682
+    },
+    {
+     "epoch": 87,
+     "train_ce": 0.052830613605155285,
+     "val_loss": 3.2724101543426514,
+     "val_macro_f1": 0.641579652732504
+    },
+    {
+     "epoch": 88,
+     "train_ce": 0.04956587818894594,
+     "val_loss": 3.4380927085876465,
+     "val_macro_f1": 0.6451767773651732
+    },
+    {
+     "epoch": 89,
+     "train_ce": 0.04740253444699884,
+     "val_loss": 3.287947177886963,
+     "val_macro_f1": 0.6577079807983643
+    },
+    {
+     "epoch": 90,
+     "train_ce": 0.05370954408840049,
+     "val_loss": 3.3094089031219482,
+     "val_macro_f1": 0.6429280863356184
+    },
+    {
+     "epoch": 91,
+     "train_ce": 0.059461742901224995,
+     "val_loss": 3.252119779586792,
+     "val_macro_f1": 0.6470554045831302
+    },
+    {
+     "epoch": 92,
+     "train_ce": 0.049858713656097293,
+     "val_loss": 3.367387533187866,
+     "val_macro_f1": 0.6626333980131378
+    },
+    {
+     "epoch": 93,
+     "train_ce": 0.042702901979580245,
+     "val_loss": 3.2864232063293457,
+     "val_macro_f1": 0.6516561245015988
+    },
+    {
+     "epoch": 94,
+     "train_ce": 0.07573867778045545,
+     "val_loss": 3.407508134841919,
+     "val_macro_f1": 0.6490000298979349
+    },
+    {
+     "epoch": 95,
+     "train_ce": 0.05961527915058076,
+     "val_loss": 3.500035047531128,
+     "val_macro_f1": 0.6467597340225156
+    },
+    {
+     "epoch": 96,
+     "train_ce": 0.052198209789515254,
+     "val_loss": 3.34623646736145,
+     "val_macro_f1": 0.6545385099493212
+    },
+    {
+     "epoch": 97,
+     "train_ce": 0.04497662815345356,
+     "val_loss": 3.341031789779663,
+     "val_macro_f1": 0.6518657790504714
+    },
+    {
+     "epoch": 98,
+     "train_ce": 0.04931856860111094,
+     "val_loss": 3.3190977573394775,
+     "val_macro_f1": 0.6471865296806069
+    },
+    {
+     "epoch": 99,
+     "train_ce": 0.05782694487824024,
+     "val_loss": 3.4902474880218506,
+     "val_macro_f1": 0.6441039863091576
+    },
+    {
+     "epoch": 100,
+     "train_ce": 0.0588536841765409,
+     "val_loss": 3.414457321166992,
+     "val_macro_f1": 0.6571113361073938
+    }
+   ]
+  },
+  "training_git": {
+   "commit": "92f80ae11e55f24e2fc921fa05e9b2bd3ce345cb",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "encoder": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (frozen, cached)",
+  "head": {
+   "hidden": 256,
+   "dropout": 0.2
+  },
+  "optimizer": "SGD (no momentum, no weight decay) via single-client run_fl",
+  "batch_size": 64,
+  "epochs": 100,
+  "checkpoint_selection": "epoch with lowest val loss (class-weighted CE); local-only: own val, centralized: pooled val",
+  "lr_grid": [
+   0.01,
+   0.03,
+   0.1,
+   0.3,
+   1.0
+  ],
+  "method": "centralized",
+  "lr": 1.0,
+  "device": "cpu",
+  "labels": [
+   "caution_and_advice",
+   "displaced_people_and_evacuations",
+   "donation_needs_or_offers_or_volunteering_services",
+   "infrastructure_and_utilities_damage",
+   "injured_or_dead_people",
+   "missing_trapped_or_found_people",
+   "not_related_or_irrelevant",
+   "other_useful_information",
+   "sympathy_and_emotional_support"
+  ],
+  "split_file": "data/splits/silo1_seed0.json",
+  "dedup_stats": {
+   "raw_rows": 22099,
+   "excluded_events": [
+    "2014_ebola_cf",
+    "2014_Middle_East_Respiratory_Syndrome_en"
+   ],
+   "excluded_event_rows": 3132,
+   "empty_after_normalization_dropped": 8,
+   "dup_groups_label_consistent": 117,
+   "dup_rows_removed_label_consistent": 140,
+   "dup_groups_label_conflicting": 43,
+   "dup_rows_removed_label_conflicting": 104,
+   "dup_groups_cross_event": 0,
+   "events_dropped_min_rows": [],
+   "min_client_rows": 200,
+   "final_rows": 18715,
+   "n_clients": 10
+  }
+ },
+ "split_sizes": {
+  "2013_Pakistan_eq": {
+   "train": 1290,
+   "val": 278,
+   "test": 278
+  },
+  "2014_California_Earthquake": {
+   "train": 1172,
+   "val": 249,
+   "test": 249
+  },
+  "2014_Chile_Earthquake_cl": {
+   "train": 1077,
+   "val": 232,
+   "test": 232
+  },
+  "2014_Chile_Earthquake_en": {
+   "train": 1347,
+   "val": 290,
+   "test": 290
+  },
+  "2014_Hurricane_Odile_Mexico_en": {
+   "train": 839,
+   "val": 178,
+   "test": 178
+  },
+  "2014_India_floods": {
+   "train": 1243,
+   "val": 265,
+   "test": 265
+  },
+  "2014_Pakistan_floods": {
+   "train": 1220,
+   "val": 264,
+   "test": 264
+  },
+  "2014_Philippines_Typhoon_Hagupit_en": {
+   "train": 1404,
+   "val": 303,
+   "test": 303
+  },
+  "2015_Cyclone_Pam_en": {
+   "train": 1403,
+   "val": 300,
+   "test": 300
+  },
+  "2015_Nepal_Earthquake_en": {
+   "train": 2102,
+   "val": 450,
+   "test": 450
+  }
+ },
+ "runtime_s": 69.051,
+ "git": {
+  "commit": "92f80ae11e55f24e2fc921fa05e9b2bd3ce345cb",
+  "dirty": false
+ },
+ "written_at": "2026-10-27T16:37:43",
+ "python": "3.11.9"
+}
