@@ -104,6 +104,12 @@ Privacy-utility table + plot (macro-F1 vs final ε) from logged JSON. Large ε w
 
 (`from opacus.accountants import RDPAccountant` verified in the venv, opacus 1.6.0.)
 
+Implementation decisions (27 Oct): base = FedAvg E=1 (100 rounds, lr from the FedAvg sweep). Poisson client sampling
+with rate q (what the RDP accountant analyses); fixed denominator m = qK (sensitivity C/m; equals the spec at q = 1);
+unweighted mean of clipped deltas; client-LOCAL class weights (keeps the label histograms inside the DP boundary);
+primary result = final-round model, val-selected checkpoint secondary (selection is not covered by ε); no-noise
+references z = 0 per (C, q) isolate the cost of noise from the cost of the DP pipeline.
+
 Note: if FL uses federated class-count sums, those histograms are outside the DP accountant — either disclose,
 use secure aggregation, or switch to client-local class weights for DP runs.
 
