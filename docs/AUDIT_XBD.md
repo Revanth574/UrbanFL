@@ -25,8 +25,17 @@ Date: 2026-10-27 · Scope: read-only inventory, nothing trained · Script: one-o
 - Target encoding (checked on a sample of 1 in 25 targets):
   - **pre targets: {0, 1}** = background / building footprint;
   - **post targets: {0, 1, 2, 3, 4}** = background / no-damage / minor / major / destroyed.
-  - "un-classified" buildings have **no separate value** in the post targets (images that contain them still show only
-    0–4). They are most likely painted as background; this needs a per-pixel check against the polygons before training.
+- **How un-classified buildings are rasterised** (every one of the 2,993 un-classified polygons in 683 images was
+  filled from its WKT and the target pixels under it tallied; classified polygons from a 1-in-20 sample as control):
+
+  | Polygon class | Pre target under polygon | Post target under polygon |
+  |---|---|---|
+  | no / minor / major / destroyed | 97–98% = 1 (building) | 97–98% = the matching value 1 / 2 / 3 / 4 |
+  | **un-classified** | **97% = 1 (building)** | **99.95% = 0 (background)** |
+
+  The remaining 2–3% are polygon-edge pixels (rasteriser differences). So un-classified buildings are buildings for
+  localisation but are painted as background in the damage target. The loader therefore keeps them as buildings in
+  the localisation target and re-rasterises them to `ignore_index` (255) in the damage target (decision X2).
 - Relation to files already in the repo: the 10 sample pairs in `frontend/public/xbd/` are **not** in this train split
   (none of the 20 filenames exist here), so dashboard demo images cannot leak into training. The aggregate statistics
   in `data/real/xbd_damage_annotations.json` (19 events, 22,068 label files) describe the full xBD release; this train
@@ -78,12 +87,64 @@ Date: 2026-10-27 · Scope: read-only inventory, nothing trained · Script: one-o
 5. **Memory:** 1024 × 1024 pairs do not fit a ResNet18 Siamese U-Net at useful batch sizes on 4 GB; training will
    need crops (e.g. 512 or 256) with AMP, and evaluation by tiling.
 
-## Decisions needed before Prompt 5 (not started — awaiting approval)
+## Decisions (approved 27 Oct; training is Review 2 work)
 
-| # | Question | Options |
-|---|---|---|
-| X1 | Target for the "fixed Silo 2 model" | (a) binary building / change mask from the targets (as written in Prompt 5); (b) building localisation (pre) + 4-class damage (post), the xView2 task |
-| X2 | Un-classified buildings | verify how they are rasterised, then ignore them in the loss (recommended) or treat as background |
-| X3 | Guatemala-volcano (18 pairs) | drop as a client; merge into a held-out evaluation set; or keep with a pair-level split noting the tiny test set |
-| X4 | Splits | per-event 70/15/15 by pair id (pre and post always together), seeded, saved like the Silo 1 splits |
-| X5 | Empty images (esp. socal-fire) | keep all, or down-sample building-free pairs during training only (never in val/test) |
+| # | Decision |
+|---|---|
+| X1 | xView2 task in two stages: (1) building localisation from the pre image; (2) 4-class damage from pre + post, scored on building pixels. Report the official xView2 score = 0.3 · localisation F1 + 0.7 · harmonic mean of the four damage-class F1s. 512 crops, ResNet18/34 encoder, AMP. |
+| X2 | Un-classified buildings → `ignore_index` in the damage target (rasterisation reported above). |
+| X3 | guatemala-volcano (18 pairs) held out entirely as an unseen-disaster test set. |
+| X4 | Per-event 70/15/15 split by pair id, seeded, saved to `data/splits/silo2_seed{s}.json` (seeds 0–4). |
+| X5 | Building-free pairs down-sampled to 25% in train only; val / test keep all. |
+
+## Splits (`src/fl/partition_xbd.py`, identical sizes for every seed)
+
+- 9 event clients + 1 held-out event. Splits are stratified on "pair has ≥ 1 building", so val / test keep each
+  event's share of building-free tiles. 516 of the 2,799 pairs are building-free; 268 of them are dropped from train.
+- Sizes: train 1,681 · val 416 · test 416 · held-out (guatemala-volcano) 18 · dropped building-free train pairs 268.
+
+| Event | train | dropped (empty) | val | test |
+|---|---:|---:|---:|---:|
+| hurricane-florence | 217 | 6 | 48 | 48 |
+| hurricane-harvey | 214 | 9 | 48 | 48 |
+| hurricane-matthew | 160 | 8 | 35 | 35 |
+| hurricane-michael | 236 | 5 | 51 | 51 |
+| mexico-earthquake | 85 | 0 | 18 | 18 |
+| midwest-flooding | 177 | 18 | 42 | 42 |
+| palu-tsunami | 78 | 1 | 17 | 17 |
+| santa-rosa-wildfire | 155 | 3 | 34 | 34 |
+| socal-fire | 359 | 218 | 123 | 123 |
+
+### Spatial leakage (caveat for X4)
+
+xBD tiles of one event are neighbouring 1024 × 1024 crops of one area. Using the per-image geotransforms already in
+the repo (`data/real/xbd_geotransforms.json`, available for every pair), the seed-0 test set was checked against that
+event's train tiles (Chebyshev distance between tile centres, in tile widths):
+
+| Event | Test tiles | Train tile adjacent (≤ 1 tile) | Overlapping (< 0.5 tile) |
+|---|---:|---:|---:|
+| hurricane-florence | 48 | 40% | 2% |
+| hurricane-harvey | 48 | 52% | 2% |
+| hurricane-matthew | 35 | 97% | 0% |
+| hurricane-michael | 51 | 61% | 2% |
+| mexico-earthquake | 18 | 61% | 0% |
+| midwest-flooding | 42 | 12% | 0% |
+| palu-tsunami | 17 | 94% | 0% |
+| santa-rosa-wildfire | 34 | 59% | 6% |
+| socal-fire | 123 | 67% | 7% |
+| **All** | **416** | **58%** | **3%** |
+
+So 58% of test tiles touch a train tile, and 3% overlap one by more than half. Within-event test scores are therefore
+likely optimistic (shared buildings at tile borders, same streets, same lighting). The held-out guatemala-volcano set
+has no such leakage and is the honest generalisation number. Option for Review 2: a spatially blocked split (group
+tiles into geographic blocks from the geotransforms, split by block).
+
+## Data loader and scorer (no training yet)
+
+- `src/fl/xbd_data.py::XBDPairDataset(split_dir, pair_ids, stage)`, `stage` "loc" or "damage". Train items are random
+  512 crops with identical flips / rot90 on every array, reproducible per (seed, epoch, index); eval items are full
+  1024 images. Images are ImageNet-normalised; damage targets are class 0–3 on post-target buildings, 255 elsewhere
+  and on un-classified buildings. `client_datasets(...)` builds one dataset per event (the FL clients).
+- `src/fl/xbd_metrics.py::XView2Scorer` accumulates pixel counts over images and returns localisation F1, the four
+  damage F1s, their harmonic mean (xView2 form, 4 / Σ 1/(F1 + 1e-6)) and the score 0.3 · loc + 0.7 · harmonic.
+- Tests: `tests/test_xbd.py` (synthetic xBD tree with known polygons; real-data checks skip if the path is unset).
