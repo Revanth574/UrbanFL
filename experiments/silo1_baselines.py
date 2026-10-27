@@ -10,7 +10,7 @@ Class weights:
   centralized  - pooled train label counts.
   local_only   - the client's own train label counts (an isolated agency cannot see other agencies' histograms).
 
-Usage:  python -m experiments.silo1_baselines [--seeds 0 1 2] [--metrics-only]
+Usage:  python -m experiments.silo1_baselines [--seeds 0 1 2 3 4] [--metrics-only]
 """
 
 from __future__ import annotations
@@ -189,7 +189,7 @@ def print_table(summary: dict) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Silo 1 majority / local-only / centralized baselines.")
-    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
+    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     ap.add_argument("--methods", nargs="+", default=list(METHODS), choices=METHODS)
     ap.add_argument("--metrics-only", action="store_true",
                     help="recompute metrics.json from saved predictions.json without retraining")
