@@ -83,7 +83,9 @@ class TrainedModelLoader:
             return [{"class": "unknown", "confidence": 0.0} for _ in texts]
 
         import torch
-        from data.silo1_data_adapter import INCIDENT_CLASSES
+        # The prototype's label list lived in data.silo1_data_adapter, which was never committed (docs/AUDIT.md §1).
+        # Rather than guess the class order, refuse: Silo 1 inference will come from src/fl.
+        raise RuntimeError("prototype Silo 1 classifier unavailable (label module never committed); use src/fl")
 
         results = []
         try:
@@ -170,7 +172,7 @@ def run_operational_pipeline(scenario_type: str = "earthquake", device: str = "a
 
     # ── Step 2: Load real-world data ──
     print("\n── Loading Real-World Data ──")
-    from data.real_data_loader import RealDataLoader
+    from src.data.real_data_loader import RealDataLoader   # was `data.real_data_loader` (wrong package path)
     loader = RealDataLoader(verbose=False)
     load_results = loader.load_all()
     bbox = loader.get_istanbul_bbox()

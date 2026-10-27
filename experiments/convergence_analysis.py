@@ -1,8 +1,16 @@
 """
+DEPRECATED / SYNTHETIC — minor-project prototype. Produces NO real results; do not run or cite.
+
+Why (docs/AUDIT.md §4A): convergence curves are base/(r+1) plus a per-algorithm penalty constant and noise; the privacy-utility 'Pareto frontier' is 0.92 - k/eps with hand-chosen k and a hardcoded 55% noise reduction; the gradient-inversion test runs on torch.randn gradients.
+It also imports prototype modules that no longer exist. Real Silo 1 experiments: experiments/silo1_baselines.py and experiments/silo1_fl.py.
+
+Original description:
 UrbanFL — Convergence Analysis & Privacy-Utility Experiments
 Generates all paper figures: convergence curves, privacy-utility Pareto frontiers,
 gradient inversion resistance [Audit: GIA], computational profile [Audit M12].
 """
+
+raise SystemExit("experiments/convergence_analysis.py is a DEPRECATED synthetic prototype script: its numbers are formulas, not experiments (see the module docstring and docs/AUDIT.md section 4A).")
 
 import logging
 import math

@@ -1,8 +1,16 @@
 """
+DEPRECATED / SYNTHETIC — minor-project prototype. Produces NO real results; do not run or cite.
+
+Why (docs/AUDIT.md §4A): 'local training' is torch.randn gradients, the drift detector is fed np.random.dirichlet, and the logged train loss / accuracy are 1/(r+1)+noise and min(0.95, 0.5+0.03r).
+It also imports prototype modules that no longer exist. Real Silo 1 experiments: experiments/silo1_baselines.py and experiments/silo1_fl.py.
+
+Original description:
 UrbanFL — End-to-End Pipeline
 Runs the complete 3-silo + FedHetero-Robust + GeoPrivacyFL pipeline.
 This is both the experiment driver and the smoke test.
 """
+
+raise SystemExit("experiments/run_full_pipeline.py is a DEPRECATED synthetic prototype script: its numbers are formulas, not experiments (see the module docstring and docs/AUDIT.md section 4A).")
 
 import time
 import logging

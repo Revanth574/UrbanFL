@@ -4,10 +4,18 @@ UrbanCityOS — Application State Container
 Thread-safe singleton holding all backend module instances.
 Provides a self-sustaining background simulation loop with:
   - Event recycling (never stalls)
-  - Dynamic DEFCON / FL round / privacy epsilon
+  - Dynamic DEFCON
   - Infrastructure & environment ticking
   - Auto-dispatch on critical events
   - Dispatch activity log
+
+Honesty notes (CLAUDE.md rules 1-2, docs/AUDIT.md §4):
+  - This is a SCENARIO SIMULATION. Randomness is used only for scenario generation (report placement, timing,
+    incident sites, infrastructure/environment drift, vehicle choice); it is seeded with SIM_SEED at boot and every
+    simulated quantity is listed in get_system_status()["simulated"].
+  - No model output is simulated. NLP confidence / env-match fields are None until src/fl inference is wired in, and
+    FL round / ε / heterogeneity / divergence are None: no FL process is attached to the dashboard (the prototype
+    produced them from random draws and a hand-decremented ε).
 """
 
 import asyncio
@@ -19,11 +27,24 @@ import threading
 from collections import deque
 from typing import Any, Dict, List, Optional
 
+import random
+
 import numpy as np
 import os
 from pathlib import Path
 
 logger = logging.getLogger("urbanfl.api.state")
+
+SIM_SEED = 42   # scenario-generation randomness only (rule 2)
+SIMULATED_FIELDS = [
+    "report lat/lon (CrisisNLP tweets carry no coordinates; placed at random inside the Istanbul bbox)",
+    "report 'location' sector label",
+    "report severity/credibility defaults when the source has none (0.5 / 0.6)",
+    "event drip-feed timing and recycle jitter",
+    "auto-dispatch incident sites, types, severities and vehicle choice",
+    "infrastructure health drift and environmental reading drift",
+    "zone casualty / trapped estimates (api/routers/analytics.py)",
+]
 
 # Resolve project root (two levels up from api/state.py)
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
@@ -71,9 +92,10 @@ class AppState:
 
         # --- Dynamic System Telemetry ---
         self._defcon_level: int = 3             # 1-5 (1 = max threat)
-        self._fl_round: int = 0
-        self._fl_round_timer: float = 0.0
-        self._privacy_epsilon: float = 2.0
+        # FL telemetry: not connected to src/fl yet -> None (never a timer or a hand-decremented ε)
+        self._fl_round: Optional[int] = None
+        self._privacy_epsilon: Optional[float] = None
+        self._reports_ingested: int = 0         # real count of citizen reports published to the event bus
         self._active_threat_count: int = 0
         self._silo_health_history: dict = {     # Last 30 values per silo
             "silo1": deque(maxlen=30),
@@ -108,6 +130,8 @@ class AppState:
         logger.info("=" * 60)
 
         self._boot_time = time.time()
+        random.seed(SIM_SEED)        # seed ALL scenario randomness (incl. src/* modules using the global RNGs)
+        np.random.seed(SIM_SEED)
 
         # 1. Load Real Data
         from src.data.real_data_loader import RealDataLoader
@@ -231,9 +255,6 @@ class AppState:
         snap = self.monitor.generate_snapshot()
         self._snapshot_history.append(snap.to_dict())
 
-        # Initial FL round timer
-        self._fl_round_timer = time.time()
-
         logger.info("  UrbanCityOS — All REAL modules ONLINE ✓")
 
     def _build_event_queue(self):
@@ -261,8 +282,10 @@ class AppState:
         crisis_reports = crisis_data.get("reports", crisis_data) if isinstance(crisis_data, dict) else crisis_data
         for iteration, rep in enumerate(crisis_reports[:200]):
             report = {
+                # SIMULATED placement: CrisisNLP tweets have no coordinates
                 "lat": rep.get("latitude", 41.0 + np.random.uniform(-0.1, 0.1)),
                 "lon": rep.get("longitude", 29.0 + np.random.uniform(-0.1, 0.1)),
+                "location_simulated": "latitude" not in rep,
                 "text": rep.get("text", "")[:200],
                 "category": rep.get("category", "unknown"),
                 "source_type": rep.get("source_type", "twitter"),
@@ -354,6 +377,7 @@ class AppState:
                             from src.event_bus import EventType
                             if ev.event_type == EventType.CITIZEN_REPORT:
                                 d = ev.data
+                                self._reports_ingested += 1
                                 self._recent_reports.appendleft({
                                     "id": f"rpt_{self._tick_count}_{len(self._pending_events)}",
                                     "time": time.strftime("%H:%M:%S"),
@@ -366,8 +390,12 @@ class AppState:
                                     "type": d.get("category", "earthquake"),
                                     "lat": round(d.get("lat", 41.0), 5),
                                     "lon": round(d.get("lon", 29.0), 5),
-                                    "nlpConfidence": round(0.5 + np.random.random() * 0.5, 3),
-                                    "envMatch": bool(np.random.random() > 0.5),
+                                    "simulated_fields": ["location", "lat", "lon"]
+                                    if d.get("location_simulated", True) else ["location"],
+                                    # TODO(src/fl): fill from Silo 1 model inference. The prototype emitted
+                                    # random values here; until the model is wired in these are not computed.
+                                    "nlpConfidence": None,
+                                    "envMatch": None,
                                 })
 
                             # AUTO-DISPATCH on critical events
@@ -385,13 +413,8 @@ class AppState:
                             self._last_playback_rotation = now
                             logger.info(f"PLAYBACK ROTATION: Switching to region {self._active_disaster_name}")
 
-                # --- Federated Learning Rounds ---
-                now = time.time()
-                if self.orchestrator and now - self._fl_round_timer >= 30.0:
-                    self.orchestrator.execute_federated_round()
-                    self._fl_round = self.orchestrator.current_round
-                    self._privacy_epsilon = self.orchestrator.privacy_budget
-                    self._fl_round_timer = now
+                # --- Federated Learning ---
+                # Not connected: the dashboard does not run FL. (Prototype advanced a fake round every 30 s.)
 
                 # Tick hospital and dispatcher simulation
                 self.hospital_feed.tick(disaster_active=True, severity=0.5)
@@ -440,11 +463,13 @@ class AppState:
         health = self.orchestrator.get_system_health() if self.orchestrator else {}
         return {
             "defcon": self._defcon_level,
+            # FL telemetry: None = not computed (dashboard not connected to src/fl); frontend renders "—"
             "fl_round": self._fl_round,
-            "epsilon": round(self._privacy_epsilon, 3),
+            "epsilon": self._privacy_epsilon,
+            "fl_status": health.get("status", "NOT_CONNECTED"),
             "threats": self._active_threat_count,
-            "hetero_index": round(health.get("hetero_index", 0.0), 3),
-            "divergence": round(health.get("divergence", 0.0), 3),
+            "hetero_index": health.get("hetero_index"),
+            "divergence": health.get("divergence"),
             "active_disaster": self._active_disaster_name,
             "uptime_seconds": round(self.get_uptime_seconds(), 1),
             "events_remaining": len(self._pending_events),
@@ -453,7 +478,8 @@ class AppState:
             "paused": self._speed_multiplier == 0,
             "ws_clients": len(self._ws_clients),
             "tick_count": self._tick_count,
-            "total_reports_ingested": self._tick_count * 2,
+            "total_reports_ingested": self._reports_ingested,
+            "simulated": {"seed": SIM_SEED, "fields": SIMULATED_FIELDS},
         }
 
     def _try_auto_dispatch(self, event):
@@ -601,6 +627,7 @@ class AppState:
                 "casualties_est": max(1, int(severity * 15)),
                 "lat": incident_lat,
                 "lon": incident_lon,
+                "simulated": True,   # synthetic incident: random site/type/severity (scenario generation)
             })
 
             # Update vehicle status
@@ -677,14 +704,9 @@ class AppState:
         else:
             self._defcon_level = 5
 
-        # FL round — increment every ~60 seconds of simulated time
-        if now - self._fl_round_timer > (60.0 / max(self._speed_multiplier, 0.1)):
-            self._fl_round += 1
-            self._fl_round_timer = now
-            # Epsilon decreases slightly with each round
-            self._privacy_epsilon = max(0.1, self._privacy_epsilon - 0.015)
+        # (Removed: the prototype ticked a fake FL round every 60 s and decremented ε by 0.015 per tick.)
 
-        # Silo health history
+        # Silo health history — simulation-derived activity indicators, NOT model metrics
         snap = self._snapshot_history[-1] if self._snapshot_history else {}
         infra_h = self.infra_grid.network_health() if self.infra_grid else {}
         pcts = [v.get("health_pct", 50) for v in infra_h.values()]

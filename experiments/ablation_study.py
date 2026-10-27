@@ -1,7 +1,15 @@
 """
+DEPRECATED / SYNTHETIC — minor-project prototype. Produces NO real results; do not run or cite.
+
+Why (docs/AUDIT.md §4A): ablation accuracies are 1 - (1/(r+1) + hardcoded per-component penalties) + noise; no model is trained.
+It also imports prototype modules that no longer exist. Real Silo 1 experiments: experiments/silo1_baselines.py and experiments/silo1_fl.py.
+
+Original description:
 UrbanFL — Ablation Study [Review §3.3]
 Comprehensive ablation to measure each component's contribution.
 """
+
+raise SystemExit("experiments/ablation_study.py is a DEPRECATED synthetic prototype script: its numbers are formulas, not experiments (see the module docstring and docs/AUDIT.md section 4A).")
 
 import logging
 import numpy as np

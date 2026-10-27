@@ -1,3 +1,10 @@
+"""
+KNOWN ISSUE — minor-project prototype model (docs/AUDIT.md §4B). Defaults to an untrained encoder
+(pretrained=False), has no skip connections and decodes from 1/32 resolution. The prototype training script passed an
+unsupported `in_channels` argument, so this class was never trained (silent fallback to a toy CNN). To be replaced by
+the Siamese U-Net of Prompt 5, which also needs the xView2 label files (AUDIT.md §3).
+"""
+
 import logging
 import torch
 import torch.nn as nn

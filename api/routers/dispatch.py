@@ -335,23 +335,21 @@ async def dispatch_activity_log():
 
 @router.post("/dispatch/run")
 async def run_pipeline():
-    """Trigger an FL round advancement."""
+    """
+    FL round trigger. FL is not connected to the dashboard (src/fl runs offline), so nothing is advanced and no
+    metric is reported. (The prototype called a non-existent advance_round() and returned 0 defaults.)
+    """
     engine = app_state.orchestrator
-    if not engine:
-        return {"error": "Orchestrator not initialised"}
-
-    try:
-        engine.advance_round()
-        health = engine.get_system_health()
-        return {
-            "success": True,
-            "round": health.get("round", 0),
-            "epsilon": health.get("epsilon", 0),
-            "divergence": health.get("divergence", 0),
-            "hetero_index": health.get("hetero_index", 0),
-        }
-    except Exception as e:
-        return {"error": str(e)}
+    health = engine.get_system_health() if engine else {}
+    return {
+        "success": False,
+        "status": health.get("status", "NOT_CONNECTED"),
+        "round": None,
+        "epsilon": None,
+        "divergence": None,
+        "hetero_index": None,
+        "note": "Federated training runs offline via experiments/silo1_fl.py; not wired to the dashboard yet.",
+    }
 
 
 @router.get("/dispatch/routes")

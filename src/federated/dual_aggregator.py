@@ -1,3 +1,11 @@
+"""
+DEPRECATED — minor-project prototype. Do not extend or cite. Use src/fl/algorithms.py::fedavg_aggregate.
+
+DualAggregator averaged two "hemisphere" models with fixed 0.5/0.5 weights (not sample-size weighted). In the
+prototype it was never called with real model states: the orchestrator wrote random "divergence" values into its
+metrics instead (docs/AUDIT.md §4A).
+"""
+
 import logging
 import torch
 import math

@@ -57,7 +57,10 @@ async def casualty_estimate():
     if not monitor:
         return {"zones": []}
 
+    # SIMULATED scenario estimates (not a model output): threat x population heuristic with seeded jitter.
+    # Seed via crc32: Python's hash() of a str is salted per process, so the old seed changed on every restart.
     import random
+    import zlib
     zones_out = []
     total_cas = 0
     total_trap = 0
@@ -65,7 +68,7 @@ async def casualty_estimate():
         threat = getattr(z, 'threat_level', 0.0)
         pop = getattr(z, 'population', 50000)
         pop_norm = min(1.0, pop / 500000.0)
-        rng = random.Random(hash(z.zone_id) % 1000)
+        rng = random.Random(zlib.crc32(str(z.zone_id).encode("utf-8")))
 
         cas = int(threat * pop_norm * 80 * rng.uniform(0.5, 1.5))
         trap = int(threat * pop_norm * 40 * rng.uniform(0.3, 1.2))
@@ -91,4 +94,6 @@ async def casualty_estimate():
         "zones": zones_out,
         "total_casualties": total_cas,
         "total_trapped": total_trap,
+        "simulated": True,
+        "method": "heuristic: threat_level x normalised population x seeded jitter (scenario simulation)",
     }

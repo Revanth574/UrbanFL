@@ -1,39 +1,32 @@
+"""
+DEPRECATED — minor-project prototype. NOT a differential-privacy mechanism; do not cite any ε from it.
+
+The original class decremented ε by hand (-0.05 per call) and scaled noise by 2/ε, which gives no formal guarantee
+(docs/AUDIT.md §4A; CLAUDE.md rule 3: ε comes only from a real accountant). The ε bookkeeping has been removed; what
+remains is per-tensor clipping plus Gaussian noise with a fixed multiplier, kept only so old imports resolve.
+Client-level DP-FedAvg with an Opacus RDPAccountant belongs in src/fl/dp.py (Prompt 4).
+"""
+
 import logging
+
 import torch
-import math
 
 logger = logging.getLogger("urbanfl.federated.privacy")
 
+
 class DifferentialPrivacyGaussianMechanism:
-    """
-    Applies Gaussian noise to aggregated gradients across silos.
-    Strictly tracks the privacy budget (Epsilon ε).
-    """
-    def __init__(self, initial_epsilon: float = 2.0, max_grad_norm: float = 1.0, noise_multiplier: float = 0.5):
-        self.epsilon = initial_epsilon
+    """Clip each tensor to max_grad_norm and add N(0, (noise_multiplier * max_grad_norm)^2). No privacy accounting."""
+
+    def __init__(self, max_grad_norm: float = 1.0, noise_multiplier: float = 0.5, **_ignored):
         self.max_grad_norm = max_grad_norm
         self.noise_multiplier = noise_multiplier
-        logger.info(f"DP Mechanism initialized (ε={initial_epsilon}, max_norm={max_grad_norm})")
+        self.epsilon = None   # not computed: there is no accountant here
+        logger.info("Deprecated Gaussian noise helper (no ε accounting); see src/fl/dp.py")
 
     def apply_noise(self, gradients: list[torch.Tensor]) -> list[torch.Tensor]:
-        """Clips gradients and adds calibrated Gaussian noise."""
-        if self.epsilon <= 0.1:
-            logger.warning("Privacy budget depleted. High noise will degrade accuracy.")
-            
-        noised_gradients = []
+        noised = []
         for grad in gradients:
-            # 1. Clip
-            norm = torch.norm(grad)
-            clip_coef = self.max_grad_norm / (norm + 1e-6)
-            clip_coef = min(1.0, clip_coef.item())
-            clipped_grad = grad * clip_coef
-            
-            # 2. Add Noise (scale inversely with remaining budget securely)
-            effective_noise = self.noise_multiplier * (2.0 / max(0.1, self.epsilon))
-            noise = torch.randn_like(clipped_grad) * effective_noise
-            
-            noised_gradients.append(clipped_grad + noise)
-            
-        # Deduct budget slowly
-        self.epsilon = max(0.1, self.epsilon - 0.05)
-        return noised_gradients
+            clip_coef = min(1.0, (self.max_grad_norm / (torch.norm(grad) + 1e-6)).item())
+            clipped = grad * clip_coef
+            noised.append(clipped + torch.randn_like(clipped) * self.noise_multiplier * self.max_grad_norm)
+        return noised

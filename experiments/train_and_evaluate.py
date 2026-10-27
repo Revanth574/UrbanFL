@@ -1,11 +1,13 @@
 """
-UrbanFL Training & Evaluation Pipeline
-=======================================
-Trains all silo models with real data, runs FL aggregation with real gradients,
-and evaluates accuracy metrics.
+DEPRECATED — minor-project prototype. Do not run, extend, or cite its numbers.
+=============================================================================
+This was the minor-project training script. The major-project rebuild lives in src/fl/ and experiments/silo1_*.py.
+Known problems (docs/AUDIT.md §4): it imported data adapters that were never committed (data.silo*_data_adapter,
+data.multi_hazard_adapter), silently fell back to toy models when the real ones failed to construct, reported a
+hardcoded Silo 3 "R²", and fl_aggregation() averaged nothing and summed a made-up ε. The adapter imports have been
+removed, so main() now exits with this explanation instead of running.
 
-Usage:
-    python train_and_evaluate.py [--epochs 10] [--fl-rounds 50] [--batch-size 32]
+Original description: Trains all silo models, runs FL aggregation, and evaluates accuracy metrics.
 """
 
 import argparse
@@ -27,10 +29,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from data.silo1_data_adapter import get_crisis_dataloaders, INCIDENT_CLASSES, CrisisNLPDataset
-from data.silo2_data_adapter import get_xbd_dataloaders, DISASTER_CLASSES, XBDChangeDetectionDataset
-from data.silo3_data_adapter import get_silo3_data
-from data.multi_hazard_adapter import MultiHazardDataAdapter, load_all_datasets
+# Removed (docs/AUDIT.md §1): these modules were never committed and exist nowhere on disk.
+#   data.silo1_data_adapter, data.silo2_data_adapter, data.silo3_data_adapter, data.multi_hazard_adapter
+# Functions below that used them can no longer run; main() exits before reaching them.
 
 logger = logging.getLogger("urbanfl.training")
 
@@ -679,7 +680,7 @@ def calibrate_silo3(multi_hazard_data: dict = None) -> dict:
         print(f"  Population: {data['stats'].get('population_total', 'N/A')}")
 
         accuracy = _evaluate_bpr_accuracy(data)
-        print(f"\n  Silo 3 BPR Calibration R2 Score: {accuracy:.4f}")
+        print("\n  Silo 3 BPR calibration R²: not computed (no paired observations)")
         return {"data": data, "accuracy": accuracy}
     else:
         data = get_silo3_data()
@@ -689,17 +690,16 @@ def calibrate_silo3(multi_hazard_data: dict = None) -> dict:
         print(f"  BPR parameters calibrated for {len(data['bpr_params'])} road types")
 
         accuracy = _evaluate_bpr_accuracy(data)
-        print(f"\n  Silo 3 BPR Calibration R2 Score: {accuracy:.4f}")
+        print("\n  Silo 3 BPR calibration R²: not computed (no paired observations)")
         return {"data": data, "accuracy": accuracy}
 
 
-def _evaluate_bpr_accuracy(data: dict) -> float:
-    """Evaluate BPR model accuracy using leave-one-out on calibration data."""
-    # Simple R² computation
-    bpr = data["bpr_params"]
-    # Without actual paired observations, return calibration confidence
-    n_types = len(bpr)
-    return 0.85 + 0.03 * min(n_types, 5)  # Base R² from calibration
+def _evaluate_bpr_accuracy(data: dict) -> None:
+    """
+    BPR fit quality is NOT computed: there are no paired (flow, travel-time) observations to fit against.
+    The prototype returned 0.85 + 0.03 * min(n_road_types, 5), i.e. a constant that reached R² = 1.0 — removed.
+    """
+    return None
 
 
 # ── FL Aggregation with Real Gradients ─────────────────────────────────────
@@ -711,8 +711,12 @@ def fl_aggregation(
     noise_scale: float = 0.01,
 ) -> dict:
     """
-    Federated Learning aggregation with real model gradients.
-    Uses FedAvg-style aggregation with differential privacy noise.
+    DEPRECATED — minor-project prototype; use src/fl/ (algorithms.py, runner.py) instead.
+
+    This function never performed federated learning: it averaged gradients ACROSS MODALITIES (a text model and an
+    image model, which is ill-posed), computed aggregation weights it never used, loaded nothing back into any
+    model, and reported ε as a hand-made sum ((1/n_params)/σ per round) with no privacy accountant. The random
+    gradient fallback and the ε figure have been removed; "privacy_budget" is now None (not computed).
     """
     print("\n" + "=" * 60)
     print("  FEDERATED LEARNING AGGREGATION")
@@ -736,55 +740,26 @@ def fl_aggregation(
     print(f"  FL rounds: {fl_rounds}")
     print(f"  DP noise scale: {noise_scale}")
     
-    # Simulate FL rounds with gradient exchange
-    privacy_budget_consumed = 0.0
-    
+    # Prototype loop kept only for reference. No fabricated gradients: parameters without a gradient are skipped.
+    privacy_budget_consumed = None  # no accountant — ε is not computed (see src/fl/dp.py, Prompt 4)
+
     for round_num in range(1, fl_rounds + 1):
-        # Extract gradients from each silo
-        s1_grads = {}
-        for name, param in silo1_model.named_parameters():
-            if param.grad is not None:
-                grad = param.grad.clone()
-            else:
-                grad = torch.randn_like(param) * 0.001
-            
-            # Add DP noise
-            noise = torch.randn_like(grad) * noise_scale
-            s1_grads[name] = grad + noise
-        
-        s2_grads = {}
-        for name, param in silo2_model.named_parameters():
-            if param.grad is not None:
-                grad = param.grad.clone()
-            else:
-                grad = torch.randn_like(param) * 0.001
-            noise = torch.randn_like(grad) * noise_scale
-            s2_grads[name] = grad + noise
-        
-        # Track privacy budget (simplified Gaussian mechanism)
-        sensitivity = 1.0 / max(total_params_s1, 1)
-        sigma = noise_scale
-        epsilon_round = sensitivity / max(sigma, 1e-8)
-        privacy_budget_consumed += epsilon_round
-        
-        # Aggregate (weighted by parameter count)
-        total_weight = total_params_s1 + total_params_s2
-        w1 = total_params_s1 / total_weight
-        w2 = total_params_s2 / total_weight
-        
-        metrics.update("fl_privacy_budget", privacy_budget_consumed, round_num)
-        metrics.update("fl_s1_grad_norm", 
+        s1_grads = {name: param.grad.clone() + torch.randn_like(param.grad) * noise_scale
+                    for name, param in silo1_model.named_parameters() if param.grad is not None}
+        s2_grads = {name: param.grad.clone() + torch.randn_like(param.grad) * noise_scale
+                    for name, param in silo2_model.named_parameters() if param.grad is not None}
+
+        metrics.update("fl_s1_grad_norm",
                        sum(g.norm().item() for g in s1_grads.values()), round_num)
         metrics.update("fl_s2_grad_norm",
                        sum(g.norm().item() for g in s2_grads.values()), round_num)
         
         if round_num % 10 == 0 or round_num == 1:
-            print(f"  Round {round_num:3d}/{fl_rounds} | "
-                  f"ε={privacy_budget_consumed:.4f} | "
+            print(f"  Round {round_num:3d}/{fl_rounds} | ε=not computed | "
                   f"S1 grad: {metrics.get_latest('fl_s1_grad_norm'):.4f} | "
                   f"S2 grad: {metrics.get_latest('fl_s2_grad_norm'):.4f}")
-    
-    print(f"\n  ✓ FL Complete | Total privacy budget: ε={privacy_budget_consumed:.4f}")
+
+    print("\n  Prototype loop finished | privacy budget ε: not computed (no accountant)")
     
     return {
         "metrics": metrics,
@@ -881,6 +856,12 @@ def print_results_summary(s1_result, s2_result, s3_result, fl_result):
     print("  TRAINING & EVALUATION RESULTS SUMMARY")
     print("=" * 60)
     
+    def fmt_pct(v):
+        return "not computed" if v is None else f"{v * 100:6.2f}%"
+
+    def fmt_eps(v):
+        return "not computed" if v is None else f"{v:10.4f}"
+
     print(f"""
 ┌─────────────────────────────────────────────────────────┐
 │                    MODEL PERFORMANCE                     │
@@ -889,10 +870,10 @@ def print_results_summary(s1_result, s2_result, s3_result, fl_result):
 ├──────────────────────┼───────────┼───────────────────────┤
 │ Silo 1 (NLP)         │ Val Acc   │ {s1_result['best_acc']*100:6.2f}%               │
 │ Silo 2 (Vision)      │ Val IoU   │ {s2_result['best_iou']*100:6.2f}%               │
-│ Silo 3 (Traffic)     │ BPR R²    │ {s3_result['accuracy']*100:6.2f}%               │
+│ Silo 3 (Traffic)     │ BPR R²    │ {fmt_pct(s3_result['accuracy']):21s} │
 ├──────────────────────┼───────────┼───────────────────────┤
 │ FL Aggregation       │ Rounds    │ {fl_result['total_rounds']:6d}                │
-│ Privacy Budget       │ ε total   │ {fl_result['privacy_budget']:10.4f}           │
+│ Privacy Budget       │ ε total   │ {fmt_eps(fl_result['privacy_budget']):21s} │
 └──────────────────────┴───────────┴───────────────────────┘
 
 Data Summary:
@@ -905,6 +886,11 @@ Data Summary:
 # ── Main entry point ──────────────────────────────────────────────────────
 
 def main():
+    raise SystemExit(
+        "experiments/train_and_evaluate.py is the DEPRECATED minor-project prototype (see its module docstring and "
+        "docs/AUDIT.md). Its data adapters were never committed. Use:\n"
+        "  python -m experiments.silo1_baselines   # local-only / centralized baselines\n"
+        "  python -m experiments.silo1_fl          # FedAvg / FedProx / FedAvg+FT")
     parser = argparse.ArgumentParser(description="UrbanFL Training & Evaluation")
     parser.add_argument("--epochs", type=int, default=50, help="Training epochs per silo")
     parser.add_argument("--fl-rounds", type=int, default=30, help="FL aggregation rounds")

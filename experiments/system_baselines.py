@@ -1,7 +1,15 @@
 """
+DEPRECATED / SYNTHETIC — minor-project prototype. Produces NO real results; do not run or cite.
+
+Why (docs/AUDIT.md §4A): the baseline table (accuracy / F1 / epsilon per method) is typed in by hand.
+It also imports prototype modules that no longer exist. Real Silo 1 experiments: experiments/silo1_baselines.py and experiments/silo1_fl.py.
+
+Original description:
 UrbanFL — System Baselines [Review §3.1]
 Compares: Centralised | Local-Only | FedAvg | FedHetero | UrbanFL-Full
 """
+
+raise SystemExit("experiments/system_baselines.py is a DEPRECATED synthetic prototype script: its numbers are formulas, not experiments (see the module docstring and docs/AUDIT.md section 4A).")
 
 import logging
 import numpy as np

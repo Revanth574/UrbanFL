@@ -1,3 +1,11 @@
+"""
+KNOWN ISSUE — minor-project prototype model, do not use (docs/AUDIT.md §4B).
+XLMRobertaModel(config) builds a RANDOMLY INITIALISED encoder (no from_pretrained) and then freezes it, so the heads
+train on random features. In the prototype run it was never even used: the training script crashed on a missing
+`is_functional` attribute and silently fell back to a toy model. Silo 1 now uses frozen pretrained sentence
+embeddings + MLPHead (src/fl/models.py, experiments/silo1_embed_cache.py).
+"""
+
 import logging
 import torch
 import torch.nn as nn
