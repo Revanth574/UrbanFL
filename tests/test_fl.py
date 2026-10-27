@@ -96,6 +96,34 @@ def test_fedprox_limits_client_drift():
     assert drift(1.0) < drift(0.0)
 
 
+def test_fedprox_manual_gradient_matches_autograd():
+    """Two full-batch local steps of local_train(mu) == SGD by autograd on CE + (mu/2)||w - w_global||^2."""
+    c = make_client("x", 64, 0.3, 9)
+    mu, lr = 0.5, 0.1
+    set_seed(0)
+    start = {k: v.clone() for k, v in MLPHead(DIM, N_CLASSES, hidden=8, dropout=0.0).state_dict().items()}
+
+    def fresh():
+        m = MLPHead(DIM, N_CLASSES, hidden=8, dropout=0.0)
+        m.load_state_dict(start)
+        return m
+
+    ref = fresh()
+    for _ in range(2):   # step 1 has zero prox gradient (w == w_global); step 2 does not
+        loss = nn.CrossEntropyLoss()(ref(c.X_train), c.y_train) + 0.5 * mu * sum(
+            ((p - start[k]) ** 2).sum() for k, p in ref.named_parameters())
+        ref.zero_grad()
+        loss.backward()
+        with torch.no_grad():
+            for p in ref.parameters():
+                p -= lr * p.grad
+
+    state, _ = local_train(fresh(), c.X_train, c.y_train, nn.CrossEntropyLoss(), epochs=2, lr=lr,
+                           batch_size=len(c.y_train), generator=torch.Generator().manual_seed(0), mu=mu)
+    for k in state:
+        assert torch.allclose(state[k], ref.state_dict()[k], atol=1e-6)
+
+
 def test_checkpoint_is_argmin_federated_val_loss(clients):
     res = run_fl("fedavg", clients, 8, 1, 0.3, 16, 1.0, 0, n_classes=N_CLASSES, head=HEAD)
     losses = [h["fed_val_loss"] for h in res["history"][1:]]

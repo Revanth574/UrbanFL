@@ -71,6 +71,17 @@ Amendments (27 Oct):
 
 Table: Majority | Local-only | FedAvg | FedProx (best μ) | Centralized — test macro-F1 mean ± std over 5 seeds.
 
+Consolidated clean rerun (27 Oct, all Review 1 numbers from one clean commit):
+- Baselines use the FL client recipe: plain SGD via single-client `run_fl`, lr grid {0.01, 0.03, 0.1, 0.3, 1.0}
+  chosen on seed 0 by validation LOSS (local-only: client-val-size-weighted), checkpoint = lowest val loss,
+  100 epochs (= passes of FL E=1 × 100 rounds).
+- FL: FedAvg E=1, FedProx E=1 (μ ∈ {0.001, 0.01, 0.1}) at 100 rounds; FedAvg E=5 at 200 rounds (lr swept at
+  200 rounds); FedProx E=5 dropped. Check E=5 plateaus by round 200, else report it as budget-limited.
+- Optional FedAvg+FT: each client fine-tunes the selected global model for ≤1 / ≤2 local epochs, keeping the
+  epoch (0 = no fine-tuning) with the lowest loss on its own val set.
+- Every metrics.json: clean commit, dirty = false, for training and metrics. Commit results/ JSON; push `review1`.
+- Any row selected by test score is marked "appendix only".
+
 Done when: sanity tests pass, FL sits between local-only and centralized (or a clear explanation), convergence
 curve comes from logged JSON.
 

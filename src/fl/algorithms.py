@@ -52,30 +52,32 @@ def local_train(model: nn.Module, X: torch.Tensor, y: torch.Tensor, criterion: n
     """
     Client update. `model` must already hold the broadcast global weights. Minibatch order comes from the
     client's own persistent `generator` (CPU), so a client's data order is reproducible and independent of
-    which other clients were sampled. Returns (detached state_dict copy, stats).
+    which other clients were sampled. Returns (detached state_dict copy, stats); stats["prox"] is the proximal
+    term at the END of local training (how far the client drifted), 0 for FedAvg.
     """
     global_params = [p.detach().clone() for p in model.parameters()] if mu > 0 else None
     opt = torch.optim.SGD(model.parameters(), lr=lr)
     model.train()
     # Loss sums stay on-device; one .item() at the end avoids a host sync per step.
     ce_sum = torch.zeros((), device=X.device)
-    prox_sum = torch.zeros((), device=X.device)
     n_seen, steps = 0, 0
     for _ in range(epochs):
         perm = torch.randperm(len(y), generator=generator).to(X.device)
         for start in range(0, len(perm), batch_size):
             idx = perm[start:start + batch_size]
             ce = criterion(model(X[idx]), y[idx])
-            loss = ce
-            if global_params is not None:
-                prox = prox_term(model, global_params, mu)
-                loss = ce + prox
-                prox_sum += prox.detach() * len(idx)
             opt.zero_grad(set_to_none=True)
-            loss.backward()
+            ce.backward()
+            if global_params is not None:
+                # Exact gradient of (mu/2)||w - w_g||^2 is mu (w - w_g): added directly instead of building the
+                # term into the autograd graph every step (same update, ~3x cheaper for this small head).
+                with torch.no_grad():
+                    for p, g in zip(model.parameters(), global_params):
+                        p.grad.add_(p - g, alpha=mu)
             opt.step()
             ce_sum += ce.detach() * len(idx)
             n_seen += len(idx)
             steps += 1
+    prox_end = prox_term(model, global_params, mu).item() if global_params is not None else 0.0
     state = {k: v.detach().clone() for k, v in model.state_dict().items()}
-    return state, {"train_ce": ce_sum.item() / n_seen, "prox": prox_sum.item() / n_seen, "steps": steps}
+    return state, {"train_ce": ce_sum.item() / n_seen, "prox": prox_end, "steps": steps}
