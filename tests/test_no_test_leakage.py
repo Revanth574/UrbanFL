@@ -22,14 +22,14 @@ def test_test_rows_never_used_for_training(monkeypatch, part, method):
 
     seen = []
 
-    def fake_train_head(X_tr, y_tr, X_va, y_va, seed, device):
+    def fake_train_sgd(X_tr, y_tr, X_va, y_va, lr, seed, device):
         seen.append((set(X_tr[:, 0]), set(X_va[:, 0])))
-        return None, {}
+        return None, {"best_val_loss": 1.0, "n_val": len(y_va)}
 
-    monkeypatch.setattr(B, "train_head", fake_train_head)
+    monkeypatch.setattr(B, "train_sgd", fake_train_sgd)
     monkeypatch.setattr(B, "predict", lambda model, X: np.zeros(len(X), dtype=int))
 
-    B.run_method(method, part, seed=0, device="cpu")
+    B.run_method(method, part, seed=0, device="cpu", lr=0.1)
 
     test_codes = {code[t] for parts in part.clients.values() for t in parts["test"]}
     assert seen, "train_head was never called"

@@ -166,6 +166,15 @@ def git_info() -> dict:
         return {"commit": None, "dirty": None}
 
 
+def require_clean_tree(allow_dirty: bool = False) -> dict:
+    """Return git_info(); refuse to run (rule 4) if code differs from HEAD, unless explicitly allowed."""
+    info = git_info()
+    if info["dirty"] and not allow_dirty:
+        raise RuntimeError("Working tree has uncommitted code changes; commit first or pass --allow-dirty "
+                           "(results from a dirty tree cannot be traced to a commit).")
+    return info
+
+
 def _jsonable(obj: Any) -> Any:
     if isinstance(obj, dict):
         return {str(k): _jsonable(v) for k, v in obj.items()}
