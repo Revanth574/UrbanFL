@@ -85,7 +85,7 @@ Consolidated clean rerun (27 Oct, all Review 1 numbers from one clean commit):
 Done when: sanity tests pass, FL sits between local-only and centralized (or a clear explanation), convergence
 curve comes from logged JSON.
 
-## THURSDAY — Prompt 3: Prototype cleanup (honesty pass)
+## THURSDAY — Prompt 3: Prototype cleanup (honesty pass)  ✅ done (commit da3ca78)
 
 For every item in AUDIT.md §4: remove hardcoded metrics (return None / "not computed"); label simulated values in
 `api/state.py` and remove fake model outputs (`nlpConfidence`, `envMatch`) with a TODO to wire `src/fl` inference;
@@ -113,7 +113,7 @@ use secure aggregation, or switch to client-local class weights for DP runs.
    skip connections, 4-stage decoder, 1-channel mask; BCEWithLogits + Dice; AMP.
 2. Train/eval on local xBD samples with a held-out split; IoU and F1; label as a small-sample sanity check.
    **Blocked:** no masks locally — needs xView2 label JSONs (AUDIT.md §3).
-3. `experiments/make_figures.py`: all figures only from `results/*.json` (baseline bars, FL convergence with
+3. ✅ `experiments/make_figures.py` (figures a–e done): all figures only from `results/*.json` (baseline bars, FL convergence with
    mean ± std band, per-client local-only vs FedAvg scatter, DP privacy-utility, Silo 2 masks) → `paper/figures/`,
    300 DPI.
 
