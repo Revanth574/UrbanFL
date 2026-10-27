@@ -2,10 +2,11 @@
 Review 1 figures, generated ONLY from results/**/*.json (CLAUDE.md rule 1). 300 DPI PNGs -> paper/figures/.
 
   fig_a_baselines_bar.png        pooled test macro-F1, every main-table method, both baseline recipes
+  fig_a2_point_range.png         the same as mean ± std points on a zoomed (non-zero) axis
   fig_b_convergence.png          federated val loss and pooled val macro-F1 vs round (FedAvg E=1, E=5), mean ± std
   fig_c_per_client_scatter.png   per-client D4 macro-F1: local-only (x) vs FedAvg E=1 and FedAvg+FT<=2 (y)
   fig_d_label_distribution.png   per-client label distribution (non-IID evidence)
-  fig_e_matched_baselines.png    table: AdamW baselines vs matched-SGD baselines, same FedAvg runs
+  fig_e_matched_baselines.png    table: FedAvg vs baselines under two training recipes (AdamW, matched SGD)
 
 Colours follow the validated reference palette (blue / orange / aqua for series, greys for references; the
 aqua series is always direct-labelled because it sits below 3:1 contrast). Static images: no hover layer.
@@ -145,6 +146,34 @@ def fig_a() -> Path:
                 "FL checkpoints and all lr choices selected on validation loss only.")
 
 
+def fig_a2() -> Path:
+    """Point-range companion to (a): same methods and colours, zoomed axis so the differences are visible."""
+    rows = [(label, g, n, fam) for label, g, n, fam in MAIN_METHODS if fam != "majority"]
+    y = np.arange(len(rows))[::-1]
+    fig, ax = plt.subplots(figsize=(9.4, 4.2))
+    for yi, (label, g, n, fam) in zip(y, rows):
+        m, s = ms(pooled(g, n))
+        color = FAMILY[fam][0]
+        hollow = fam == "ref_adamw"                       # secondary encoding for the hatched family in (a)
+        ax.errorbar(m, yi, xerr=s, fmt="none", ecolor=INK_3 if hollow else color, elinewidth=2, capsize=0)
+        ax.plot(m, yi, "o", markersize=8, markerfacecolor=SURFACE if hollow else color,
+                markeredgecolor=INK_3 if hollow else SURFACE, markeredgewidth=1.6 if hollow else 1.2, zorder=3)
+        ax.text(m + s + 0.0015, yi, f"{m:.3f}", va="center", ha="left", fontsize=8, color=INK)
+    ax.set_yticks(y, [r[0] for r in rows])
+    ax.set_xlim(0.58, 0.68)
+    ax.grid(axis="y", visible=False)
+    ax.set_xlabel("Pooled test macro-F1 (9 classes), mean ± std over 5 seeds")
+    ax.set_title("Silo 1 — the same results on a zoomed axis")
+    handles = [plt.Line2D([], [], marker="o", linestyle="none", markersize=7,
+                          markerfacecolor=SURFACE if f == "ref_adamw" else FAMILY[f][0],
+                          markeredgecolor=INK_3 if f == "ref_adamw" else FAMILY[f][0]) for f in FAMILY if f != "majority"]
+    ax.legend(handles, [FAMILY[f][2] for f in FAMILY if f != "majority"], loc="upper left",
+              bbox_to_anchor=(1.01, 1.0), fontsize=7.5)
+    return save(fig, "fig_a2_point_range.png", provenance_of(*[(g, n) for _, g, n, _ in rows]),
+                "Axis does not start at zero (0.58–0.68) — use fig (a) for magnitudes. Majority class (0.049) is "
+                "off-axis.  † budget-limited at 200 rounds.")
+
+
 # ── (b) convergence ────────────────────────────────────────────────────────
 
 def fig_b() -> Path:
@@ -159,7 +188,14 @@ def fig_b() -> Path:
             mean, sd = arr.mean(0), arr.std(0, ddof=1)
             ax.fill_between(r, mean - sd, mean + sd, color=color, alpha=0.18, linewidth=0)
             ax.plot(r, mean, color=color, linewidth=2, label=label)
-            ax.text(r[-1] + 3, mean[-1], label.split(" (")[0], color=INK_2, fontsize=7.5, va="center")
+            # E=1 ends where the E=5 curve passes: put its end label clear of both curves
+            if name == "fedavg_E1":
+                dy = 0.03 if key == "pooled_val_macro_f1" else -0.016
+                ax.annotate(label.split(" (")[0], xy=(r[-1], mean[-1]), xytext=(r[-1] - 4, mean[-1] + dy),
+                            ha="right", va="center", fontsize=7.5, color=INK_2,
+                            arrowprops={"arrowstyle": "-", "color": INK_3, "lw": 0.6})
+            else:
+                ax.text(r[-1] + 3, mean[-1], label.split(" (")[0], color=INK_2, fontsize=7.5, va="center")
         ax.set_xlabel("Communication round")
         ax.set_ylabel(ylab, fontsize=8)
         ax.set_xlim(0, 228)
@@ -172,7 +208,9 @@ def fig_b() -> Path:
                      arrowprops={"arrowstyle": "-", "color": INK_3, "lw": 0.7})
     axes[1].legend(loc="lower right", fontsize=7.5)
     fig.tight_layout()
-    return save(fig, "fig_b_convergence.png", provenance_of(*[("silo1_fl", n) for _, n, _ in series]))
+    return save(fig, "fig_b_convergence.png", provenance_of(*[("silo1_fl", n) for _, n, _ in series]),
+                "x-axis counts communication rounds, not compute: E=5 does 5× the local work per round. "
+                "Bands = ± std over 5 seeds.")
 
 
 # ── (c) per-client scatter ─────────────────────────────────────────────────
@@ -195,7 +233,10 @@ def fig_c() -> Path:
     for label, y, color, marker in ys:
         xs = [x[c][0] for c in x]
         yv = [y[c][0] for c in x]
+        ax.errorbar(xs, yv, xerr=[x[c][1] for c in x], yerr=[y[c][1] for c in x], fmt="none", ecolor=color,
+                    elinewidth=0.8, alpha=0.3, capsize=0, zorder=2)
         ax.scatter(xs, yv, s=46, color=color, marker=marker, edgecolor=SURFACE, linewidth=1.6, label=label, zorder=3)
+    stds = [d[c][1] for d in (x, *[y for _, y, _, _ in ys]) for c in x]
     fedavg = ys[0][1]
     for c, (dx, dy) in zip(HIGHLIGHT, ((0.03, -0.055), (0.035, -0.06))):   # point at the FedAvg E=1 marker
         ax.annotate(CLIENT_SHORT[c], xy=(x[c][0], fedavg[c][0]), xytext=(x[c][0] + dx, fedavg[c][0] + dy),
@@ -208,8 +249,9 @@ def fig_c() -> Path:
     ax.legend(loc="lower right", fontsize=7.5)
     return save(fig, "fig_c_per_client_scatter.png",
                 provenance_of(("silo1_baselines", "local_only"), ("silo1_fl", "fedavg_E1"), ("silo1_fl", "ft2_fedavg_E1")),
-                "Each point = one event client, mean over 5 seeds. Above the diagonal = federation helps.\n"
-                "D4: macro-F1 over the classes with ≥3 test examples in that client.")
+                "Each point = one event client, mean over 5 seeds; faint bars = ± std across seeds "
+                f"(per-client std {min(stds):.2f}–{max(stds):.2f}).\n"
+                "Above the diagonal = federation helps. D4: macro-F1 over classes with ≥3 test examples in that client.")
 
 
 # ── (d) label distribution heatmap ─────────────────────────────────────────
@@ -280,7 +322,7 @@ def fig_e() -> Path:
             cell.set_height(cell.get_height() * 1.45)
         if c == -1:
             cell.set_text_props(color=INK_2)
-    fig.text(0.01, 0.99, "Before vs after matched baselines — pooled test macro-F1, seeds 0–4 (paired t-tests)",
+    fig.text(0.01, 0.99, "FedAvg vs baselines under two training recipes — pooled test macro-F1, seeds 0–4",
              ha="left", va="top", fontsize=10, weight="bold", color=INK)
     return save(fig, "fig_e_matched_baselines.png",
                 provenance_of(("silo1_fl", "fedavg_E1"), *[("silo1_baselines", n) for v in cols.values() for n in v]),
@@ -290,7 +332,7 @@ def fig_e() -> Path:
 
 
 def main() -> None:
-    for fn in (fig_a, fig_b, fig_c, fig_d, fig_e):
+    for fn in (fig_a, fig_a2, fig_b, fig_c, fig_d, fig_e):
         print("wrote", fn().relative_to(REPO))
 
 

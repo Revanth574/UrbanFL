@@ -146,7 +146,7 @@ export default function NLPFeed() {
                   <div className="flex justify-between">SOURCE<span className="text-white">{selectedReport.source}</span></div>
                   <div className="flex justify-between">TYPE<span className="text-white">{(selectedReport.type || '').replace('_', ' ')}</span></div>
                   <div className="flex justify-between">LOCATION<span className="text-white">{selectedReport.location}</span></div>
-                  <div className="flex justify-between">NLP CONF.<span className="text-primary">{((selectedReport.nlpConfidence || 0) * 100).toFixed(0)}%</span></div>
+                  <div className="flex justify-between">NLP CONF.<span className="text-primary">{selectedReport.nlpConfidence != null ? `${(selectedReport.nlpConfidence * 100).toFixed(0)}%` : '—'}</span></div>
                   <div className="flex justify-between">CREDIBILITY<span className={selectedReport.credibility > 0.75 ? 'text-success' : 'text-secondary'}>{((selectedReport.credibility || 0) * 100).toFixed(0)}%</span></div>
                   <div className="flex justify-between">VERIFIED<span className={selectedReport.verified ? 'text-success' : 'text-gray-500'}>{selectedReport.verified ? 'YES' : 'PENDING'}</span></div>
                   <div className="flex justify-between">ENV MATCH<span className={selectedReport.envMatch ? 'text-success' : 'text-gray-500'}>{selectedReport.envMatch ? 'CONFIRMED' : 'NO MATCH'}</span></div>
