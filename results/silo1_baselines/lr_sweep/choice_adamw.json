@@ -1,0 +1,34 @@
+{
+ "selection": "seed 0; local_only: client-val-size-weighted mean best val loss; centralized: best pooled val loss; no test data",
+ "recipe": "adamw",
+ "grid": [
+  0.0001,
+  0.0003,
+  0.001,
+  0.003
+ ],
+ "training_git": {
+  "commit": "5eae38d5b9374d53860f05befe04b703f34df55a",
+  "dirty": false
+ },
+ "local_only_adamw": {
+  "lr": 0.0003,
+  "val_loss_by_lr": {
+   "0.0001": 1.1934933173737097,
+   "0.0003": 1.1827012866194369,
+   "0.001": 1.1870031820025975,
+   "0.003": 1.191760816918696
+  },
+  "chosen_lr_at_grid_edge": false
+ },
+ "centralized_adamw": {
+  "lr": 0.0003,
+  "val_loss_by_lr": {
+   "0.0001": 0.8976253271102905,
+   "0.0003": 0.8959363698959351,
+   "0.001": 0.9001267552375793,
+   "0.003": 0.9040751457214355
+  },
+  "chosen_lr_at_grid_edge": false
+ }
+}

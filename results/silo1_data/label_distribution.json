@@ -1,0 +1,576 @@
+{
+ "metrics": {
+  "labels": [
+   "caution_and_advice",
+   "displaced_people_and_evacuations",
+   "donation_needs_or_offers_or_volunteering_services",
+   "infrastructure_and_utilities_damage",
+   "injured_or_dead_people",
+   "missing_trapped_or_found_people",
+   "not_related_or_irrelevant",
+   "other_useful_information",
+   "sympathy_and_emotional_support"
+  ],
+  "label_short": [
+   "caution",
+   "displaced",
+   "donation",
+   "infra_damage",
+   "injured_dead",
+   "missing",
+   "irrelevant",
+   "other_info",
+   "sympathy"
+  ],
+  "client_totals": {
+   "2013_Pakistan_eq": [
+    67,
+    12,
+    286,
+    28,
+    318,
+    5,
+    305,
+    720,
+    105
+   ],
+   "2014_California_Earthquake": [
+    70,
+    4,
+    75,
+    301,
+    183,
+    6,
+    103,
+    848,
+    80
+   ],
+   "2014_Chile_Earthquake_cl": [
+    44,
+    26,
+    519,
+    36,
+    414,
+    38,
+    158,
+    119,
+    187
+   ],
+   "2014_Chile_Earthquake_en": [
+    245,
+    63,
+    10,
+    26,
+    115,
+    6,
+    340,
+    618,
+    504
+   ],
+   "2014_Hurricane_Odile_Mexico_en": [
+    55,
+    86,
+    186,
+    422,
+    30,
+    26,
+    40,
+    208,
+    142
+   ],
+   "2014_India_floods": [
+    41,
+    26,
+    42,
+    63,
+    860,
+    14,
+    497,
+    200,
+    30
+   ],
+   "2014_Pakistan_floods": [
+    51,
+    80,
+    460,
+    84,
+    218,
+    101,
+    25,
+    612,
+    117
+   ],
+   "2014_Philippines_Typhoon_Hagupit_en": [
+    348,
+    130,
+    113,
+    92,
+    66,
+    8,
+    232,
+    731,
+    290
+   ],
+   "2015_Cyclone_Pam_en": [
+    92,
+    48,
+    363,
+    212,
+    141,
+    18,
+    496,
+    540,
+    93
+   ],
+   "2015_Nepal_Earthquake_en": [
+    35,
+    85,
+    887,
+    129,
+    344,
+    187,
+    176,
+    638,
+    521
+   ]
+  },
+  "client_split_counts": {
+   "2013_Pakistan_eq": {
+    "train": [
+     47,
+     8,
+     200,
+     20,
+     222,
+     3,
+     213,
+     504,
+     73
+    ],
+    "val": [
+     10,
+     2,
+     43,
+     4,
+     48,
+     1,
+     46,
+     108,
+     16
+    ],
+    "test": [
+     10,
+     2,
+     43,
+     4,
+     48,
+     1,
+     46,
+     108,
+     16
+    ]
+   },
+   "2014_California_Earthquake": {
+    "train": [
+     50,
+     2,
+     53,
+     211,
+     129,
+     4,
+     73,
+     594,
+     56
+    ],
+    "val": [
+     10,
+     1,
+     11,
+     45,
+     27,
+     1,
+     15,
+     127,
+     12
+    ],
+    "test": [
+     10,
+     1,
+     11,
+     45,
+     27,
+     1,
+     15,
+     127,
+     12
+    ]
+   },
+   "2014_Chile_Earthquake_cl": {
+    "train": [
+     30,
+     18,
+     363,
+     26,
+     290,
+     26,
+     110,
+     83,
+     131
+    ],
+    "val": [
+     7,
+     4,
+     78,
+     5,
+     62,
+     6,
+     24,
+     18,
+     28
+    ],
+    "test": [
+     7,
+     4,
+     78,
+     5,
+     62,
+     6,
+     24,
+     18,
+     28
+    ]
+   },
+   "2014_Chile_Earthquake_en": {
+    "train": [
+     171,
+     45,
+     6,
+     18,
+     81,
+     4,
+     238,
+     432,
+     352
+    ],
+    "val": [
+     37,
+     9,
+     2,
+     4,
+     17,
+     1,
+     51,
+     93,
+     76
+    ],
+    "test": [
+     37,
+     9,
+     2,
+     4,
+     17,
+     1,
+     51,
+     93,
+     76
+    ]
+   },
+   "2014_Hurricane_Odile_Mexico_en": {
+    "train": [
+     39,
+     60,
+     130,
+     296,
+     22,
+     18,
+     28,
+     146,
+     100
+    ],
+    "val": [
+     8,
+     13,
+     28,
+     63,
+     4,
+     4,
+     6,
+     31,
+     21
+    ],
+    "test": [
+     8,
+     13,
+     28,
+     63,
+     4,
+     4,
+     6,
+     31,
+     21
+    ]
+   },
+   "2014_India_floods": {
+    "train": [
+     29,
+     18,
+     30,
+     45,
+     602,
+     10,
+     347,
+     140,
+     22
+    ],
+    "val": [
+     6,
+     4,
+     6,
+     9,
+     129,
+     2,
+     75,
+     30,
+     4
+    ],
+    "test": [
+     6,
+     4,
+     6,
+     9,
+     129,
+     2,
+     75,
+     30,
+     4
+    ]
+   },
+   "2014_Pakistan_floods": {
+    "train": [
+     35,
+     56,
+     322,
+     58,
+     152,
+     71,
+     17,
+     428,
+     81
+    ],
+    "val": [
+     8,
+     12,
+     69,
+     13,
+     33,
+     15,
+     4,
+     92,
+     18
+    ],
+    "test": [
+     8,
+     12,
+     69,
+     13,
+     33,
+     15,
+     4,
+     92,
+     18
+    ]
+   },
+   "2014_Philippines_Typhoon_Hagupit_en": {
+    "train": [
+     244,
+     90,
+     79,
+     64,
+     46,
+     6,
+     162,
+     511,
+     202
+    ],
+    "val": [
+     52,
+     20,
+     17,
+     14,
+     10,
+     1,
+     35,
+     110,
+     44
+    ],
+    "test": [
+     52,
+     20,
+     17,
+     14,
+     10,
+     1,
+     35,
+     110,
+     44
+    ]
+   },
+   "2015_Cyclone_Pam_en": {
+    "train": [
+     64,
+     34,
+     255,
+     148,
+     99,
+     12,
+     348,
+     378,
+     65
+    ],
+    "val": [
+     14,
+     7,
+     54,
+     32,
+     21,
+     3,
+     74,
+     81,
+     14
+    ],
+    "test": [
+     14,
+     7,
+     54,
+     32,
+     21,
+     3,
+     74,
+     81,
+     14
+    ]
+   },
+   "2015_Nepal_Earthquake_en": {
+    "train": [
+     25,
+     59,
+     621,
+     91,
+     240,
+     131,
+     124,
+     446,
+     365
+    ],
+    "val": [
+     5,
+     13,
+     133,
+     19,
+     52,
+     28,
+     26,
+     96,
+     78
+    ],
+    "test": [
+     5,
+     13,
+     133,
+     19,
+     52,
+     28,
+     26,
+     96,
+     78
+    ]
+   }
+  },
+  "dedup_stats": {
+   "raw_rows": 22099,
+   "excluded_events": [
+    "2014_ebola_cf",
+    "2014_Middle_East_Respiratory_Syndrome_en"
+   ],
+   "excluded_event_rows": 3132,
+   "empty_after_normalization_dropped": 8,
+   "dup_groups_label_consistent": 117,
+   "dup_rows_removed_label_consistent": 140,
+   "dup_groups_label_conflicting": 43,
+   "dup_rows_removed_label_conflicting": 104,
+   "dup_groups_cross_event": 0,
+   "events_dropped_min_rows": [],
+   "min_client_rows": 200,
+   "final_rows": 18715,
+   "n_clients": 10
+  },
+  "training_git": {
+   "commit": "5eae38d5b9374d53860f05befe04b703f34df55a",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "source": "src.fl.partition.load_partition",
+  "split_file": "silo1_seed0.json"
+ },
+ "split_sizes": {
+  "2013_Pakistan_eq": {
+   "train": 1290,
+   "val": 278,
+   "test": 278
+  },
+  "2014_California_Earthquake": {
+   "train": 1172,
+   "val": 249,
+   "test": 249
+  },
+  "2014_Chile_Earthquake_cl": {
+   "train": 1077,
+   "val": 232,
+   "test": 232
+  },
+  "2014_Chile_Earthquake_en": {
+   "train": 1347,
+   "val": 290,
+   "test": 290
+  },
+  "2014_Hurricane_Odile_Mexico_en": {
+   "train": 839,
+   "val": 178,
+   "test": 178
+  },
+  "2014_India_floods": {
+   "train": 1243,
+   "val": 265,
+   "test": 265
+  },
+  "2014_Pakistan_floods": {
+   "train": 1220,
+   "val": 264,
+   "test": 264
+  },
+  "2014_Philippines_Typhoon_Hagupit_en": {
+   "train": 1404,
+   "val": 303,
+   "test": 303
+  },
+  "2015_Cyclone_Pam_en": {
+   "train": 1403,
+   "val": 300,
+   "test": 300
+  },
+  "2015_Nepal_Earthquake_en": {
+   "train": 2102,
+   "val": 450,
+   "test": 450
+  }
+ },
+ "runtime_s": 0.138,
+ "git": {
+  "commit": "5eae38d5b9374d53860f05befe04b703f34df55a",
+  "dirty": false
+ },
+ "written_at": "2026-10-27T17:18:41",
+ "python": "3.11.9"
+}
