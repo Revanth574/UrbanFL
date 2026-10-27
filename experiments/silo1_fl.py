@@ -35,6 +35,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
+from scipy import stats
 
 from experiments.silo1_baselines import CONFIG as BASELINE_CONFIG
 from experiments.silo1_baselines import EXPERIMENT_DIR as BASELINE_DIR
@@ -68,6 +69,8 @@ FT_BASE = "fedavg_E1"
 FT_MAX_EPOCHS = 2
 FT_NAMES = [f"ft{k}_{FT_BASE}" for k in range(1, FT_MAX_EPOCHS + 1)]
 PLATEAU_TOL = 0.001   # mean fed val loss drop over the last 10% of rounds below this -> plateaued
+STRONG_REFERENCES = ("local_only_adamw", "centralized_adamw")
+PAIRED_FL = "fedavg_E1"
 
 
 def build_clients(part, device: str) -> tuple[list[ClientData], np.ndarray]:
@@ -246,6 +249,10 @@ def summarize(seeds: list[int]) -> dict:
     missing = [f"{m}_seed{s}" for m, r in base.items() for s, v in r.items() if v is None]
     if missing:
         raise FileNotFoundError(f"baseline runs missing: {missing}")
+    for m in STRONG_REFERENCES:   # optional AdamW references, included only when all seeds exist
+        runs = {s: _load(BASELINE_DIR / f"{m}_seed{s}" / "metrics.json") for s in seeds}
+        if all(runs.values()):
+            base[m] = runs
     fl = {n: {s: _load(EXPERIMENT_DIR / f"{n}_seed{s}" / "metrics.json") for s in seeds} for n in [*CONFIGS, *FT_NAMES]}
     fl = {n: runs for n, runs in fl.items() if all(runs.values())}
 
@@ -281,7 +288,9 @@ def summarize(seeds: list[int]) -> dict:
     best_prox_by_test = max(prox, key=lambda n: rows[n]["pooled_macro_f1"]["mean"]) if prox else None
 
     for name in rows:
-        if name in base:
+        if name in STRONG_REFERENCES:
+            rows[name]["selection"] = "reference (AdamW)"
+        elif name in base:
             rows[name]["selection"] = "reference"
         elif name in headline.values():
             rows[name]["selection"] = "headline (val loss)"
@@ -308,11 +317,20 @@ def summarize(seeds: list[int]) -> dict:
                 f1_d.append(None if a is None or b is None else a - b)
             per_client[label]["clients"][c] = {"delta_accuracy": _ms(acc_d), "delta_d4_macro_f1": _ms(f1_d)}
 
+    paired = {}
+    if PAIRED_FL in fl:
+        x = np.array([pooled(fl[PAIRED_FL], s) for s in seeds])
+        for ref in ("local_only", "centralized", *STRONG_REFERENCES):
+            if ref in base:
+                y = np.array([pooled(base[ref], s) for s in seeds])
+                paired[ref] = {**_ms(x - y), "p_paired_t": float(stats.ttest_rel(x, y).pvalue)}
+
     ft_info = {n: _ms([fl[n][s]["metrics"]["ft"]["n_clients_fine_tuned"] for s in seeds]) for n in FT_NAMES if n in fl}
     comm = {n: fl[n][seeds[0]]["metrics"]["fl"] for n in CONFIGS if n in fl}
     summary = {"seeds": seeds, "rows": rows, "headline": headline, "appendix_only": appendix,
                "headline_selection": "min mean best federated val loss over seeds",
                "per_client_delta_vs_local": per_client, "ft_clients_fine_tuned": ft_info,
+               f"paired_delta_{PAIRED_FL}_vs": paired,
                "communication": {n: {k: c[k] for k in ("n_params", "bytes_per_round", "total_model_bytes",
                                                          "one_off_histogram_bytes")} for n, c in comm.items()}}
     EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
@@ -354,6 +372,11 @@ def print_summary(sm: dict) -> None:
         print(f"\nPer-client Δ vs local-only — {pc['config']} (mean ± std over seeds)")
         for c, d in pc["clients"].items():
             print(f"  {c:38s} Δacc {_fmt(d['delta_accuracy'], 3):15s}  ΔD4-F1 {_fmt(d['delta_d4_macro_f1'], 3)}")
+    paired = sm.get(f"paired_delta_{PAIRED_FL}_vs", {})
+    if paired:
+        print(f"\nPaired Δ pooled macro-F1: {PAIRED_FL} minus reference (mean ± std over seeds, paired t-test)")
+        for ref, d in paired.items():
+            print(f"  vs {ref:20s} {d['mean']:+.4f} ± {d['std']:.4f}   p = {d['p_paired_t']:.4f}")
     for n, cell in sm["ft_clients_fine_tuned"].items():
         print(f"{n}: clients that chose to fine-tune (epoch > 0): {_fmt(cell, 1)} of 10")
 

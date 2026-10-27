@@ -227,10 +227,37 @@ def load_partition(seed: int, root: Path = CRISISNLP_ROOT) -> Partition:
     return Partition(seed=seed, df=df, clients=payload["clients"], stats=payload["stats"])
 
 
+def write_label_distribution(seed: int = 0) -> Path:
+    """
+    results/silo1_data/label_distribution.json: per-client label counts after D1/D3 (non-IID evidence). Client
+    totals do not depend on the split seed (splitting happens inside each client); per-split counts are for `seed`.
+    """
+    import time
+    from src.fl.utils import RESULTS_DIR, require_clean_tree, write_metrics
+
+    git = require_clean_tree()
+    t0 = time.perf_counter()
+    part = load_partition(seed)
+    by_id = part.df.set_index("tweet_id")["y"]
+    counts = {c: {s: np.bincount(by_id.loc[ids].to_numpy(), minlength=len(LABELS)).tolist()
+                  for s, ids in parts.items()} for c, parts in part.clients.items()}
+    totals = {c: [sum(v) for v in zip(*splits.values())] for c, splits in counts.items()}
+    path = RESULTS_DIR / "silo1_data" / "label_distribution.json"
+    write_metrics(path, {"labels": list(LABELS), "label_short": list(LABEL_SHORT), "client_totals": totals,
+                         "client_split_counts": counts, "dedup_stats": part.stats, "training_git": git},
+                  seed=seed, config={"source": "src.fl.partition.load_partition", "split_file": str(split_path(seed).name)},
+                  split_sizes=part.split_sizes(), runtime_s=time.perf_counter() - t0)
+    return path
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build and save Silo 1 client splits.")
-    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
+    ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
+    ap.add_argument("--stats", action="store_true", help="write results/silo1_data/label_distribution.json")
     args = ap.parse_args()
+    if args.stats:
+        print(f"wrote {write_label_distribution()}")
+        return
     for seed in args.seeds:
         part = build_partition(seed)
         path = save_partition(part)

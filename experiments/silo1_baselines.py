@@ -12,12 +12,17 @@ Trained baselines use exactly the FL client recipe, so FL-vs-baseline difference
     client-val-size-weighted mean of the clients' best val losses (same rule as FL), centralized by its best
     pooled val loss.
 
+Strong reference recipe (methods *_adamw): AdamW (weight decay 0.01, optimizer state kept across epochs), lr grid
+{1e-4, 3e-4, 1e-3, 3e-3}, otherwise the same protocol (100 epochs, same minibatch RNG, val-loss checkpoint, lr chosen
+on seed 0 by validation loss). Reported next to the matched-SGD baselines so FL is also compared with the best
+non-federated optimiser we tried, not only with the recipe FL itself uses.
+
 Class weights: centralized - pooled train label counts (equal to the FL federated count sum);
                local_only  - the client's own train label counts (an isolated agency cannot see others).
 
 Each (method, seed) writes results/silo1_baselines/<method>_seed<k>/{metrics.json, predictions.json}.
 
-Usage:  python -m experiments.silo1_baselines --lr-sweep
+Usage:  python -m experiments.silo1_baselines --lr-sweep [--recipe adamw]
         python -m experiments.silo1_baselines [--seeds 0 1 2 3 4]
         python -m experiments.silo1_baselines --metrics-only   # recompute metrics from saved predictions
 """
@@ -34,16 +39,27 @@ import torch
 from experiments.silo1_embed_cache import load_embeddings
 from src.fl.models import MLPHead, class_weights
 from src.fl.partition import LABEL_SHORT, LABELS, load_partition
-from src.fl.runner import ClientData, run_fl
+from src.fl.runner import ClientData, client_generator, evaluate, run_fl
 from src.fl.utils import (RESULTS_DIR, accuracy, d4_metrics, macro_f1, per_class_report, require_clean_tree,
-                          write_metrics)
+                          set_seed, write_metrics)
 
 EXPERIMENT_DIR = RESULTS_DIR / "silo1_baselines"
 SWEEP_DIR = EXPERIMENT_DIR / "lr_sweep"
 LABEL_IDS = list(range(len(LABELS)))
-METHODS = ("majority_global", "majority_local", "local_only", "centralized")
-TRAINED = ("local_only", "centralized")
+METHODS = ("majority_global", "majority_local", "local_only", "centralized", "local_only_adamw",
+           "centralized_adamw")
+TRAINED = ("local_only", "centralized", "local_only_adamw", "centralized_adamw")
 LR_GRID = [0.01, 0.03, 0.1, 0.3, 1.0]   # identical to the FL client lr grid
+RECIPES = {
+    "sgd": {"optimizer": "SGD (no momentum, no weight decay) via single-client run_fl", "lr_grid": LR_GRID,
+            "choice_file": "choice.json"},
+    "adamw": {"optimizer": "AdamW, weight decay 0.01, optimizer state kept across epochs",
+              "lr_grid": [1e-4, 3e-4, 1e-3, 3e-3], "weight_decay": 0.01, "choice_file": "choice_adamw.json"},
+}
+
+
+def recipe_of(method: str) -> str:
+    return "adamw" if method.endswith("_adamw") else "sgd"
 
 CONFIG = {
     "encoder": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (frozen, cached)",
@@ -70,6 +86,42 @@ def train_sgd(X_tr, y_tr, X_va, y_va, lr: float, seed: int, device: str) -> tupl
                 "val_macro_f1": h["pooled_val_macro_f1"]} for h in res["history"]]
     return model, {"lr": lr, "best_epoch": res["best_round"], "best_val_loss": res["best_fed_val_loss"],
                    "n_val": len(y_va), "history": history}
+
+
+def train_adamw(X_tr, y_tr, X_va, y_va, lr: float, seed: int, device: str) -> tuple[MLPHead, dict]:
+    """Strong reference: AdamW for CONFIG['epochs'] epochs, same minibatch RNG and val-loss checkpoint as train_sgd."""
+    set_seed(seed)
+    X_tr, y_tr = torch.as_tensor(X_tr, device=device), torch.as_tensor(y_tr, device=device)
+    X_va, y_va_t = torch.as_tensor(X_va, device=device), torch.as_tensor(y_va, device=device)
+    model = MLPHead(X_tr.shape[1], len(LABELS), **CONFIG["head"]).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights(y_tr.cpu().numpy(), len(LABELS)).to(device))
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=RECIPES["adamw"]["weight_decay"])
+    gen, bs = client_generator(seed, 0), CONFIG["batch_size"]
+
+    val_loss, val_pred = evaluate(model, X_va, y_va_t, criterion)
+    history = [{"epoch": 0, "train_ce": None, "val_loss": val_loss,
+                "val_macro_f1": macro_f1(y_va, val_pred, LABEL_IDS)}]
+    best = {"epoch": None, "loss": float("inf"), "state": None}
+    for epoch in range(1, CONFIG["epochs"] + 1):
+        model.train()
+        perm = torch.randperm(len(y_tr), generator=gen).to(device)
+        ce_sum = torch.zeros((), device=device)
+        for start in range(0, len(perm), bs):
+            idx = perm[start:start + bs]
+            loss = criterion(model(X_tr[idx]), y_tr[idx])
+            opt.zero_grad(set_to_none=True)
+            loss.backward()
+            opt.step()
+            ce_sum += loss.detach() * len(idx)
+        val_loss, val_pred = evaluate(model, X_va, y_va_t, criterion)
+        history.append({"epoch": epoch, "train_ce": ce_sum.item() / len(perm), "val_loss": val_loss,
+                        "val_macro_f1": macro_f1(y_va, val_pred, LABEL_IDS)})
+        if val_loss < best["loss"]:
+            best = {"epoch": epoch, "loss": val_loss,
+                    "state": {k: v.detach().clone() for k, v in model.state_dict().items()}}
+    model.load_state_dict(best["state"])
+    return model, {"lr": lr, "best_epoch": best["epoch"], "best_val_loss": best["loss"], "n_val": len(y_va),
+                   "history": history}
 
 
 @torch.no_grad()
@@ -103,20 +155,22 @@ def run_method(method: str, part, seed: int, device: str, lr: float | None = Non
             info[c] = {"predicted_class": LABELS[cls]}
             preds[c] = np.full(len(data[c]["test"][1]), cls)
 
-    elif method == "local_only":
+    elif method in ("local_only", "local_only_adamw"):
+        train = train_adamw if recipe_of(method) == "adamw" else train_sgd
         for c in clients:
-            model, info[c] = train_sgd(*data[c]["train"], *data[c]["val"], lr=lr, seed=seed, device=device)
+            model, info[c] = train(*data[c]["train"], *data[c]["val"], lr=lr, seed=seed, device=device)
             preds[c] = predict(model, data[c]["test"][0])
         n_val = np.array([info[c]["n_val"] for c in clients], dtype=float)
         info["size_weighted_best_val_loss"] = float(
             (np.array([info[c]["best_val_loss"] for c in clients]) * n_val).sum() / n_val.sum())
 
-    elif method == "centralized":
+    elif method in ("centralized", "centralized_adamw"):
+        train = train_adamw if recipe_of(method) == "adamw" else train_sgd
         X_tr = np.concatenate([data[c]["train"][0] for c in clients])
         y_tr = np.concatenate([data[c]["train"][1] for c in clients])
         X_va = np.concatenate([data[c]["val"][0] for c in clients])
         y_va = np.concatenate([data[c]["val"][1] for c in clients])
-        model, info = train_sgd(X_tr, y_tr, X_va, y_va, lr=lr, seed=seed, device=device)
+        model, info = train(X_tr, y_tr, X_va, y_va, lr=lr, seed=seed, device=device)
         preds = {c: predict(model, data[c]["test"][0]) for c in clients}
 
     else:
@@ -128,7 +182,7 @@ def run_method(method: str, part, seed: int, device: str, lr: float | None = Non
 
 def sweep_score(method: str, info: dict) -> float:
     """Validation-loss criterion for lr choice (never test data)."""
-    return info["size_weighted_best_val_loss"] if method == "local_only" else info["best_val_loss"]
+    return info["size_weighted_best_val_loss"] if method.startswith("local_only") else info["best_val_loss"]
 
 
 def compute_metrics(predictions: dict) -> dict:
@@ -156,26 +210,33 @@ def execute(method: str, part, seed: int, device: str, lr: float | None, run_dir
     (run_dir / "predictions.json").write_text(json.dumps(predictions), encoding="utf-8")
     metrics = {**compute_metrics(predictions), "training": info, "training_git": training_git}
     write_metrics(run_dir / "metrics.json", metrics, seed=seed,
-                  config={**CONFIG, "method": method, "lr": lr, "device": device, "labels": list(LABELS),
+                  config={**CONFIG, "method": method, "recipe": recipe_of(method),
+                          **({k: v for k, v in RECIPES[recipe_of(method)].items() if k != "choice_file"}
+                             if method in TRAINED else {}),
+                          "lr": lr, "device": device, "labels": list(LABELS),
                           "split_file": f"data/splits/silo1_seed{seed}.json", "dedup_stats": part.stats},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
     return metrics
 
 
-def lr_sweep(device: str, training_git: dict) -> dict:
+def lr_sweep(device: str, training_git: dict, recipe: str = "sgd") -> dict:
     part = load_partition(0)
     choice = {}
-    for method in TRAINED:
+    for method in [m for m in TRAINED if recipe_of(m) == recipe]:
         scores = {}
-        for lr in LR_GRID:
+        for lr in RECIPES[recipe]["lr_grid"]:
             m = execute(method, part, 0, device, lr, SWEEP_DIR / f"{method}_lr{lr:g}_seed0", training_git)
             scores[lr] = sweep_score(method, m["training"])
             print(f"  sweep {method:12s} lr={lr:<5g} val loss {scores[lr]:.4f}")
-        choice[method] = {"lr": min(scores, key=scores.get), "val_loss_by_lr": {str(k): v for k, v in scores.items()}}
+        best = min(scores, key=scores.get)
+        grid = RECIPES[recipe]["lr_grid"]
+        choice[method] = {"lr": best, "val_loss_by_lr": {str(k): v for k, v in scores.items()},
+                          "chosen_lr_at_grid_edge": best in (grid[0], grid[-1])}
     SWEEP_DIR.mkdir(parents=True, exist_ok=True)
-    (SWEEP_DIR / "choice.json").write_text(json.dumps({
+    (SWEEP_DIR / RECIPES[recipe]["choice_file"]).write_text(json.dumps({
         "selection": "seed 0; local_only: client-val-size-weighted mean best val loss; centralized: best pooled "
-                     "val loss; no test data", "grid": LR_GRID, "training_git": training_git, **choice},
+                     "val loss; no test data", "recipe": recipe, "grid": RECIPES[recipe]["lr_grid"],
+        "training_git": training_git, **choice},
         indent=1), encoding="utf-8")
     return choice
 
@@ -219,6 +280,7 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     ap.add_argument("--methods", nargs="+", default=list(METHODS), choices=METHODS)
     ap.add_argument("--lr-sweep", action="store_true", help="choose local-only / centralized lr on seed 0")
+    ap.add_argument("--recipe", default="sgd", choices=list(RECIPES), help="which recipe --lr-sweep tunes")
     ap.add_argument("--metrics-only", action="store_true",
                     help="recompute metrics.json from saved predictions.json without retraining")
     ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
@@ -230,15 +292,16 @@ def main() -> None:
     git = require_clean_tree(args.allow_dirty)
 
     if args.lr_sweep:
-        print(json.dumps(lr_sweep(args.device, git), indent=1))
+        print(json.dumps(lr_sweep(args.device, git, args.recipe), indent=1))
         return
 
-    choice = None
+    choice = {}
     if not args.metrics_only:
-        path = SWEEP_DIR / "choice.json"
-        if any(m in TRAINED for m in args.methods) and not path.exists():
-            raise FileNotFoundError("run `python -m experiments.silo1_baselines --lr-sweep` first")
-        choice = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        for recipe in {recipe_of(m) for m in args.methods if m in TRAINED}:
+            path = SWEEP_DIR / RECIPES[recipe]["choice_file"]
+            if not path.exists():
+                raise FileNotFoundError(f"run `python -m experiments.silo1_baselines --lr-sweep --recipe {recipe}` first")
+            choice.update({k: v for k, v in json.loads(path.read_text(encoding="utf-8")).items() if k in TRAINED})
 
     for seed in args.seeds:
         part = load_partition(seed)
