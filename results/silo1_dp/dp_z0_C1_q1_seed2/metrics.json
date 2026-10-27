@@ -1,0 +1,4367 @@
+{
+ "metrics": {
+  "pooled_test_macro_f1": 0.6303461639968723,
+  "pooled_test_accuracy": 0.6696333214667142,
+  "pooled_per_class": {
+   "caution": {
+    "precision": 0.3745019920318725,
+    "recall": 0.5987261146496815,
+    "f1": 0.46078431372549017,
+    "support": 157
+   },
+   "displaced": {
+    "precision": 0.4594594594594595,
+    "recall": 0.6,
+    "f1": 0.5204081632653061,
+    "support": 85
+   },
+   "donation": {
+    "precision": 0.768348623853211,
+    "recall": 0.7596371882086168,
+    "f1": 0.7639680729760547,
+    "support": 441
+   },
+   "infra_damage": {
+    "precision": 0.5551330798479087,
+    "recall": 0.7019230769230769,
+    "f1": 0.6199575371549894,
+    "support": 208
+   },
+   "injured_dead": {
+    "precision": 0.8690176322418136,
+    "recall": 0.8560794044665012,
+    "f1": 0.8625,
+    "support": 403
+   },
+   "missing": {
+    "precision": 0.3448275862068966,
+    "recall": 0.6451612903225806,
+    "f1": 0.449438202247191,
+    "support": 62
+   },
+   "irrelevant": {
+    "precision": 0.6206896551724138,
+    "recall": 0.7078651685393258,
+    "f1": 0.6614173228346457,
+    "support": 356
+   },
+   "other_info": {
+    "precision": 0.749034749034749,
+    "recall": 0.49363867684478374,
+    "f1": 0.5950920245398773,
+    "support": 786
+   },
+   "sympathy": {
+    "precision": 0.7395498392282959,
+    "recall": 0.7395498392282959,
+    "f1": 0.7395498392282959,
+    "support": 311
+   }
+  },
+  "per_client_test_accuracy": {
+   "2013_Pakistan_eq": 0.6906474820143885,
+   "2014_California_Earthquake": 0.6947791164658634,
+   "2014_Chile_Earthquake_cl": 0.5646551724137931,
+   "2014_Chile_Earthquake_en": 0.7137931034482758,
+   "2014_Hurricane_Odile_Mexico_en": 0.6235955056179775,
+   "2014_India_floods": 0.8150943396226416,
+   "2014_Pakistan_floods": 0.5833333333333334,
+   "2014_Philippines_Typhoon_Hagupit_en": 0.594059405940594,
+   "2015_Cyclone_Pam_en": 0.7033333333333334,
+   "2015_Nepal_Earthquake_en": 0.68
+  },
+  "d4": {
+   "pooled_macro_f1": 0.6303461639968723,
+   "per_client": {
+    "2013_Pakistan_eq": {
+     "macro_f1": 0.5651507511143548,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_California_Earthquake": {
+     "macro_f1": 0.6536153024343295,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Chile_Earthquake_cl": {
+     "macro_f1": 0.3938837092053551,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Chile_Earthquake_en": {
+     "macro_f1": 0.682531343066444,
+     "n_qualifying_classes": 7,
+     "qualifying_classes": [
+      0,
+      1,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Hurricane_Odile_Mexico_en": {
+     "macro_f1": 0.5255882212949677,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_India_floods": {
+     "macro_f1": 0.5587991743342524,
+     "n_qualifying_classes": 8,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Pakistan_floods": {
+     "macro_f1": 0.46982243253845024,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2014_Philippines_Typhoon_Hagupit_en": {
+     "macro_f1": 0.6614322067680678,
+     "n_qualifying_classes": 8,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+     ]
+    },
+    "2015_Cyclone_Pam_en": {
+     "macro_f1": 0.6521144028334294,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    "2015_Nepal_Earthquake_en": {
+     "macro_f1": 0.5865852323951088,
+     "n_qualifying_classes": 9,
+     "qualifying_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    }
+   },
+   "client_mean_macro_f1": 0.574952277598476
+  },
+  "selected_checkpoint": {
+   "note": "selected on client val losses: NOT covered by the reported \u03b5",
+   "best_round": 90,
+   "best_fed_val_loss": 1.0532152807216026,
+   "pooled_test_macro_f1": 0.6266198649871659,
+   "d4_client_mean": 0.570887973816589
+  },
+  "dp": {
+   "privacy_unit": "client (disaster event)",
+   "noise_multiplier": 0.0,
+   "clip": 1.0,
+   "sample_rate": 1.0,
+   "delta": 1e-05,
+   "rounds": 100,
+   "epsilon_final": null,
+   "accountant": "opacus.accountants.RDPAccountant, one step per round",
+   "expected_clients_per_round": 10.0,
+   "mean_clients_sampled": 10.0,
+   "empty_rounds": 0,
+   "mean_frac_clipped": 0.002,
+   "mean_delta_norm": 0.5303599851093986,
+   "noise_std_per_coordinate": 0.0,
+   "total_model_bytes": 806984000
+  },
+  "history": [
+   {
+    "round": 0,
+    "fed_val_loss": 2.2031041608242092,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.203270196914673,
+     "2014_California_Earthquake": 2.2012510299682617,
+     "2014_Chile_Earthquake_cl": 2.2038612365722656,
+     "2014_Chile_Earthquake_en": 2.214883327484131,
+     "2014_Hurricane_Odile_Mexico_en": 2.200681447982788,
+     "2014_India_floods": 2.197561264038086,
+     "2014_Pakistan_floods": 2.204796314239502,
+     "2014_Philippines_Typhoon_Hagupit_en": 2.20088791847229,
+     "2015_Cyclone_Pam_en": 2.199310302734375,
+     "2015_Nepal_Earthquake_en": 2.2032968997955322
+    },
+    "pooled_val_macro_f1": 0.07834426094242201,
+    "val_client_mean_macro_f1": 0.07436947667960234,
+    "train_ce": null,
+    "prox": null,
+    "sampled": [],
+    "bytes": 0,
+    "round_time_s": 0.0
+   },
+   {
+    "round": 1,
+    "fed_val_loss": 2.1777184674985133,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.1799254417419434,
+     "2014_California_Earthquake": 2.1791751384735107,
+     "2014_Chile_Earthquake_cl": 2.186377763748169,
+     "2014_Chile_Earthquake_en": 2.1789133548736572,
+     "2014_Hurricane_Odile_Mexico_en": 2.1787471771240234,
+     "2014_India_floods": 2.1686465740203857,
+     "2014_Pakistan_floods": 2.1824631690979004,
+     "2014_Philippines_Typhoon_Hagupit_en": 2.1698262691497803,
+     "2015_Cyclone_Pam_en": 2.177699089050293,
+     "2015_Nepal_Earthquake_en": 2.177793502807617
+    },
+    "pooled_val_macro_f1": 0.24635837918498338,
+    "val_client_mean_macro_f1": 0.2006721284057485,
+    "train_ce": 2.1851802353204692,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6593640999635682,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.34533019533509157,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 2,
+    "fed_val_loss": 2.151198352007053,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.154773712158203,
+     "2014_California_Earthquake": 2.1566174030303955,
+     "2014_Chile_Earthquake_cl": 2.1678237915039062,
+     "2014_Chile_Earthquake_en": 2.142958641052246,
+     "2014_Hurricane_Odile_Mexico_en": 2.1558218002319336,
+     "2014_India_floods": 2.138249158859253,
+     "2014_Pakistan_floods": 2.159060001373291,
+     "2014_Philippines_Typhoon_Hagupit_en": 2.1376352310180664,
+     "2015_Cyclone_Pam_en": 2.154447078704834,
+     "2015_Nepal_Earthquake_en": 2.150881052017212
+    },
+    "pooled_val_macro_f1": 0.34309626455021625,
+    "val_client_mean_macro_f1": 0.3027376697638615,
+    "train_ce": 2.1553663719953757,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6499990999000147,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.35577196162963787,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 3,
+    "fed_val_loss": 2.1194425162236943,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.1242527961730957,
+     "2014_California_Earthquake": 2.127640724182129,
+     "2014_Chile_Earthquake_cl": 2.1454594135284424,
+     "2014_Chile_Earthquake_en": 2.0995771884918213,
+     "2014_Hurricane_Odile_Mexico_en": 2.128815174102783,
+     "2014_India_floods": 2.101144552230835,
+     "2014_Pakistan_floods": 2.1318037509918213,
+     "2014_Philippines_Typhoon_Hagupit_en": 2.099884271621704,
+     "2015_Cyclone_Pam_en": 2.126983404159546,
+     "2015_Nepal_Earthquake_en": 2.119281530380249
+    },
+    "pooled_val_macro_f1": 0.4172365786492753,
+    "val_client_mean_macro_f1": 0.3837511605691327,
+    "train_ce": 2.1250257990856687,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5823731999844313,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.3738195934960925,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 4,
+    "fed_val_loss": 2.080837419424332,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.0861446857452393,
+     "2014_California_Earthquake": 2.0934817790985107,
+     "2014_Chile_Earthquake_cl": 2.1176774501800537,
+     "2014_Chile_Earthquake_en": 2.0483016967773438,
+     "2014_Hurricane_Odile_Mexico_en": 2.096693992614746,
+     "2014_India_floods": 2.0561609268188477,
+     "2014_Pakistan_floods": 2.097723960876465,
+     "2014_Philippines_Typhoon_Hagupit_en": 2.0542187690734863,
+     "2015_Cyclone_Pam_en": 2.0930356979370117,
+     "2015_Nepal_Earthquake_en": 2.0806803703308105
+    },
+    "pooled_val_macro_f1": 0.4505371346369158,
+    "val_client_mean_macro_f1": 0.41310670015402895,
+    "train_ce": 2.0884510374364122,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6786880000727251,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4072558669294775,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 5,
+    "fed_val_loss": 2.03186575451454,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 2.0360841751098633,
+     "2014_California_Earthquake": 2.0459818840026855,
+     "2014_Chile_Earthquake_cl": 2.083073854446411,
+     "2014_Chile_Earthquake_en": 1.9846428632736206,
+     "2014_Hurricane_Odile_Mexico_en": 2.0547544956207275,
+     "2014_India_floods": 2.000782012939453,
+     "2014_Pakistan_floods": 2.0539915561676025,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.9976364374160767,
+     "2015_Cyclone_Pam_en": 2.050248861312866,
+     "2015_Nepal_Earthquake_en": 2.032543659210205
+    },
+    "pooled_val_macro_f1": 0.47258440587366507,
+    "val_client_mean_macro_f1": 0.42781426075835816,
+    "train_ce": 2.0426586017432427,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5952368000289425,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4406284060386116,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 6,
+    "fed_val_loss": 1.9715791270163356,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.9760748147964478,
+     "2014_California_Earthquake": 1.9899916648864746,
+     "2014_Chile_Earthquake_cl": 2.0409481525421143,
+     "2014_Chile_Earthquake_en": 1.90761137008667,
+     "2014_Hurricane_Odile_Mexico_en": 2.003047227859497,
+     "2014_India_floods": 1.931382656097412,
+     "2014_Pakistan_floods": 1.999444603919983,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.925723910331726,
+     "2015_Cyclone_Pam_en": 1.9977957010269165,
+     "2015_Nepal_Earthquake_en": 1.9723478555679321
+    },
+    "pooled_val_macro_f1": 0.4614329844442914,
+    "val_client_mean_macro_f1": 0.4181394597739742,
+    "train_ce": 1.9863939835040942,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6264317999593914,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.48408603970396946,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 7,
+    "fed_val_loss": 1.8974350700178109,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.8989373445510864,
+     "2014_California_Earthquake": 1.9159774780273438,
+     "2014_Chile_Earthquake_cl": 1.9898971319198608,
+     "2014_Chile_Earthquake_en": 1.8155170679092407,
+     "2014_Hurricane_Odile_Mexico_en": 1.9376628398895264,
+     "2014_India_floods": 1.8470878601074219,
+     "2014_Pakistan_floods": 1.9317611455917358,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.838880181312561,
+     "2015_Cyclone_Pam_en": 1.9342803955078125,
+     "2015_Nepal_Earthquake_en": 1.8998311758041382
+    },
+    "pooled_val_macro_f1": 0.4606701147658491,
+    "val_client_mean_macro_f1": 0.420693767682413,
+    "train_ce": 1.9187614660531755,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.7223076999653131,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.526750178535335,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 8,
+    "fed_val_loss": 1.81531886466248,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.8112770318984985,
+     "2014_California_Earthquake": 1.8356174230575562,
+     "2014_Chile_Earthquake_cl": 1.9384167194366455,
+     "2014_Chile_Earthquake_en": 1.7169029712677002,
+     "2014_Hurricane_Odile_Mexico_en": 1.8619680404663086,
+     "2014_India_floods": 1.753901481628418,
+     "2014_Pakistan_floods": 1.8538358211517334,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.7418584823608398,
+     "2015_Cyclone_Pam_en": 1.864434838294983,
+     "2015_Nepal_Earthquake_en": 1.8183821439743042
+    },
+    "pooled_val_macro_f1": 0.4983867512268728,
+    "val_client_mean_macro_f1": 0.45946642682065475,
+    "train_ce": 1.8394463900219278,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6085062999045476,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5647540032826032,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 9,
+    "fed_val_loss": 1.727828724310465,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.712347149848938,
+     "2014_California_Earthquake": 1.7410542964935303,
+     "2014_Chile_Earthquake_cl": 1.8847427368164062,
+     "2014_Chile_Earthquake_en": 1.6210744380950928,
+     "2014_Hurricane_Odile_Mexico_en": 1.7797720432281494,
+     "2014_India_floods": 1.6572357416152954,
+     "2014_Pakistan_floods": 1.7666107416152954,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.6410317420959473,
+     "2015_Cyclone_Pam_en": 1.7927101850509644,
+     "2015_Nepal_Earthquake_en": 1.7314358949661255
+    },
+    "pooled_val_macro_f1": 0.5155723657416503,
+    "val_client_mean_macro_f1": 0.4820152176575789,
+    "train_ce": 1.7476103690104365,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6158761999104172,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6036644238537339,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 10,
+    "fed_val_loss": 1.637340568825629,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.6119204759597778,
+     "2014_California_Earthquake": 1.626782774925232,
+     "2014_Chile_Earthquake_cl": 1.8299351930618286,
+     "2014_Chile_Earthquake_en": 1.5189340114593506,
+     "2014_Hurricane_Odile_Mexico_en": 1.689514398574829,
+     "2014_India_floods": 1.561521053314209,
+     "2014_Pakistan_floods": 1.6879875659942627,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.526828408241272,
+     "2015_Cyclone_Pam_en": 1.7192198038101196,
+     "2015_Nepal_Earthquake_en": 1.6500238180160522
+    },
+    "pooled_val_macro_f1": 0.5194970781574265,
+    "val_client_mean_macro_f1": 0.48010808011999906,
+    "train_ce": 1.6592434675372936,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5328797000693157,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6068078290354114,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 11,
+    "fed_val_loss": 1.5573908313392701,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.517838478088379,
+     "2014_California_Earthquake": 1.5241791009902954,
+     "2014_Chile_Earthquake_cl": 1.7883511781692505,
+     "2014_Chile_Earthquake_en": 1.4343898296356201,
+     "2014_Hurricane_Odile_Mexico_en": 1.604967713356018,
+     "2014_India_floods": 1.4723924398422241,
+     "2014_Pakistan_floods": 1.6094871759414673,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.4296989440917969,
+     "2015_Cyclone_Pam_en": 1.6626930236816406,
+     "2015_Nepal_Earthquake_en": 1.5768468379974365
+    },
+    "pooled_val_macro_f1": 0.5302399307509993,
+    "val_client_mean_macro_f1": 0.4827985841461893,
+    "train_ce": 1.575660255270768,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5653223000699654,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6155343630369458,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 12,
+    "fed_val_loss": 1.4884630429782915,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.4408104419708252,
+     "2014_California_Earthquake": 1.4310038089752197,
+     "2014_Chile_Earthquake_cl": 1.755034327507019,
+     "2014_Chile_Earthquake_en": 1.3788890838623047,
+     "2014_Hurricane_Odile_Mexico_en": 1.5282107591629028,
+     "2014_India_floods": 1.397704005241394,
+     "2014_Pakistan_floods": 1.5330123901367188,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.3468382358551025,
+     "2015_Cyclone_Pam_en": 1.612363576889038,
+     "2015_Nepal_Earthquake_en": 1.5072271823883057
+    },
+    "pooled_val_macro_f1": 0.5420706607210017,
+    "val_client_mean_macro_f1": 0.49344930081238736,
+    "train_ce": 1.5020711595451248,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5862297000130638,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6116536492585329,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 13,
+    "fed_val_loss": 1.4227422699040473,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.3687901496887207,
+     "2014_California_Earthquake": 1.349430799484253,
+     "2014_Chile_Earthquake_cl": 1.718656063079834,
+     "2014_Chile_Earthquake_en": 1.305336594581604,
+     "2014_Hurricane_Odile_Mexico_en": 1.4586374759674072,
+     "2014_India_floods": 1.331660509109497,
+     "2014_Pakistan_floods": 1.4726067781448364,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.2590667009353638,
+     "2015_Cyclone_Pam_en": 1.562654733657837,
+     "2015_Nepal_Earthquake_en": 1.4468576908111572
+    },
+    "pooled_val_macro_f1": 0.5566642407937734,
+    "val_client_mean_macro_f1": 0.49998619953984635,
+    "train_ce": 1.4360668831602657,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5999815000686795,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6043993442388891,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 14,
+    "fed_val_loss": 1.3680871141130875,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.3052287101745605,
+     "2014_California_Earthquake": 1.2806968688964844,
+     "2014_Chile_Earthquake_cl": 1.687512993812561,
+     "2014_Chile_Earthquake_en": 1.255275845527649,
+     "2014_Hurricane_Odile_Mexico_en": 1.3983665704727173,
+     "2014_India_floods": 1.2799702882766724,
+     "2014_Pakistan_floods": 1.4162185192108154,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.190708875656128,
+     "2015_Cyclone_Pam_en": 1.5147206783294678,
+     "2015_Nepal_Earthquake_en": 1.3966500759124756
+    },
+    "pooled_val_macro_f1": 0.5881311337644389,
+    "val_client_mean_macro_f1": 0.5183629511412703,
+    "train_ce": 1.3793426814257321,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5990914999274537,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5977663104246927,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 15,
+    "fed_val_loss": 1.317878436261371,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.2445241212844849,
+     "2014_California_Earthquake": 1.1895599365234375,
+     "2014_Chile_Earthquake_cl": 1.6509357690811157,
+     "2014_Chile_Earthquake_en": 1.2177457809448242,
+     "2014_Hurricane_Odile_Mexico_en": 1.3427740335464478,
+     "2014_India_floods": 1.2331534624099731,
+     "2014_Pakistan_floods": 1.3710116147994995,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.1257933378219604,
+     "2015_Cyclone_Pam_en": 1.4798303842544556,
+     "2015_Nepal_Earthquake_en": 1.3572622537612915
+    },
+    "pooled_val_macro_f1": 0.5735676419936355,
+    "val_client_mean_macro_f1": 0.5117069141888347,
+    "train_ce": 1.333836458999437,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5885558999143541,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5906247567379044,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 16,
+    "fed_val_loss": 1.2806334474325265,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.2034062147140503,
+     "2014_California_Earthquake": 1.140472173690796,
+     "2014_Chile_Earthquake_cl": 1.6284772157669067,
+     "2014_Chile_Earthquake_en": 1.1670255661010742,
+     "2014_Hurricane_Odile_Mexico_en": 1.3020927906036377,
+     "2014_India_floods": 1.1968324184417725,
+     "2014_Pakistan_floods": 1.337660312652588,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.073333978652954,
+     "2015_Cyclone_Pam_en": 1.4579851627349854,
+     "2015_Nepal_Earthquake_en": 1.328532338142395
+    },
+    "pooled_val_macro_f1": 0.5761883012567687,
+    "val_client_mean_macro_f1": 0.5148473459033505,
+    "train_ce": 1.2888090016141578,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5632260000566021,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5802333301757405,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 17,
+    "fed_val_loss": 1.2512080079085803,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.1626278162002563,
+     "2014_California_Earthquake": 1.0903968811035156,
+     "2014_Chile_Earthquake_cl": 1.6120657920837402,
+     "2014_Chile_Earthquake_en": 1.1486068964004517,
+     "2014_Hurricane_Odile_Mexico_en": 1.2635749578475952,
+     "2014_India_floods": 1.1538888216018677,
+     "2014_Pakistan_floods": 1.3054291009902954,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.0382299423217773,
+     "2015_Cyclone_Pam_en": 1.4474152326583862,
+     "2015_Nepal_Earthquake_en": 1.3082005977630615
+    },
+    "pooled_val_macro_f1": 0.5617157904229754,
+    "val_client_mean_macro_f1": 0.4961150966731518,
+    "train_ce": 1.2597549344106713,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5920221999986097,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5907287596889522,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 18,
+    "fed_val_loss": 1.2244920193745854,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.129164457321167,
+     "2014_California_Earthquake": 1.0507326126098633,
+     "2014_Chile_Earthquake_cl": 1.5920225381851196,
+     "2014_Chile_Earthquake_en": 1.121809482574463,
+     "2014_Hurricane_Odile_Mexico_en": 1.233889102935791,
+     "2014_India_floods": 1.1289979219436646,
+     "2014_Pakistan_floods": 1.280536413192749,
+     "2014_Philippines_Typhoon_Hagupit_en": 1.0040907859802246,
+     "2015_Cyclone_Pam_en": 1.434247612953186,
+     "2015_Nepal_Earthquake_en": 1.2844263315200806
+    },
+    "pooled_val_macro_f1": 0.5649055626671622,
+    "val_client_mean_macro_f1": 0.5005874876844899,
+    "train_ce": 1.2199035071321795,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6045770000200719,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5777676001198363,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 19,
+    "fed_val_loss": 1.207261057585828,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.1228678226470947,
+     "2014_California_Earthquake": 1.0023272037506104,
+     "2014_Chile_Earthquake_cl": 1.5976502895355225,
+     "2014_Chile_Earthquake_en": 1.1017588376998901,
+     "2014_Hurricane_Odile_Mexico_en": 1.1984949111938477,
+     "2014_India_floods": 1.089030385017395,
+     "2014_Pakistan_floods": 1.2645176649093628,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.9761983156204224,
+     "2015_Cyclone_Pam_en": 1.4346047639846802,
+     "2015_Nepal_Earthquake_en": 1.2830384969711304
+    },
+    "pooled_val_macro_f1": 0.6058805346581595,
+    "val_client_mean_macro_f1": 0.5413882945672357,
+    "train_ce": 1.1916705135390022,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.608374800067395,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5900723718436467,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 20,
+    "fed_val_loss": 1.1897740571385984,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.103899598121643,
+     "2014_California_Earthquake": 0.9837430119514465,
+     "2014_Chile_Earthquake_cl": 1.5810835361480713,
+     "2014_Chile_Earthquake_en": 1.0791760683059692,
+     "2014_Hurricane_Odile_Mexico_en": 1.1852471828460693,
+     "2014_India_floods": 1.0721391439437866,
+     "2014_Pakistan_floods": 1.247815489768982,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.9468632936477661,
+     "2015_Cyclone_Pam_en": 1.4322879314422607,
+     "2015_Nepal_Earthquake_en": 1.2652592658996582
+    },
+    "pooled_val_macro_f1": 0.605337041980687,
+    "val_client_mean_macro_f1": 0.5406855515341471,
+    "train_ce": 1.1722753425313288,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5530222998932004,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5674153361415154,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 21,
+    "fed_val_loss": 1.1758110169924718,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0926975011825562,
+     "2014_California_Earthquake": 0.9707929491996765,
+     "2014_Chile_Earthquake_cl": 1.5529123544692993,
+     "2014_Chile_Earthquake_en": 1.0672714710235596,
+     "2014_Hurricane_Odile_Mexico_en": 1.1822737455368042,
+     "2014_India_floods": 1.0681394338607788,
+     "2014_Pakistan_floods": 1.2390649318695068,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.9168187379837036,
+     "2015_Cyclone_Pam_en": 1.429172396659851,
+     "2015_Nepal_Earthquake_en": 1.245352864265442
+    },
+    "pooled_val_macro_f1": 0.59784455019781,
+    "val_client_mean_macro_f1": 0.5307609616236022,
+    "train_ce": 1.165548519878121,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5634687999263406,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6014502554841862,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 22,
+    "fed_val_loss": 1.1592133331230927,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0779646635055542,
+     "2014_California_Earthquake": 0.939209520816803,
+     "2014_Chile_Earthquake_cl": 1.5478936433792114,
+     "2014_Chile_Earthquake_en": 1.0583070516586304,
+     "2014_Hurricane_Odile_Mexico_en": 1.1512727737426758,
+     "2014_India_floods": 1.0490446090698242,
+     "2014_Pakistan_floods": 1.2027047872543335,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.9163947701454163,
+     "2015_Cyclone_Pam_en": 1.4303641319274902,
+     "2015_Nepal_Earthquake_en": 1.2210183143615723
+    },
+    "pooled_val_macro_f1": 0.6077281610885966,
+    "val_client_mean_macro_f1": 0.5442083794675808,
+    "train_ce": 1.1495382765226532,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6130429999902844,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.564757960121338,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 23,
+    "fed_val_loss": 1.1465222834904196,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0674629211425781,
+     "2014_California_Earthquake": 0.9247155785560608,
+     "2014_Chile_Earthquake_cl": 1.5326274633407593,
+     "2014_Chile_Earthquake_en": 1.0415546894073486,
+     "2014_Hurricane_Odile_Mexico_en": 1.1373529434204102,
+     "2014_India_floods": 1.0396428108215332,
+     "2014_Pakistan_floods": 1.184827446937561,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.9060971736907959,
+     "2015_Cyclone_Pam_en": 1.417147159576416,
+     "2015_Nepal_Earthquake_en": 1.2122479677200317
+    },
+    "pooled_val_macro_f1": 0.6050506686132437,
+    "val_client_mean_macro_f1": 0.5473505897927513,
+    "train_ce": 1.1315464574052623,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6019429999869317,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5509276037215152,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 24,
+    "fed_val_loss": 1.141398784082188,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0614945888519287,
+     "2014_California_Earthquake": 0.906304657459259,
+     "2014_Chile_Earthquake_cl": 1.5308725833892822,
+     "2014_Chile_Earthquake_en": 1.049668312072754,
+     "2014_Hurricane_Odile_Mexico_en": 1.1282048225402832,
+     "2014_India_floods": 1.0271955728530884,
+     "2014_Pakistan_floods": 1.1744887828826904,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.899579644203186,
+     "2015_Cyclone_Pam_en": 1.4328430891036987,
+     "2015_Nepal_Earthquake_en": 1.2007548809051514
+    },
+    "pooled_val_macro_f1": 0.6147607651707775,
+    "val_client_mean_macro_f1": 0.5557909721301451,
+    "train_ce": 1.1193827291003546,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6018986999988556,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.564832872269808,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 25,
+    "fed_val_loss": 1.1434937488697483,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0768482685089111,
+     "2014_California_Earthquake": 0.9066224694252014,
+     "2014_Chile_Earthquake_cl": 1.5263614654541016,
+     "2014_Chile_Earthquake_en": 1.0680854320526123,
+     "2014_Hurricane_Odile_Mexico_en": 1.1309266090393066,
+     "2014_India_floods": 1.0300633907318115,
+     "2014_Pakistan_floods": 1.1789873838424683,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.874657154083252,
+     "2015_Cyclone_Pam_en": 1.4389183521270752,
+     "2015_Nepal_Earthquake_en": 1.2019543647766113
+    },
+    "pooled_val_macro_f1": 0.613041945863369,
+    "val_client_mean_macro_f1": 0.5492579278225779,
+    "train_ce": 1.106141940231422,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5728971000062302,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6044531207102873,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 26,
+    "fed_val_loss": 1.129896687077814,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.064307689666748,
+     "2014_California_Earthquake": 0.8811837434768677,
+     "2014_Chile_Earthquake_cl": 1.5158008337020874,
+     "2014_Chile_Earthquake_en": 1.0405441522598267,
+     "2014_Hurricane_Odile_Mexico_en": 1.1110215187072754,
+     "2014_India_floods": 1.0364418029785156,
+     "2014_Pakistan_floods": 1.1541948318481445,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8813450336456299,
+     "2015_Cyclone_Pam_en": 1.434266448020935,
+     "2015_Nepal_Earthquake_en": 1.1793557405471802
+    },
+    "pooled_val_macro_f1": 0.6106701714965403,
+    "val_client_mean_macro_f1": 0.5509922230689266,
+    "train_ce": 1.1028568954916322,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5608736999565735,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6005593651040501,
+     "frac_clipped": 0.1,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 27,
+    "fed_val_loss": 1.120568739918043,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0486891269683838,
+     "2014_California_Earthquake": 0.8485929369926453,
+     "2014_Chile_Earthquake_cl": 1.5265114307403564,
+     "2014_Chile_Earthquake_en": 1.014413833618164,
+     "2014_Hurricane_Odile_Mexico_en": 1.0910048484802246,
+     "2014_India_floods": 1.0034464597702026,
+     "2014_Pakistan_floods": 1.142393708229065,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8809492588043213,
+     "2015_Cyclone_Pam_en": 1.450023889541626,
+     "2015_Nepal_Earthquake_en": 1.1841617822647095
+    },
+    "pooled_val_macro_f1": 0.6140144038275698,
+    "val_client_mean_macro_f1": 0.5526794826019594,
+    "train_ce": 1.0943437284883346,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5953810999635607,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5746193816446321,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 28,
+    "fed_val_loss": 1.1112141865519451,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0425420999526978,
+     "2014_California_Earthquake": 0.852683961391449,
+     "2014_Chile_Earthquake_cl": 1.5006800889968872,
+     "2014_Chile_Earthquake_en": 1.002905249595642,
+     "2014_Hurricane_Odile_Mexico_en": 1.0852315425872803,
+     "2014_India_floods": 1.0005886554718018,
+     "2014_Pakistan_floods": 1.1371439695358276,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8677961230278015,
+     "2015_Cyclone_Pam_en": 1.3991576433181763,
+     "2015_Nepal_Earthquake_en": 1.197850227355957
+    },
+    "pooled_val_macro_f1": 0.6136424533206485,
+    "val_client_mean_macro_f1": 0.5533828456692556,
+    "train_ce": 1.0848898688481856,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6377344999928027,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5841761106561008,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 29,
+    "fed_val_loss": 1.107647844950641,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.042738676071167,
+     "2014_California_Earthquake": 0.8427722454071045,
+     "2014_Chile_Earthquake_cl": 1.5040113925933838,
+     "2014_Chile_Earthquake_en": 0.9895926117897034,
+     "2014_Hurricane_Odile_Mexico_en": 1.0804667472839355,
+     "2014_India_floods": 0.9870155453681946,
+     "2014_Pakistan_floods": 1.1384471654891968,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8559548854827881,
+     "2015_Cyclone_Pam_en": 1.432768702507019,
+     "2015_Nepal_Earthquake_en": 1.1824921369552612
+    },
+    "pooled_val_macro_f1": 0.6288328590190058,
+    "val_client_mean_macro_f1": 0.5683155918371707,
+    "train_ce": 1.071866559374284,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.7035022000782192,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5542422606226921,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 30,
+    "fed_val_loss": 1.1013392201519046,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0364693403244019,
+     "2014_California_Earthquake": 0.8340646624565125,
+     "2014_Chile_Earthquake_cl": 1.4976767301559448,
+     "2014_Chile_Earthquake_en": 0.9711173176765442,
+     "2014_Hurricane_Odile_Mexico_en": 1.0803728103637695,
+     "2014_India_floods": 0.9711764454841614,
+     "2014_Pakistan_floods": 1.1376559734344482,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8465392589569092,
+     "2015_Cyclone_Pam_en": 1.4324445724487305,
+     "2015_Nepal_Earthquake_en": 1.1833604574203491
+    },
+    "pooled_val_macro_f1": 0.6292268327568962,
+    "val_client_mean_macro_f1": 0.5655035576044141,
+    "train_ce": 1.0672041808611348,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.582620200002566,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5728996557175452,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 31,
+    "fed_val_loss": 1.1021726511474519,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0262291431427002,
+     "2014_California_Earthquake": 0.826518714427948,
+     "2014_Chile_Earthquake_cl": 1.4914727210998535,
+     "2014_Chile_Earthquake_en": 0.9930458068847656,
+     "2014_Hurricane_Odile_Mexico_en": 1.0852428674697876,
+     "2014_India_floods": 0.9568748474121094,
+     "2014_Pakistan_floods": 1.139182209968567,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8480865955352783,
+     "2015_Cyclone_Pam_en": 1.4512619972229004,
+     "2015_Nepal_Earthquake_en": 1.1801447868347168
+    },
+    "pooled_val_macro_f1": 0.6217596979991791,
+    "val_client_mean_macro_f1": 0.5615799733204312,
+    "train_ce": 1.059355247109011,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5833549000089988,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5742316290610824,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 32,
+    "fed_val_loss": 1.0909774582468348,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.017758846282959,
+     "2014_California_Earthquake": 0.837331235408783,
+     "2014_Chile_Earthquake_cl": 1.4678926467895508,
+     "2014_Chile_Earthquake_en": 0.9602679014205933,
+     "2014_Hurricane_Odile_Mexico_en": 1.0821150541305542,
+     "2014_India_floods": 0.9740628004074097,
+     "2014_Pakistan_floods": 1.122170090675354,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8389955759048462,
+     "2015_Cyclone_Pam_en": 1.4262133836746216,
+     "2015_Nepal_Earthquake_en": 1.1667083501815796
+    },
+    "pooled_val_macro_f1": 0.621370667675329,
+    "val_client_mean_macro_f1": 0.560696772908251,
+    "train_ce": 1.0601954929444721,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5687017000745982,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5576874264672649,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 33,
+    "fed_val_loss": 1.0896109903397702,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.030163288116455,
+     "2014_California_Earthquake": 0.8335745930671692,
+     "2014_Chile_Earthquake_cl": 1.4659295082092285,
+     "2014_Chile_Earthquake_en": 0.966533362865448,
+     "2014_Hurricane_Odile_Mexico_en": 1.0729631185531616,
+     "2014_India_floods": 0.9716966152191162,
+     "2014_Pakistan_floods": 1.1177988052368164,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8327845335006714,
+     "2015_Cyclone_Pam_en": 1.404436469078064,
+     "2015_Nepal_Earthquake_en": 1.1758464574813843
+    },
+    "pooled_val_macro_f1": 0.6204724038412313,
+    "val_client_mean_macro_f1": 0.5578334731997943,
+    "train_ce": 1.0489603313333324,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6029138000449166,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5676489259414537,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 34,
+    "fed_val_loss": 1.0935910508572397,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0480973720550537,
+     "2014_California_Earthquake": 0.8140705227851868,
+     "2014_Chile_Earthquake_cl": 1.4784718751907349,
+     "2014_Chile_Earthquake_en": 0.9911198616027832,
+     "2014_Hurricane_Odile_Mexico_en": 1.0665388107299805,
+     "2014_India_floods": 0.9532486200332642,
+     "2014_Pakistan_floods": 1.130361557006836,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8233503699302673,
+     "2015_Cyclone_Pam_en": 1.4253315925598145,
+     "2015_Nepal_Earthquake_en": 1.176550030708313
+    },
+    "pooled_val_macro_f1": 0.6290834626857155,
+    "val_client_mean_macro_f1": 0.5634072286543661,
+    "train_ce": 1.040253615264648,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5812721999827772,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.56128143528873,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 35,
+    "fed_val_loss": 1.0896988306744917,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0370104312896729,
+     "2014_California_Earthquake": 0.8079570531845093,
+     "2014_Chile_Earthquake_cl": 1.482721209526062,
+     "2014_Chile_Earthquake_en": 0.9801204204559326,
+     "2014_Hurricane_Odile_Mexico_en": 1.0651824474334717,
+     "2014_India_floods": 0.9410172700881958,
+     "2014_Pakistan_floods": 1.1214982271194458,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8255287408828735,
+     "2015_Cyclone_Pam_en": 1.4336612224578857,
+     "2015_Nepal_Earthquake_en": 1.1733031272888184
+    },
+    "pooled_val_macro_f1": 0.6252107969863175,
+    "val_client_mean_macro_f1": 0.5579576756262389,
+    "train_ce": 1.0307214356400798,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.513703600037843,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5447135033209628,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 36,
+    "fed_val_loss": 1.0858004878279406,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0351288318634033,
+     "2014_California_Earthquake": 0.8134974837303162,
+     "2014_Chile_Earthquake_cl": 1.4727002382278442,
+     "2014_Chile_Earthquake_en": 0.9785363674163818,
+     "2014_Hurricane_Odile_Mexico_en": 1.0616358518600464,
+     "2014_India_floods": 0.934825599193573,
+     "2014_Pakistan_floods": 1.12338387966156,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8168586492538452,
+     "2015_Cyclone_Pam_en": 1.4075767993927002,
+     "2015_Nepal_Earthquake_en": 1.1804230213165283
+    },
+    "pooled_val_macro_f1": 0.6275217770133933,
+    "val_client_mean_macro_f1": 0.5612576528979035,
+    "train_ce": 1.0240554850347408,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.553216899977997,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5566529720758432,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 37,
+    "fed_val_loss": 1.0789481619788728,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0201789140701294,
+     "2014_California_Earthquake": 0.8170430660247803,
+     "2014_Chile_Earthquake_cl": 1.4554150104522705,
+     "2014_Chile_Earthquake_en": 0.9578877091407776,
+     "2014_Hurricane_Odile_Mexico_en": 1.0679986476898193,
+     "2014_India_floods": 0.93587327003479,
+     "2014_Pakistan_floods": 1.1083872318267822,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8198944926261902,
+     "2015_Cyclone_Pam_en": 1.4151040315628052,
+     "2015_Nepal_Earthquake_en": 1.1657434701919556
+    },
+    "pooled_val_macro_f1": 0.6298116983266852,
+    "val_client_mean_macro_f1": 0.5706324270310704,
+    "train_ce": 1.0196174085071963,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6055477000772953,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5536277832444995,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 38,
+    "fed_val_loss": 1.0849561003995307,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.038399338722229,
+     "2014_California_Earthquake": 0.7915456891059875,
+     "2014_Chile_Earthquake_cl": 1.4736498594284058,
+     "2014_Chile_Earthquake_en": 0.9979422092437744,
+     "2014_Hurricane_Odile_Mexico_en": 1.0548518896102905,
+     "2014_India_floods": 0.9248599410057068,
+     "2014_Pakistan_floods": 1.115689754486084,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8173665404319763,
+     "2015_Cyclone_Pam_en": 1.4337502717971802,
+     "2015_Nepal_Earthquake_en": 1.1675578355789185
+    },
+    "pooled_val_macro_f1": 0.6239689019656058,
+    "val_client_mean_macro_f1": 0.5571001141481091,
+    "train_ce": 1.0184140694344364,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5501089999452233,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5646280649191529,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 39,
+    "fed_val_loss": 1.0776388944574589,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0206892490386963,
+     "2014_California_Earthquake": 0.8117712736129761,
+     "2014_Chile_Earthquake_cl": 1.4547290802001953,
+     "2014_Chile_Earthquake_en": 0.974277913570404,
+     "2014_Hurricane_Odile_Mexico_en": 1.0535151958465576,
+     "2014_India_floods": 0.9324519038200378,
+     "2014_Pakistan_floods": 1.105626106262207,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8179843425750732,
+     "2015_Cyclone_Pam_en": 1.3962852954864502,
+     "2015_Nepal_Earthquake_en": 1.1731592416763306
+    },
+    "pooled_val_macro_f1": 0.6274035796001692,
+    "val_client_mean_macro_f1": 0.5617108783152209,
+    "train_ce": 1.0102225801203282,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.626179099897854,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5429333781664457,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 40,
+    "fed_val_loss": 1.0780181055732705,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0397849082946777,
+     "2014_California_Earthquake": 0.7999811768531799,
+     "2014_Chile_Earthquake_cl": 1.466944694519043,
+     "2014_Chile_Earthquake_en": 0.9536395072937012,
+     "2014_Hurricane_Odile_Mexico_en": 1.0454754829406738,
+     "2014_India_floods": 0.9203152060508728,
+     "2014_Pakistan_floods": 1.1142336130142212,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8134273886680603,
+     "2015_Cyclone_Pam_en": 1.408958077430725,
+     "2015_Nepal_Earthquake_en": 1.17715322971344
+    },
+    "pooled_val_macro_f1": 0.6342384459735233,
+    "val_client_mean_macro_f1": 0.5672253848349035,
+    "train_ce": 1.0107458224867814,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.569391299970448,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5285306320645344,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 41,
+    "fed_val_loss": 1.0743289791888382,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0292338132858276,
+     "2014_California_Earthquake": 0.8164016604423523,
+     "2014_Chile_Earthquake_cl": 1.4460909366607666,
+     "2014_Chile_Earthquake_en": 0.9694774746894836,
+     "2014_Hurricane_Odile_Mexico_en": 1.064699649810791,
+     "2014_India_floods": 0.9330551028251648,
+     "2014_Pakistan_floods": 1.1020190715789795,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8045944571495056,
+     "2015_Cyclone_Pam_en": 1.404633641242981,
+     "2015_Nepal_Earthquake_en": 1.1529914140701294
+    },
+    "pooled_val_macro_f1": 0.6281006797997171,
+    "val_client_mean_macro_f1": 0.5648385666413225,
+    "train_ce": 0.9990375160834186,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5683219999773428,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.6121543744694613,
+     "frac_clipped": 0.1,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 42,
+    "fed_val_loss": 1.0709486312397691,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0255820751190186,
+     "2014_California_Earthquake": 0.7928642630577087,
+     "2014_Chile_Earthquake_cl": 1.4647804498672485,
+     "2014_Chile_Earthquake_en": 0.9287474751472473,
+     "2014_Hurricane_Odile_Mexico_en": 1.0394538640975952,
+     "2014_India_floods": 0.907404899597168,
+     "2014_Pakistan_floods": 1.0949592590332031,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8229580521583557,
+     "2015_Cyclone_Pam_en": 1.4350173473358154,
+     "2015_Nepal_Earthquake_en": 1.160395622253418
+    },
+    "pooled_val_macro_f1": 0.6366263954666862,
+    "val_client_mean_macro_f1": 0.5752965714121686,
+    "train_ce": 0.9901606966140862,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6356296000303701,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5691404063462702,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 43,
+    "fed_val_loss": 1.0720348305318568,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0282220840454102,
+     "2014_California_Earthquake": 0.8143112063407898,
+     "2014_Chile_Earthquake_cl": 1.451282024383545,
+     "2014_Chile_Earthquake_en": 0.9418469667434692,
+     "2014_Hurricane_Odile_Mexico_en": 1.075448751449585,
+     "2014_India_floods": 0.9186720252037048,
+     "2014_Pakistan_floods": 1.101604700088501,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7964217066764832,
+     "2015_Cyclone_Pam_en": 1.4158997535705566,
+     "2015_Nepal_Earthquake_en": 1.1580361127853394
+    },
+    "pooled_val_macro_f1": 0.6127868673517571,
+    "val_client_mean_macro_f1": 0.5464925013079205,
+    "train_ce": 0.9922115934380249,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.627827399992384,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5703397014835387,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 44,
+    "fed_val_loss": 1.0705750846234705,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.034785270690918,
+     "2014_California_Earthquake": 0.7871353030204773,
+     "2014_Chile_Earthquake_cl": 1.4576696157455444,
+     "2014_Chile_Earthquake_en": 0.9535518288612366,
+     "2014_Hurricane_Odile_Mexico_en": 1.0456433296203613,
+     "2014_India_floods": 0.9178492426872253,
+     "2014_Pakistan_floods": 1.0899319648742676,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8114231824874878,
+     "2015_Cyclone_Pam_en": 1.4480105638504028,
+     "2015_Nepal_Earthquake_en": 1.136684536933899
+    },
+    "pooled_val_macro_f1": 0.6336685623438512,
+    "val_client_mean_macro_f1": 0.5724728349676075,
+    "train_ce": 0.9870946132254762,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5859099999070168,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5255413164085632,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 45,
+    "fed_val_loss": 1.07232762497063,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.050384283065796,
+     "2014_California_Earthquake": 0.7867940068244934,
+     "2014_Chile_Earthquake_cl": 1.4629738330841064,
+     "2014_Chile_Earthquake_en": 0.9451557993888855,
+     "2014_Hurricane_Odile_Mexico_en": 1.0296894311904907,
+     "2014_India_floods": 0.9051443934440613,
+     "2014_Pakistan_floods": 1.106444239616394,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8077488541603088,
+     "2015_Cyclone_Pam_en": 1.4251879453659058,
+     "2015_Nepal_Earthquake_en": 1.1626468896865845
+    },
+    "pooled_val_macro_f1": 0.633748370089977,
+    "val_client_mean_macro_f1": 0.5692952754545542,
+    "train_ce": 0.9931712672302102,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5735509000951424,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5416014701084827,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 46,
+    "fed_val_loss": 1.0758273087391526,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0454776287078857,
+     "2014_California_Earthquake": 0.7817434668540955,
+     "2014_Chile_Earthquake_cl": 1.4610925912857056,
+     "2014_Chile_Earthquake_en": 0.9818936586380005,
+     "2014_Hurricane_Odile_Mexico_en": 1.0443520545959473,
+     "2014_India_floods": 0.9234473705291748,
+     "2014_Pakistan_floods": 1.0959020853042603,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.80516517162323,
+     "2015_Cyclone_Pam_en": 1.4476784467697144,
+     "2015_Nepal_Earthquake_en": 1.1439653635025024
+    },
+    "pooled_val_macro_f1": 0.6306715093746477,
+    "val_client_mean_macro_f1": 0.5685447487663084,
+    "train_ce": 0.9812086189376623,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5505980000598356,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5496980557708573,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 47,
+    "fed_val_loss": 1.0702248797292766,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0519108772277832,
+     "2014_California_Earthquake": 0.7787079215049744,
+     "2014_Chile_Earthquake_cl": 1.460309624671936,
+     "2014_Chile_Earthquake_en": 0.9450520873069763,
+     "2014_Hurricane_Odile_Mexico_en": 1.028237223625183,
+     "2014_India_floods": 0.9037900567054749,
+     "2014_Pakistan_floods": 1.0937364101409912,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8080427646636963,
+     "2015_Cyclone_Pam_en": 1.4509022235870361,
+     "2015_Nepal_Earthquake_en": 1.1459791660308838
+    },
+    "pooled_val_macro_f1": 0.6434671400853754,
+    "val_client_mean_macro_f1": 0.5849493938457814,
+    "train_ce": 0.9804687360192816,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5845792000181973,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5209298262846869,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 48,
+    "fed_val_loss": 1.0672707426755952,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.044143557548523,
+     "2014_California_Earthquake": 0.7756181359291077,
+     "2014_Chile_Earthquake_cl": 1.4524815082550049,
+     "2014_Chile_Earthquake_en": 0.9584503769874573,
+     "2014_Hurricane_Odile_Mexico_en": 1.027148723602295,
+     "2014_India_floods": 0.909747838973999,
+     "2014_Pakistan_floods": 1.0901721715927124,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8061220645904541,
+     "2015_Cyclone_Pam_en": 1.4328737258911133,
+     "2015_Nepal_Earthquake_en": 1.1417737007141113
+    },
+    "pooled_val_macro_f1": 0.6387191517800084,
+    "val_client_mean_macro_f1": 0.5787335372517769,
+    "train_ce": 0.9782921711779775,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.641076699947007,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5300053909508405,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 49,
+    "fed_val_loss": 1.064582422709881,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0431764125823975,
+     "2014_California_Earthquake": 0.7847808599472046,
+     "2014_Chile_Earthquake_cl": 1.4453006982803345,
+     "2014_Chile_Earthquake_en": 0.936321496963501,
+     "2014_Hurricane_Odile_Mexico_en": 1.0399142503738403,
+     "2014_India_floods": 0.9071043133735657,
+     "2014_Pakistan_floods": 1.0888091325759888,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.799952507019043,
+     "2015_Cyclone_Pam_en": 1.434918999671936,
+     "2015_Nepal_Earthquake_en": 1.138580560684204
+    },
+    "pooled_val_macro_f1": 0.63812712573184,
+    "val_client_mean_macro_f1": 0.57643957381426,
+    "train_ce": 0.9703586913615116,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6248755999840796,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5297821718441954,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 50,
+    "fed_val_loss": 1.062807692692941,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0488429069519043,
+     "2014_California_Earthquake": 0.7799204587936401,
+     "2014_Chile_Earthquake_cl": 1.44991135597229,
+     "2014_Chile_Earthquake_en": 0.9060782194137573,
+     "2014_Hurricane_Odile_Mexico_en": 1.0362173318862915,
+     "2014_India_floods": 0.8961953520774841,
+     "2014_Pakistan_floods": 1.0904141664505005,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8047546148300171,
+     "2015_Cyclone_Pam_en": 1.4482883214950562,
+     "2015_Nepal_Earthquake_en": 1.1386027336120605
+    },
+    "pooled_val_macro_f1": 0.6453550282218833,
+    "val_client_mean_macro_f1": 0.585927659975877,
+    "train_ce": 0.9692559528780446,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5666536000790074,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.520970047205392,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 51,
+    "fed_val_loss": 1.0645810024048263,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0456621646881104,
+     "2014_California_Earthquake": 0.7637040019035339,
+     "2014_Chile_Earthquake_cl": 1.4626688957214355,
+     "2014_Chile_Earthquake_en": 0.9327231645584106,
+     "2014_Hurricane_Odile_Mexico_en": 1.030798316001892,
+     "2014_India_floods": 0.8957339525222778,
+     "2014_Pakistan_floods": 1.0816813707351685,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8076475262641907,
+     "2015_Cyclone_Pam_en": 1.466963529586792,
+     "2015_Nepal_Earthquake_en": 1.1300022602081299
+    },
+    "pooled_val_macro_f1": 0.6423990122584429,
+    "val_client_mean_macro_f1": 0.5827257942144788,
+    "train_ce": 0.9698490102918964,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5515770999481902,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4914862053178341,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 52,
+    "fed_val_loss": 1.0569754120674622,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0305843353271484,
+     "2014_California_Earthquake": 0.782722532749176,
+     "2014_Chile_Earthquake_cl": 1.4396589994430542,
+     "2014_Chile_Earthquake_en": 0.8960574865341187,
+     "2014_Hurricane_Odile_Mexico_en": 1.0452933311462402,
+     "2014_India_floods": 0.8822494149208069,
+     "2014_Pakistan_floods": 1.0935523509979248,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.798025906085968,
+     "2015_Cyclone_Pam_en": 1.4324843883514404,
+     "2015_Nepal_Earthquake_en": 1.141517162322998
+    },
+    "pooled_val_macro_f1": 0.6384644748536777,
+    "val_client_mean_macro_f1": 0.5795012534606322,
+    "train_ce": 0.9680075632703935,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6131652999902144,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5549541507043176,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 53,
+    "fed_val_loss": 1.064187614656335,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0374743938446045,
+     "2014_California_Earthquake": 0.7592455744743347,
+     "2014_Chile_Earthquake_cl": 1.4526945352554321,
+     "2014_Chile_Earthquake_en": 0.9563243389129639,
+     "2014_Hurricane_Odile_Mexico_en": 1.0280399322509766,
+     "2014_India_floods": 0.8852930665016174,
+     "2014_Pakistan_floods": 1.0887553691864014,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.806088387966156,
+     "2015_Cyclone_Pam_en": 1.4566982984542847,
+     "2015_Nepal_Earthquake_en": 1.135987401008606
+    },
+    "pooled_val_macro_f1": 0.6378385271358856,
+    "val_client_mean_macro_f1": 0.5832554084756698,
+    "train_ce": 0.9573034173051319,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6349710000213236,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4980110314752576,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 54,
+    "fed_val_loss": 1.0616473870881726,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0400992631912231,
+     "2014_California_Earthquake": 0.7659345269203186,
+     "2014_Chile_Earthquake_cl": 1.4469358921051025,
+     "2014_Chile_Earthquake_en": 0.9509423971176147,
+     "2014_Hurricane_Odile_Mexico_en": 1.0286307334899902,
+     "2014_India_floods": 0.8976131677627563,
+     "2014_Pakistan_floods": 1.0793546438217163,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8032187223434448,
+     "2015_Cyclone_Pam_en": 1.4473395347595215,
+     "2015_Nepal_Earthquake_en": 1.1274428367614746
+    },
+    "pooled_val_macro_f1": 0.6434214511416879,
+    "val_client_mean_macro_f1": 0.5866265929415863,
+    "train_ce": 0.9613432903512612,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5845906999893486,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5453243396093759,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 55,
+    "fed_val_loss": 1.0630442658197248,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.049936056137085,
+     "2014_California_Earthquake": 0.7615280151367188,
+     "2014_Chile_Earthquake_cl": 1.4459227323532104,
+     "2014_Chile_Earthquake_en": 0.9613872766494751,
+     "2014_Hurricane_Odile_Mexico_en": 1.0370811223983765,
+     "2014_India_floods": 0.9005157351493835,
+     "2014_Pakistan_floods": 1.077366590499878,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7987071871757507,
+     "2015_Cyclone_Pam_en": 1.4587396383285522,
+     "2015_Nepal_Earthquake_en": 1.117867112159729
+    },
+    "pooled_val_macro_f1": 0.6418152543474788,
+    "val_client_mean_macro_f1": 0.5829139614006871,
+    "train_ce": 0.961204606285075,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5682525999145582,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5127249297021865,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 56,
+    "fed_val_loss": 1.0623840251271095,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.053755283355713,
+     "2014_California_Earthquake": 0.7626232504844666,
+     "2014_Chile_Earthquake_cl": 1.441823124885559,
+     "2014_Chile_Earthquake_en": 0.9459074139595032,
+     "2014_Hurricane_Odile_Mexico_en": 1.0471827983856201,
+     "2014_India_floods": 0.88657146692276,
+     "2014_Pakistan_floods": 1.0885562896728516,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7923479676246643,
+     "2015_Cyclone_Pam_en": 1.4636415243148804,
+     "2015_Nepal_Earthquake_en": 1.1215349435806274
+    },
+    "pooled_val_macro_f1": 0.6446482965239968,
+    "val_client_mean_macro_f1": 0.5861796771327333,
+    "train_ce": 0.9486371940571434,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5997500999365002,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5596658950898469,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 57,
+    "fed_val_loss": 1.0556940615877388,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0260015726089478,
+     "2014_California_Earthquake": 0.7617716789245605,
+     "2014_Chile_Earthquake_cl": 1.4324992895126343,
+     "2014_Chile_Earthquake_en": 0.9409624338150024,
+     "2014_Hurricane_Odile_Mexico_en": 1.0306546688079834,
+     "2014_India_floods": 0.8981125950813293,
+     "2014_Pakistan_floods": 1.0701292753219604,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.80517578125,
+     "2015_Cyclone_Pam_en": 1.4400959014892578,
+     "2015_Nepal_Earthquake_en": 1.1229968070983887
+    },
+    "pooled_val_macro_f1": 0.6351996544491137,
+    "val_client_mean_macro_f1": 0.5809043530223648,
+    "train_ce": 0.9539387150921965,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6350409999722615,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5225703867491084,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 58,
+    "fed_val_loss": 1.0541926685199485,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0313552618026733,
+     "2014_California_Earthquake": 0.7638158798217773,
+     "2014_Chile_Earthquake_cl": 1.4411630630493164,
+     "2014_Chile_Earthquake_en": 0.9149721264839172,
+     "2014_Hurricane_Odile_Mexico_en": 1.0188528299331665,
+     "2014_India_floods": 0.8846111297607422,
+     "2014_Pakistan_floods": 1.0859404802322388,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.800560712814331,
+     "2015_Cyclone_Pam_en": 1.4059157371520996,
+     "2015_Nepal_Earthquake_en": 1.15070641040802
+    },
+    "pooled_val_macro_f1": 0.6400781575840079,
+    "val_client_mean_macro_f1": 0.5857830050861801,
+    "train_ce": 0.9496419976082906,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6056809000438079,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.540424321824907,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 59,
+    "fed_val_loss": 1.0619068227657944,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0366053581237793,
+     "2014_California_Earthquake": 0.7574118375778198,
+     "2014_Chile_Earthquake_cl": 1.4403342008590698,
+     "2014_Chile_Earthquake_en": 0.9848682880401611,
+     "2014_Hurricane_Odile_Mexico_en": 1.0253040790557861,
+     "2014_India_floods": 0.9015598893165588,
+     "2014_Pakistan_floods": 1.0747114419937134,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8011699318885803,
+     "2015_Cyclone_Pam_en": 1.4403666257858276,
+     "2015_Nepal_Earthquake_en": 1.1252206563949585
+    },
+    "pooled_val_macro_f1": 0.6352079001462285,
+    "val_client_mean_macro_f1": 0.5794714554765521,
+    "train_ce": 0.9375186782397688,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6070806999923661,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5241647818640413,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 60,
+    "fed_val_loss": 1.0675936420857588,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0522053241729736,
+     "2014_California_Earthquake": 0.7515839338302612,
+     "2014_Chile_Earthquake_cl": 1.4501558542251587,
+     "2014_Chile_Earthquake_en": 0.9920446276664734,
+     "2014_Hurricane_Odile_Mexico_en": 1.041752815246582,
+     "2014_India_floods": 0.8966448307037354,
+     "2014_Pakistan_floods": 1.0857064723968506,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7930319309234619,
+     "2015_Cyclone_Pam_en": 1.4748481512069702,
+     "2015_Nepal_Earthquake_en": 1.117047667503357
+    },
+    "pooled_val_macro_f1": 0.6371003762529176,
+    "val_client_mean_macro_f1": 0.5749561723376777,
+    "train_ce": 0.9408041424011104,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6019950000336394,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5254682348969071,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 61,
+    "fed_val_loss": 1.0574054537442452,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0386836528778076,
+     "2014_California_Earthquake": 0.7635297775268555,
+     "2014_Chile_Earthquake_cl": 1.426037073135376,
+     "2014_Chile_Earthquake_en": 0.959956705570221,
+     "2014_Hurricane_Odile_Mexico_en": 1.0469216108322144,
+     "2014_India_floods": 0.8905625939369202,
+     "2014_Pakistan_floods": 1.0826197862625122,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7863026857376099,
+     "2015_Cyclone_Pam_en": 1.4422986507415771,
+     "2015_Nepal_Earthquake_en": 1.1178863048553467
+    },
+    "pooled_val_macro_f1": 0.6393581850749611,
+    "val_client_mean_macro_f1": 0.5794731502625449,
+    "train_ce": 0.9438815734728133,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5696544999955222,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5020737769691986,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 62,
+    "fed_val_loss": 1.0630094862018205,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0553338527679443,
+     "2014_California_Earthquake": 0.7560637593269348,
+     "2014_Chile_Earthquake_cl": 1.4416248798370361,
+     "2014_Chile_Earthquake_en": 0.9679232835769653,
+     "2014_Hurricane_Odile_Mexico_en": 1.0268455743789673,
+     "2014_India_floods": 0.8919028043746948,
+     "2014_Pakistan_floods": 1.0826226472854614,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7957144379615784,
+     "2015_Cyclone_Pam_en": 1.4603314399719238,
+     "2015_Nepal_Earthquake_en": 1.1223337650299072
+    },
+    "pooled_val_macro_f1": 0.647075716988773,
+    "val_client_mean_macro_f1": 0.5886406995627358,
+    "train_ce": 0.9338110709468892,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6099800999509171,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5105699857370695,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 63,
+    "fed_val_loss": 1.0615121591723486,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0456457138061523,
+     "2014_California_Earthquake": 0.7609810829162598,
+     "2014_Chile_Earthquake_cl": 1.433139443397522,
+     "2014_Chile_Earthquake_en": 0.9690482020378113,
+     "2014_Hurricane_Odile_Mexico_en": 1.0246143341064453,
+     "2014_India_floods": 0.8911998867988586,
+     "2014_Pakistan_floods": 1.0863873958587646,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7979254126548767,
+     "2015_Cyclone_Pam_en": 1.4299358129501343,
+     "2015_Nepal_Earthquake_en": 1.1377639770507812
+    },
+    "pooled_val_macro_f1": 0.6425717281863482,
+    "val_client_mean_macro_f1": 0.5877192875377496,
+    "train_ce": 0.9384448216090159,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6061381000326946,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5627394508336101,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 64,
+    "fed_val_loss": 1.0630116412842474,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.056986927986145,
+     "2014_California_Earthquake": 0.7553783655166626,
+     "2014_Chile_Earthquake_cl": 1.4474472999572754,
+     "2014_Chile_Earthquake_en": 0.9660590887069702,
+     "2014_Hurricane_Odile_Mexico_en": 1.0295276641845703,
+     "2014_India_floods": 0.8954801559448242,
+     "2014_Pakistan_floods": 1.0704435110092163,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7996373772621155,
+     "2015_Cyclone_Pam_en": 1.472151279449463,
+     "2015_Nepal_Earthquake_en": 1.1133610010147095
+    },
+    "pooled_val_macro_f1": 0.6450068189475459,
+    "val_client_mean_macro_f1": 0.59267856597685,
+    "train_ce": 0.9407600285743515,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6045406999764964,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.536319776301944,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 65,
+    "fed_val_loss": 1.0572855397024457,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.042542576789856,
+     "2014_California_Earthquake": 0.758459746837616,
+     "2014_Chile_Earthquake_cl": 1.43353271484375,
+     "2014_Chile_Earthquake_en": 0.9489424228668213,
+     "2014_Hurricane_Odile_Mexico_en": 1.0230122804641724,
+     "2014_India_floods": 0.880317211151123,
+     "2014_Pakistan_floods": 1.0766944885253906,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8007158637046814,
+     "2015_Cyclone_Pam_en": 1.4446024894714355,
+     "2015_Nepal_Earthquake_en": 1.1285191774368286
+    },
+    "pooled_val_macro_f1": 0.6454159028335072,
+    "val_client_mean_macro_f1": 0.587240129999692,
+    "train_ce": 0.9358025264164742,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.578546299948357,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5125355647875283,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 66,
+    "fed_val_loss": 1.0571336272816168,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.048035740852356,
+     "2014_California_Earthquake": 0.752866268157959,
+     "2014_Chile_Earthquake_cl": 1.4369261264801025,
+     "2014_Chile_Earthquake_en": 0.9500718116760254,
+     "2014_Hurricane_Odile_Mexico_en": 1.0165287256240845,
+     "2014_India_floods": 0.8787529468536377,
+     "2014_Pakistan_floods": 1.0783017873764038,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8020736575126648,
+     "2015_Cyclone_Pam_en": 1.437172532081604,
+     "2015_Nepal_Earthquake_en": 1.1313769817352295
+    },
+    "pooled_val_macro_f1": 0.6439918635564035,
+    "val_client_mean_macro_f1": 0.5874081526785844,
+    "train_ce": 0.9287478978591829,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5481777000240982,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.541303223393631,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 67,
+    "fed_val_loss": 1.0571422312513454,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0469427108764648,
+     "2014_California_Earthquake": 0.7478119134902954,
+     "2014_Chile_Earthquake_cl": 1.4419409036636353,
+     "2014_Chile_Earthquake_en": 0.953952431678772,
+     "2014_Hurricane_Odile_Mexico_en": 1.0177172422409058,
+     "2014_India_floods": 0.8800082802772522,
+     "2014_Pakistan_floods": 1.070270299911499,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8012824654579163,
+     "2015_Cyclone_Pam_en": 1.4540036916732788,
+     "2015_Nepal_Earthquake_en": 1.1226308345794678
+    },
+    "pooled_val_macro_f1": 0.6434388031236877,
+    "val_client_mean_macro_f1": 0.5905127954481292,
+    "train_ce": 0.92589316099047,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5837157999631017,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.515873745767564,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 68,
+    "fed_val_loss": 1.0600719353659547,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0570104122161865,
+     "2014_California_Earthquake": 0.7575080990791321,
+     "2014_Chile_Earthquake_cl": 1.4341775178909302,
+     "2014_Chile_Earthquake_en": 0.9679663777351379,
+     "2014_Hurricane_Odile_Mexico_en": 1.0218729972839355,
+     "2014_India_floods": 0.882208526134491,
+     "2014_Pakistan_floods": 1.0782219171524048,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7942953705787659,
+     "2015_Cyclone_Pam_en": 1.4484481811523438,
+     "2015_Nepal_Earthquake_en": 1.1251089572906494
+    },
+    "pooled_val_macro_f1": 0.6450921474764841,
+    "val_client_mean_macro_f1": 0.5880021732618956,
+    "train_ce": 0.9278426603241678,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5875758999027312,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5180241410425193,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 69,
+    "fed_val_loss": 1.0652818247787297,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0695765018463135,
+     "2014_California_Earthquake": 0.7443758249282837,
+     "2014_Chile_Earthquake_cl": 1.4511555433273315,
+     "2014_Chile_Earthquake_en": 0.9981844425201416,
+     "2014_Hurricane_Odile_Mexico_en": 1.0157179832458496,
+     "2014_India_floods": 0.8864273428916931,
+     "2014_Pakistan_floods": 1.0814265012741089,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7986801266670227,
+     "2015_Cyclone_Pam_en": 1.4467943906784058,
+     "2015_Nepal_Earthquake_en": 1.1251270771026611
+    },
+    "pooled_val_macro_f1": 0.6463175951875031,
+    "val_client_mean_macro_f1": 0.5894901875196732,
+    "train_ce": 0.9222893931533104,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5864336000522599,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.516057877644853,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 70,
+    "fed_val_loss": 1.0592692300449194,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0499835014343262,
+     "2014_California_Earthquake": 0.7413941025733948,
+     "2014_Chile_Earthquake_cl": 1.4434233903884888,
+     "2014_Chile_Earthquake_en": 0.9714372158050537,
+     "2014_Hurricane_Odile_Mexico_en": 1.0145316123962402,
+     "2014_India_floods": 0.8814594745635986,
+     "2014_Pakistan_floods": 1.0708917379379272,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8085194826126099,
+     "2015_Cyclone_Pam_en": 1.452866554260254,
+     "2015_Nepal_Earthquake_en": 1.1214745044708252
+    },
+    "pooled_val_macro_f1": 0.6410589024817451,
+    "val_client_mean_macro_f1": 0.5885237292052056,
+    "train_ce": 0.920488052152628,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5741873000515625,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5173367774824813,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 71,
+    "fed_val_loss": 1.0602710529891313,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.04302978515625,
+     "2014_California_Earthquake": 0.7414980530738831,
+     "2014_Chile_Earthquake_cl": 1.4361112117767334,
+     "2014_Chile_Earthquake_en": 0.9860493540763855,
+     "2014_Hurricane_Odile_Mexico_en": 1.0306757688522339,
+     "2014_India_floods": 0.890151858329773,
+     "2014_Pakistan_floods": 1.073955774307251,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8012287616729736,
+     "2015_Cyclone_Pam_en": 1.4549702405929565,
+     "2015_Nepal_Earthquake_en": 1.1165238618850708
+    },
+    "pooled_val_macro_f1": 0.6383518820694528,
+    "val_client_mean_macro_f1": 0.5824175039923943,
+    "train_ce": 0.9186160526012039,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5635644999565557,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5161030534481916,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 72,
+    "fed_val_loss": 1.0596754695011994,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0514005422592163,
+     "2014_California_Earthquake": 0.7459248304367065,
+     "2014_Chile_Earthquake_cl": 1.4370086193084717,
+     "2014_Chile_Earthquake_en": 0.9772436022758484,
+     "2014_Hurricane_Odile_Mexico_en": 1.0295671224594116,
+     "2014_India_floods": 0.8820451498031616,
+     "2014_Pakistan_floods": 1.0824376344680786,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7908915877342224,
+     "2015_Cyclone_Pam_en": 1.445602297782898,
+     "2015_Nepal_Earthquake_en": 1.1238396167755127
+    },
+    "pooled_val_macro_f1": 0.6417517103207234,
+    "val_client_mean_macro_f1": 0.5843911079899078,
+    "train_ce": 0.9162558556840903,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5671621999936178,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5171166825679252,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 73,
+    "fed_val_loss": 1.0646029093079654,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.067830204963684,
+     "2014_California_Earthquake": 0.7412128448486328,
+     "2014_Chile_Earthquake_cl": 1.4518353939056396,
+     "2014_Chile_Earthquake_en": 0.9867586493492126,
+     "2014_Hurricane_Odile_Mexico_en": 1.020390510559082,
+     "2014_India_floods": 0.8984892964363098,
+     "2014_Pakistan_floods": 1.0661320686340332,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8001916408538818,
+     "2015_Cyclone_Pam_en": 1.4671430587768555,
+     "2015_Nepal_Earthquake_en": 1.116168737411499
+    },
+    "pooled_val_macro_f1": 0.6457265906317671,
+    "val_client_mean_macro_f1": 0.5910892392088756,
+    "train_ce": 0.9165326552672487,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6570059000514448,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5340800470260612,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 74,
+    "fed_val_loss": 1.0586751936465746,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0648469924926758,
+     "2014_California_Earthquake": 0.737747848033905,
+     "2014_Chile_Earthquake_cl": 1.441434383392334,
+     "2014_Chile_Earthquake_en": 0.9429711103439331,
+     "2014_Hurricane_Odile_Mexico_en": 1.0275126695632935,
+     "2014_India_floods": 0.8803909420967102,
+     "2014_Pakistan_floods": 1.0774807929992676,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7987318634986877,
+     "2015_Cyclone_Pam_en": 1.4673831462860107,
+     "2015_Nepal_Earthquake_en": 1.1185134649276733
+    },
+    "pooled_val_macro_f1": 0.6504518904897139,
+    "val_client_mean_macro_f1": 0.5915967236677991,
+    "train_ce": 0.9130285419907709,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5737134999362752,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.507856027156208,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 75,
+    "fed_val_loss": 1.055264009895508,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.051316499710083,
+     "2014_California_Earthquake": 0.7516055703163147,
+     "2014_Chile_Earthquake_cl": 1.4221410751342773,
+     "2014_Chile_Earthquake_en": 0.956950306892395,
+     "2014_Hurricane_Odile_Mexico_en": 1.044795274734497,
+     "2014_India_floods": 0.8828400373458862,
+     "2014_Pakistan_floods": 1.0674450397491455,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7887305021286011,
+     "2015_Cyclone_Pam_en": 1.4528608322143555,
+     "2015_Nepal_Earthquake_en": 1.112873911857605
+    },
+    "pooled_val_macro_f1": 0.6441879474518735,
+    "val_client_mean_macro_f1": 0.5819753248142437,
+    "train_ce": 0.913517992960876,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5589468999532983,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5218769825825509,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 76,
+    "fed_val_loss": 1.06668449422141,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0726666450500488,
+     "2014_California_Earthquake": 0.7427483201026917,
+     "2014_Chile_Earthquake_cl": 1.4395661354064941,
+     "2014_Chile_Earthquake_en": 0.9933048486709595,
+     "2014_Hurricane_Odile_Mexico_en": 1.0428677797317505,
+     "2014_India_floods": 0.8845811486244202,
+     "2014_Pakistan_floods": 1.0780798196792603,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.795409619808197,
+     "2015_Cyclone_Pam_en": 1.4906293153762817,
+     "2015_Nepal_Earthquake_en": 1.1072841882705688
+    },
+    "pooled_val_macro_f1": 0.6460354307647411,
+    "val_client_mean_macro_f1": 0.5898569680836518,
+    "train_ce": 0.9088131084035824,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5352242999942973,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5027151284408498,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 77,
+    "fed_val_loss": 1.0639395961646043,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.06779944896698,
+     "2014_California_Earthquake": 0.7444083094596863,
+     "2014_Chile_Earthquake_cl": 1.4372721910476685,
+     "2014_Chile_Earthquake_en": 0.9852308034896851,
+     "2014_Hurricane_Odile_Mexico_en": 1.0429500341415405,
+     "2014_India_floods": 0.8775984048843384,
+     "2014_Pakistan_floods": 1.0840867757797241,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7907589077949524,
+     "2015_Cyclone_Pam_en": 1.4792100191116333,
+     "2015_Nepal_Earthquake_en": 1.1099239587783813
+    },
+    "pooled_val_macro_f1": 0.6459349369157983,
+    "val_client_mean_macro_f1": 0.5864591921409085,
+    "train_ce": 0.908606729698953,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.572750800056383,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4983529384886408,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 78,
+    "fed_val_loss": 1.0563227563152198,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.058215856552124,
+     "2014_California_Earthquake": 0.7447155117988586,
+     "2014_Chile_Earthquake_cl": 1.4336774349212646,
+     "2014_Chile_Earthquake_en": 0.9512023329734802,
+     "2014_Hurricane_Odile_Mexico_en": 1.0380914211273193,
+     "2014_India_floods": 0.8791358470916748,
+     "2014_Pakistan_floods": 1.0723720788955688,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7928919792175293,
+     "2015_Cyclone_Pam_en": 1.4650516510009766,
+     "2015_Nepal_Earthquake_en": 1.1078029870986938
+    },
+    "pooled_val_macro_f1": 0.6480142051152473,
+    "val_client_mean_macro_f1": 0.5867440446818643,
+    "train_ce": 0.9068973072614434,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5975970000727102,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5063687515830881,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 79,
+    "fed_val_loss": 1.062336604719953,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0710217952728271,
+     "2014_California_Earthquake": 0.741534948348999,
+     "2014_Chile_Earthquake_cl": 1.4403557777404785,
+     "2014_Chile_Earthquake_en": 0.973507285118103,
+     "2014_Hurricane_Odile_Mexico_en": 1.0349422693252563,
+     "2014_India_floods": 0.8719247579574585,
+     "2014_Pakistan_floods": 1.0827592611312866,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7932188510894775,
+     "2015_Cyclone_Pam_en": 1.4762519598007202,
+     "2015_Nepal_Earthquake_en": 1.1130855083465576
+    },
+    "pooled_val_macro_f1": 0.6493045567521393,
+    "val_client_mean_macro_f1": 0.5897729231972989,
+    "train_ce": 0.9046032717639894,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5739740000572056,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4952523121616956,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 80,
+    "fed_val_loss": 1.0646285085798626,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.061962366104126,
+     "2014_California_Earthquake": 0.7421452403068542,
+     "2014_Chile_Earthquake_cl": 1.438797950744629,
+     "2014_Chile_Earthquake_en": 1.0053467750549316,
+     "2014_Hurricane_Odile_Mexico_en": 1.0426819324493408,
+     "2014_India_floods": 0.8705007433891296,
+     "2014_Pakistan_floods": 1.081398844718933,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7913802266120911,
+     "2015_Cyclone_Pam_en": 1.4752306938171387,
+     "2015_Nepal_Earthquake_en": 1.1134295463562012
+    },
+    "pooled_val_macro_f1": 0.6432880008609315,
+    "val_client_mean_macro_f1": 0.5841849349336675,
+    "train_ce": 0.9008088395496703,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5792669999646023,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5059661945060121,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 81,
+    "fed_val_loss": 1.064754658914113,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0617601871490479,
+     "2014_California_Earthquake": 0.7399738430976868,
+     "2014_Chile_Earthquake_cl": 1.4418232440948486,
+     "2014_Chile_Earthquake_en": 1.0080230236053467,
+     "2014_Hurricane_Odile_Mexico_en": 1.0367203950881958,
+     "2014_India_floods": 0.8650935292243958,
+     "2014_Pakistan_floods": 1.0942646265029907,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.787464439868927,
+     "2015_Cyclone_Pam_en": 1.455060601234436,
+     "2015_Nepal_Earthquake_en": 1.1263368129730225
+    },
+    "pooled_val_macro_f1": 0.6436810927591015,
+    "val_client_mean_macro_f1": 0.5843056713453277,
+    "train_ce": 0.906636291909347,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5367827999871224,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5314224145354298,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 82,
+    "fed_val_loss": 1.0595005991705884,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0620309114456177,
+     "2014_California_Earthquake": 0.7296050786972046,
+     "2014_Chile_Earthquake_cl": 1.4489184617996216,
+     "2014_Chile_Earthquake_en": 0.9759857654571533,
+     "2014_Hurricane_Odile_Mexico_en": 1.0351759195327759,
+     "2014_India_floods": 0.8686813116073608,
+     "2014_Pakistan_floods": 1.0731143951416016,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7921472787857056,
+     "2015_Cyclone_Pam_en": 1.4730184078216553,
+     "2015_Nepal_Earthquake_en": 1.1118794679641724
+    },
+    "pooled_val_macro_f1": 0.6475230007410733,
+    "val_client_mean_macro_f1": 0.5912982169141017,
+    "train_ce": 0.8946868880173537,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5446541000856087,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4757863204257123,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 83,
+    "fed_val_loss": 1.0619247483587553,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0564405918121338,
+     "2014_California_Earthquake": 0.7285912036895752,
+     "2014_Chile_Earthquake_cl": 1.4387699365615845,
+     "2014_Chile_Earthquake_en": 1.0007286071777344,
+     "2014_Hurricane_Odile_Mexico_en": 1.0395357608795166,
+     "2014_India_floods": 0.8729795217514038,
+     "2014_Pakistan_floods": 1.0800254344940186,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7995768189430237,
+     "2015_Cyclone_Pam_en": 1.4637218713760376,
+     "2015_Nepal_Earthquake_en": 1.1131978034973145
+    },
+    "pooled_val_macro_f1": 0.6378127074318701,
+    "val_client_mean_macro_f1": 0.577794544176445,
+    "train_ce": 0.9019009526871611,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6131421000463888,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5203995630230646,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 84,
+    "fed_val_loss": 1.0554627023714214,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0537724494934082,
+     "2014_California_Earthquake": 0.7326547503471375,
+     "2014_Chile_Earthquake_cl": 1.4351109266281128,
+     "2014_Chile_Earthquake_en": 0.9694074988365173,
+     "2014_Hurricane_Odile_Mexico_en": 1.0381766557693481,
+     "2014_India_floods": 0.8754711151123047,
+     "2014_Pakistan_floods": 1.0686687231063843,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7939698696136475,
+     "2015_Cyclone_Pam_en": 1.4520885944366455,
+     "2015_Nepal_Earthquake_en": 1.1115950345993042
+    },
+    "pooled_val_macro_f1": 0.6404843564529662,
+    "val_client_mean_macro_f1": 0.5839210163590486,
+    "train_ce": 0.9004601417920731,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5881284999195486,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.48293093077487326,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 85,
+    "fed_val_loss": 1.060577469327858,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.069664716720581,
+     "2014_California_Earthquake": 0.7267216444015503,
+     "2014_Chile_Earthquake_cl": 1.4523944854736328,
+     "2014_Chile_Earthquake_en": 0.9763036370277405,
+     "2014_Hurricane_Odile_Mexico_en": 1.0314909219741821,
+     "2014_India_floods": 0.8687103986740112,
+     "2014_Pakistan_floods": 1.0721817016601562,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7924235463142395,
+     "2015_Cyclone_Pam_en": 1.4716465473175049,
+     "2015_Nepal_Earthquake_en": 1.11620032787323
+    },
+    "pooled_val_macro_f1": 0.6506710762908634,
+    "val_client_mean_macro_f1": 0.5932614333133018,
+    "train_ce": 0.8926768055706339,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6196978000225499,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.48684904138939145,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 86,
+    "fed_val_loss": 1.0564697137630974,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.061834454536438,
+     "2014_California_Earthquake": 0.7434108853340149,
+     "2014_Chile_Earthquake_cl": 1.4320344924926758,
+     "2014_Chile_Earthquake_en": 0.9479695558547974,
+     "2014_Hurricane_Odile_Mexico_en": 1.0367419719696045,
+     "2014_India_floods": 0.8674620985984802,
+     "2014_Pakistan_floods": 1.07161283493042,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7890355587005615,
+     "2015_Cyclone_Pam_en": 1.460493564605713,
+     "2015_Nepal_Earthquake_en": 1.1236262321472168
+    },
+    "pooled_val_macro_f1": 0.6497260833042213,
+    "val_client_mean_macro_f1": 0.5938542232602253,
+    "train_ce": 0.891588313439206,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5800747000612319,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5176964488295236,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 87,
+    "fed_val_loss": 1.0565975516578319,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0402154922485352,
+     "2014_California_Earthquake": 0.7428872585296631,
+     "2014_Chile_Earthquake_cl": 1.4187371730804443,
+     "2014_Chile_Earthquake_en": 0.9826326370239258,
+     "2014_Hurricane_Odile_Mexico_en": 1.0593663454055786,
+     "2014_India_floods": 0.8640791773796082,
+     "2014_Pakistan_floods": 1.0704386234283447,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7905929684638977,
+     "2015_Cyclone_Pam_en": 1.4636484384536743,
+     "2015_Nepal_Earthquake_en": 1.1131666898727417
+    },
+    "pooled_val_macro_f1": 0.6391253583583965,
+    "val_client_mean_macro_f1": 0.583864751211179,
+    "train_ce": 0.8940637860396824,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5888103999895975,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5087583661593574,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 88,
+    "fed_val_loss": 1.0577428230147805,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0561615228652954,
+     "2014_California_Earthquake": 0.7389492392539978,
+     "2014_Chile_Earthquake_cl": 1.434309720993042,
+     "2014_Chile_Earthquake_en": 0.9566492438316345,
+     "2014_Hurricane_Odile_Mexico_en": 1.0359746217727661,
+     "2014_India_floods": 0.878707230091095,
+     "2014_Pakistan_floods": 1.067310094833374,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7966098785400391,
+     "2015_Cyclone_Pam_en": 1.4676563739776611,
+     "2015_Nepal_Earthquake_en": 1.1171104907989502
+    },
+    "pooled_val_macro_f1": 0.6501431540224039,
+    "val_client_mean_macro_f1": 0.5920215410195502,
+    "train_ce": 0.888814688038351,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6204556999728084,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.49749037948711117,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 89,
+    "fed_val_loss": 1.0623546353053606,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0633602142333984,
+     "2014_California_Earthquake": 0.7287023663520813,
+     "2014_Chile_Earthquake_cl": 1.4459314346313477,
+     "2014_Chile_Earthquake_en": 0.9807482957839966,
+     "2014_Hurricane_Odile_Mexico_en": 1.0460578203201294,
+     "2014_India_floods": 0.863478422164917,
+     "2014_Pakistan_floods": 1.0797176361083984,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7929999828338623,
+     "2015_Cyclone_Pam_en": 1.492485523223877,
+     "2015_Nepal_Earthquake_en": 1.1091774702072144
+    },
+    "pooled_val_macro_f1": 0.6481036201838204,
+    "val_client_mean_macro_f1": 0.5859729516819511,
+    "train_ce": 0.8950490631874786,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6338965999893844,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5052842056841476,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 90,
+    "fed_val_loss": 1.0532152807216026,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.037813425064087,
+     "2014_California_Earthquake": 0.738652229309082,
+     "2014_Chile_Earthquake_cl": 1.4334466457366943,
+     "2014_Chile_Earthquake_en": 0.9471649527549744,
+     "2014_Hurricane_Odile_Mexico_en": 1.0413511991500854,
+     "2014_India_floods": 0.8608158826828003,
+     "2014_Pakistan_floods": 1.0749822854995728,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7889361381530762,
+     "2015_Cyclone_Pam_en": 1.4650278091430664,
+     "2015_Nepal_Earthquake_en": 1.1177326440811157
+    },
+    "pooled_val_macro_f1": 0.6443882299514267,
+    "val_client_mean_macro_f1": 0.585040336438936,
+    "train_ce": 0.8834642904118071,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6015791000099853,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.49070813040958755,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 91,
+    "fed_val_loss": 1.0590920370853256,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0503910779953003,
+     "2014_California_Earthquake": 0.7330564856529236,
+     "2014_Chile_Earthquake_cl": 1.4428961277008057,
+     "2014_Chile_Earthquake_en": 0.9697319865226746,
+     "2014_Hurricane_Odile_Mexico_en": 1.0176327228546143,
+     "2014_India_floods": 0.8682351112365723,
+     "2014_Pakistan_floods": 1.08609139919281,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7957750558853149,
+     "2015_Cyclone_Pam_en": 1.4603002071380615,
+     "2015_Nepal_Earthquake_en": 1.1273702383041382
+    },
+    "pooled_val_macro_f1": 0.6489659147503716,
+    "val_client_mean_macro_f1": 0.5918128059329495,
+    "train_ce": 0.8863093293221969,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5803964999504387,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5162082025607608,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 92,
+    "fed_val_loss": 1.0601660912042836,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.058661937713623,
+     "2014_California_Earthquake": 0.7396366596221924,
+     "2014_Chile_Earthquake_cl": 1.4402860403060913,
+     "2014_Chile_Earthquake_en": 0.9630674719810486,
+     "2014_Hurricane_Odile_Mexico_en": 1.0305901765823364,
+     "2014_India_floods": 0.8818931579589844,
+     "2014_Pakistan_floods": 1.0804457664489746,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7929558753967285,
+     "2015_Cyclone_Pam_en": 1.459815263748169,
+     "2015_Nepal_Earthquake_en": 1.1233298778533936
+    },
+    "pooled_val_macro_f1": 0.6509664773648658,
+    "val_client_mean_macro_f1": 0.5929118820443744,
+    "train_ce": 0.8773861544509239,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5753953999374062,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4992130182501784,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 93,
+    "fed_val_loss": 1.0649904462738622,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0657438039779663,
+     "2014_California_Earthquake": 0.7402434349060059,
+     "2014_Chile_Earthquake_cl": 1.444329023361206,
+     "2014_Chile_Earthquake_en": 1.0001147985458374,
+     "2014_Hurricane_Odile_Mexico_en": 1.0454919338226318,
+     "2014_India_floods": 0.8813369870185852,
+     "2014_Pakistan_floods": 1.0715281963348389,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7870587110519409,
+     "2015_Cyclone_Pam_en": 1.4813740253448486,
+     "2015_Nepal_Earthquake_en": 1.1120374202728271
+    },
+    "pooled_val_macro_f1": 0.6451595422633775,
+    "val_client_mean_macro_f1": 0.5879731222445828,
+    "train_ce": 0.8759995840829483,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6227652999805287,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4737709033360213,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 94,
+    "fed_val_loss": 1.0606228376928706,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0619372129440308,
+     "2014_California_Earthquake": 0.7392786741256714,
+     "2014_Chile_Earthquake_cl": 1.434819221496582,
+     "2014_Chile_Earthquake_en": 0.9771736264228821,
+     "2014_Hurricane_Odile_Mexico_en": 1.0447709560394287,
+     "2014_India_floods": 0.8758374452590942,
+     "2014_Pakistan_floods": 1.077163815498352,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7874885201454163,
+     "2015_Cyclone_Pam_en": 1.4718605279922485,
+     "2015_Nepal_Earthquake_en": 1.113616943359375
+    },
+    "pooled_val_macro_f1": 0.6428526284599702,
+    "val_client_mean_macro_f1": 0.5816131851687029,
+    "train_ce": 0.8870719355682002,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5990519999759272,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.4716343213805791,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 95,
+    "fed_val_loss": 1.0606909895885368,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0658527612686157,
+     "2014_California_Earthquake": 0.7248185873031616,
+     "2014_Chile_Earthquake_cl": 1.4499849081039429,
+     "2014_Chile_Earthquake_en": 0.9586510062217712,
+     "2014_Hurricane_Odile_Mexico_en": 1.0253658294677734,
+     "2014_India_floods": 0.8704001903533936,
+     "2014_Pakistan_floods": 1.0802973508834839,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.798858106136322,
+     "2015_Cyclone_Pam_en": 1.475721836090088,
+     "2015_Nepal_Earthquake_en": 1.1225523948669434
+    },
+    "pooled_val_macro_f1": 0.6527277829667644,
+    "val_client_mean_macro_f1": 0.595464949508991,
+    "train_ce": 0.8789571957378121,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5726705999113619,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5092107230520522,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 96,
+    "fed_val_loss": 1.0586320988942652,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0492804050445557,
+     "2014_California_Earthquake": 0.7265532612800598,
+     "2014_Chile_Earthquake_cl": 1.4447174072265625,
+     "2014_Chile_Earthquake_en": 0.977096676826477,
+     "2014_Hurricane_Odile_Mexico_en": 1.0252504348754883,
+     "2014_India_floods": 0.8751594424247742,
+     "2014_Pakistan_floods": 1.0657575130462646,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.8012142181396484,
+     "2015_Cyclone_Pam_en": 1.4704649448394775,
+     "2015_Nepal_Earthquake_en": 1.1174981594085693
+    },
+    "pooled_val_macro_f1": 0.6466773273999564,
+    "val_client_mean_macro_f1": 0.5889479847879341,
+    "train_ce": 0.8785527894776715,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5615532000083476,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5083074131402416,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 97,
+    "fed_val_loss": 1.0567807646653287,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0386886596679688,
+     "2014_California_Earthquake": 0.7267893552780151,
+     "2014_Chile_Earthquake_cl": 1.4362168312072754,
+     "2014_Chile_Earthquake_en": 0.9841200113296509,
+     "2014_Hurricane_Odile_Mexico_en": 1.0357118844985962,
+     "2014_India_floods": 0.8650692105293274,
+     "2014_Pakistan_floods": 1.0768762826919556,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7946925759315491,
+     "2015_Cyclone_Pam_en": 1.4594931602478027,
+     "2015_Nepal_Earthquake_en": 1.1191974878311157
+    },
+    "pooled_val_macro_f1": 0.6428375374150884,
+    "val_client_mean_macro_f1": 0.5855120554291572,
+    "train_ce": 0.8777597332270153,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5762398999650031,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5044403191589919,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 98,
+    "fed_val_loss": 1.054204337131769,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.033819556236267,
+     "2014_California_Earthquake": 0.7426414489746094,
+     "2014_Chile_Earthquake_cl": 1.4249000549316406,
+     "2014_Chile_Earthquake_en": 0.9714683890342712,
+     "2014_Hurricane_Odile_Mexico_en": 1.0422277450561523,
+     "2014_India_floods": 0.8547625541687012,
+     "2014_Pakistan_floods": 1.079203724861145,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7886237502098083,
+     "2015_Cyclone_Pam_en": 1.4496400356292725,
+     "2015_Nepal_Earthquake_en": 1.124120831489563
+    },
+    "pooled_val_macro_f1": 0.6389893946352712,
+    "val_client_mean_macro_f1": 0.5789440099414966,
+    "train_ce": 0.8802345021313324,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.5983637999743223,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.49310902125804185,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 99,
+    "fed_val_loss": 1.0553747992067415,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.0376918315887451,
+     "2014_California_Earthquake": 0.740323007106781,
+     "2014_Chile_Earthquake_cl": 1.4265263080596924,
+     "2014_Chile_Earthquake_en": 0.9827205538749695,
+     "2014_Hurricane_Odile_Mexico_en": 1.0497938394546509,
+     "2014_India_floods": 0.8578991889953613,
+     "2014_Pakistan_floods": 1.0722562074661255,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7870866060256958,
+     "2015_Cyclone_Pam_en": 1.4624158143997192,
+     "2015_Nepal_Earthquake_en": 1.1139817237854004
+    },
+    "pooled_val_macro_f1": 0.6397550952476234,
+    "val_client_mean_macro_f1": 0.5803787882998734,
+    "train_ce": 0.8761938741264101,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6006425999803469,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.49502745135527826,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   },
+   {
+    "round": 100,
+    "fed_val_loss": 1.0544583605421358,
+    "client_val_loss": {
+     "2013_Pakistan_eq": 1.039803147315979,
+     "2014_California_Earthquake": 0.7317573428153992,
+     "2014_Chile_Earthquake_cl": 1.4352593421936035,
+     "2014_Chile_Earthquake_en": 0.9680845737457275,
+     "2014_Hurricane_Odile_Mexico_en": 1.0355972051620483,
+     "2014_India_floods": 0.8565930724143982,
+     "2014_Pakistan_floods": 1.0732121467590332,
+     "2014_Philippines_Typhoon_Hagupit_en": 0.7911500334739685,
+     "2015_Cyclone_Pam_en": 1.466593623161316,
+     "2015_Nepal_Earthquake_en": 1.1169288158416748
+    },
+    "pooled_val_macro_f1": 0.6421725581754796,
+    "val_client_mean_macro_f1": 0.5821408881593878,
+    "train_ce": 0.8709508437568599,
+    "prox": 0.0,
+    "sampled": [
+     "2013_Pakistan_eq",
+     "2014_California_Earthquake",
+     "2014_Chile_Earthquake_cl",
+     "2014_Chile_Earthquake_en",
+     "2014_Hurricane_Odile_Mexico_en",
+     "2014_India_floods",
+     "2014_Pakistan_floods",
+     "2014_Philippines_Typhoon_Hagupit_en",
+     "2015_Cyclone_Pam_en",
+     "2015_Nepal_Earthquake_en"
+    ],
+    "bytes": 8069840,
+    "round_time_s": 0.6499367000069469,
+    "dp": {
+     "n_clients": 10,
+     "mean_delta_norm": 0.5043532045930765,
+     "frac_clipped": 0.0,
+     "noise_std_per_coordinate": 0.0
+    }
+   }
+  ],
+  "training_git": {
+   "commit": "57b7e2d98e587a8513e17500bbb2a79a36741ef2",
+   "dirty": false
+  }
+ },
+ "seed": 2,
+ "config": {
+  "method": "client-level DP-FedAvg (McMahan et al. 2018)",
+  "noise_multiplier": 0.0,
+  "clip": 1.0,
+  "client_fraction": 1.0,
+  "rounds": 100,
+  "local_epochs": 1,
+  "lr": 0.1,
+  "lr_source": "FedAvg E=1 non-private lr sweep",
+  "batch_size": 64,
+  "head": {
+   "hidden": 256,
+   "dropout": 0.2
+  },
+  "client_optimizer": "SGD (no momentum, no weight decay)",
+  "class_weights": "client-local (inside the DP boundary)",
+  "aggregation": "unweighted mean of clipped deltas, fixed denominator q*K, Gaussian noise",
+  "client_sampling": "Poisson, rate q",
+  "device": "cpu",
+  "labels": [
+   "caution_and_advice",
+   "displaced_people_and_evacuations",
+   "donation_needs_or_offers_or_volunteering_services",
+   "infrastructure_and_utilities_damage",
+   "injured_or_dead_people",
+   "missing_trapped_or_found_people",
+   "not_related_or_irrelevant",
+   "other_useful_information",
+   "sympathy_and_emotional_support"
+  ],
+  "split_file": "data/splits/silo1_seed2.json"
+ },
+ "split_sizes": {
+  "2013_Pakistan_eq": {
+   "train": 1290,
+   "val": 278,
+   "test": 278
+  },
+  "2014_California_Earthquake": {
+   "train": 1172,
+   "val": 249,
+   "test": 249
+  },
+  "2014_Chile_Earthquake_cl": {
+   "train": 1077,
+   "val": 232,
+   "test": 232
+  },
+  "2014_Chile_Earthquake_en": {
+   "train": 1347,
+   "val": 290,
+   "test": 290
+  },
+  "2014_Hurricane_Odile_Mexico_en": {
+   "train": 839,
+   "val": 178,
+   "test": 178
+  },
+  "2014_India_floods": {
+   "train": 1243,
+   "val": 265,
+   "test": 265
+  },
+  "2014_Pakistan_floods": {
+   "train": 1220,
+   "val": 264,
+   "test": 264
+  },
+  "2014_Philippines_Typhoon_Hagupit_en": {
+   "train": 1404,
+   "val": 303,
+   "test": 303
+  },
+  "2015_Cyclone_Pam_en": {
+   "train": 1403,
+   "val": 300,
+   "test": 300
+  },
+  "2015_Nepal_Earthquake_en": {
+   "train": 2102,
+   "val": 450,
+   "test": 450
+  }
+ },
+ "runtime_s": 59.485,
+ "git": {
+  "commit": "57b7e2d98e587a8513e17500bbb2a79a36741ef2",
+  "dirty": false
+ },
+ "written_at": "2026-10-27T18:12:55",
+ "python": "3.11.9"
+}
