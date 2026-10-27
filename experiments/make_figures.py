@@ -7,6 +7,7 @@ Review 1 figures, generated ONLY from results/**/*.json (CLAUDE.md rule 1). 300 
   fig_c_per_client_scatter.png   per-client D4 macro-F1: local-only (x) vs FedAvg E=1 and FedAvg+FT<=2 (y)
   fig_d_label_distribution.png   per-client label distribution (non-IID evidence)
   fig_e_matched_baselines.png    table: FedAvg vs baselines under two training recipes (AdamW, matched SGD)
+  fig_f_dp_privacy_utility.png   client-level DP-FedAvg: pooled macro-F1 vs ε (δ = 1e-5), final-round model
 
 Colours follow the validated reference palette (blue / orange / aqua for series, greys for references; the
 aqua series is always direct-labelled because it sits below 3:1 contrast). Static images: no hover layer.
@@ -78,8 +79,9 @@ def ms(x) -> tuple[float, float]:
 
 
 def save(fig, name: str, provenance: str, caption: str | None = None) -> Path:
-    """Footer below the axes: optional caption, then the provenance line (stacked so they never overlap)."""
-    y = -0.01
+    """Footer below everything already drawn: optional caption, then the provenance line (stacked, never overlapping)."""
+    fig_h = fig.get_size_inches()[1]
+    y = min(-0.01, fig.get_tightbbox(fig.canvas.get_renderer()).y0 / fig_h - 0.015)   # below tick/axis labels
     if caption:
         fig.text(0.01, y, caption, ha="left", va="top", fontsize=7, color=INK_2)
         line = 7 * 1.45 / 72 / fig.get_size_inches()[1]          # one caption line, in figure-height units
@@ -331,8 +333,70 @@ def fig_e() -> Path:
                 "(AdamW + val-F1 selection) were run from an uncommitted tree and are not shown.")
 
 
+# ── (f) DP privacy-utility ─────────────────────────────────────────────────
+
+DP_Z, DP_C, DP_Q = (0.5, 1.0, 2.0), (0.1, 1.0), (0.5, 1.0)
+
+
+def _dp_name(z: float, C: float, q: float) -> str:
+    return f"dp_z{z:g}_C{C:g}_q{q:g}"
+
+
+def fig_f() -> Path:
+    """Pooled test macro-F1 (final-round model) vs client-level ε at δ = 1e-5, from results/silo1_dp/*/metrics.json."""
+    q_color = {1.0: BLUE, 0.5: ORANGE}
+    c_marker = {1.0: "o", 0.1: "s"}
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    eps_max = 0.0
+    used = []
+    for q in DP_Q:
+        for C in DP_C:
+            xs, ys, es = [], [], []
+            for z in DP_Z:
+                rs = runs("silo1_dp", _dp_name(z, C, q))
+                eps = rs[0]["dp"]["epsilon_final"]
+                m, s = ms([r["pooled_test_macro_f1"] for r in rs])
+                xs.append(eps); ys.append(m); es.append(s)
+                eps_max = max(eps_max, eps)
+                # q = 1 labels above-left, q = 0.5 below-right: the two series sit close together at ε ≈ 35-45
+                off, ha = ((-5, 6), "right") if q == 1.0 else ((5, -11), "left")
+                ax.annotate(f"z={z:g}", (eps, m), xytext=off, textcoords="offset points", ha=ha, fontsize=6.5,
+                            color=INK_2)
+            ax.errorbar(xs, ys, yerr=es, color=q_color[q], marker=c_marker[C], markersize=6.5, linewidth=1.4,
+                        markeredgecolor=SURFACE, markeredgewidth=1.0, capsize=0, elinewidth=0.9,
+                        label=f"q={q:g}, C={C:g}")
+            used.append((q, C, xs, ys, es))
+    # no-noise references (z = 0, ε = ∞) at a separate x position
+    x_inf = eps_max * 2.2
+    for q, C, *_ in used:
+        rs = runs("silo1_dp", _dp_name(0.0, C, q))
+        m, s = ms([r["pooled_test_macro_f1"] for r in rs])
+        ax.errorbar([x_inf], [m], yerr=[s], color=q_color[q], marker=c_marker[C], markersize=6.5,
+                    markerfacecolor=SURFACE, markeredgecolor=q_color[q], capsize=0, elinewidth=0.9, linestyle="none")
+    fed = ms(pooled("silo1_fl", "fedavg_E1"))[0]
+    loc = ms(pooled("silo1_baselines", "local_only"))[0]
+    for yv, lab, style in ((fed, f"FedAvg E=1, non-private ({fed:.3f})", (0, (5, 3))),
+                           (loc, f"Local-only, no sharing ({loc:.3f})", (0, (1, 2)))):
+        ax.axhline(yv, color=INK_3, linewidth=1, linestyle=style, zorder=1)
+        ax.text(1.05, yv + 0.006, lab, fontsize=7, color=INK_2, va="bottom")
+    ax.set_xscale("log")
+    ax.set_xlim(1, x_inf * 1.6)
+    ticks = [t for t in (1, 3, 10, 30, 100, 300) if t < x_inf]
+    ax.set_xticks([*ticks, x_inf], [*[str(t) for t in ticks], "∞\n(no noise)"])
+    ax.minorticks_off()
+    ax.set_xlabel("Client-level ε after 100 rounds (δ = 1e-5, Opacus RDP accountant) — smaller = more private")
+    ax.set_ylabel("Pooled test macro-F1 (final-round model)")
+    ax.set_title("Silo 1 — privacy-utility of client-level DP-FedAvg")
+    ax.legend(loc="lower right", fontsize=7.5, title="sampling rate q, clip C", title_fontsize=7.5)
+    return save(fig, "fig_f_dp_privacy_utility.png",
+                provenance_of(*[("silo1_dp", _dp_name(z, C, q)) for q in DP_Q for C in DP_C for z in (0.0, *DP_Z)]),
+                "Privacy unit = one client (a whole disaster event), not one tweet. With only 10 clients, ε stays large:\n"
+                "an expected property of client-level DP at this scale. Mean ± std over 5 seeds; hollow = no-noise "
+                "reference (z = 0, ε = ∞).")
+
+
 def main() -> None:
-    for fn in (fig_a, fig_a2, fig_b, fig_c, fig_d, fig_e):
+    for fn in (fig_a, fig_a2, fig_b, fig_c, fig_d, fig_e, fig_f):
         print("wrote", fn().relative_to(REPO))
 
 
