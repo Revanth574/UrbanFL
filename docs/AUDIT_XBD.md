@@ -136,11 +136,53 @@ event's train tiles (Chebyshev distance between tile centres, in tile widths):
 
 So 58% of test tiles touch a train tile, and 3% overlap one by more than half. Within-event test scores are therefore
 likely optimistic (shared buildings at tile borders, same streets, same lighting). The held-out guatemala-volcano set
-has no such leakage and is the honest generalisation number. Option for Review 2: a spatially blocked split (group
-tiles into geographic blocks from the geotransforms, split by block).
+has no such leakage and is the honest generalisation number.
+
+### Spatially blocked split — the default since 28 Oct (branch `major`)
+
+The split above is kept as `random_pair` (`data/splits/silo2_random_pair_seed{s}.json`, regenerated and checked
+identical to the Review 1 files). The default `spatial_block` split (`data/splits/silo2_seed{s}.json`) works per event:
+
+1. Tiles whose centres are within **1.5** tile widths (Chebyshev, from the geotransforms) are linked; connected
+   components are blocks. Most events break into dozens to hundreds of isolated clusters, but some do not (socal-fire
+   is one 820-tile component), so components larger than the event's test target are cut into 8 × 8-tile grid cells.
+2. Whole blocks go to test (≈ 15% of tiles).
+3. Every other tile within 1.5 tile widths of a test tile goes to **val** (a buffer ring), so no train tile can touch a
+   test tile even where a component was cut.
+4. More whole blocks fill val to ≈ 15%; the rest is train. X5 down-sampling then applies to train as before.
+
+**Test-train adjacency: 0.0% for all five seeds** (was 58%); the real-data test checks that every test tile is more
+than 1.5 tile widths from every train tile. Test-val contact exists where val is the buffer, which is allowed.
+
+| Seed | train | dropped building-free (train) | val | test | train+dropped / val / test |
+|---|---:|---:|---:|---:|---|
+| 0 | 1,715 | 264 | 414 | 388 | 71.2% / 14.9% / 14.0% |
+| 1 | 1,727 | 257 | 415 | 382 | 71.3% / 14.9% / 13.7% |
+| 2 | 1,744 | 258 | 396 | 383 | 72.0% / 14.2% / 13.8% |
+| 3 | 1,698 | 264 | 421 | 398 | 70.6% / 15.1% / 14.3% |
+| 4 | 1,747 | 260 | 401 | 373 | 72.2% / 14.4% / 13.4% |
+
+Seed 0 per event (val ring = buffer tiles forced into val):
+
+| Event | train (+dropped) | val | test | blocks after cutting (largest) | val ring |
+|---|---|---:|---:|---|---:|
+| hurricane-florence | 217 (+2) | 53 | 47 | 93 (34) | 0 |
+| hurricane-harvey | 226 (+10) | 42 | 41 | 109 (44) | 0 |
+| hurricane-matthew | 159 (+7) | 34 | 38 | 26 (36) | 21 |
+| hurricane-michael | 249 (+4) | 46 | 44 | 43 (48) | 10 |
+| mexico-earthquake | 88 (+0) | 17 | 16 | 48 (22) | 5 |
+| midwest-flooding | 186 (+20) | 37 | 36 | 135 (14) | 0 |
+| palu-tsunami | 77 (+1) | 17 | 18 | 20 (18) | 3 |
+| santa-rosa-wildfire | 152 (+4) | 32 | 38 | 50 (40) | 11 |
+| socal-fire | 361 (+216) | 136 | 110 | 34 (48) | 25 |
+
+Trade-off: fractions are approximate (blocks are indivisible), and the split is no longer stratified on building
+presence. Test areas are geographically distinct from training areas within each event, so within-event test scores
+measure spatial generalisation rather than interpolation between neighbouring tiles.
 
 ## Data loader and scorer (no training yet)
 
+- Splits: `load_xbd_partition(seed)` returns the spatial_block split; `load_xbd_partition(seed, "random_pair")` the Review 1 split.
 - `src/fl/xbd_data.py::XBDPairDataset(split_dir, pair_ids, stage)`, `stage` "loc" or "damage". Train items are random
   512 crops with identical flips / rot90 on every array, reproducible per (seed, epoch, index); eval items are full
   1024 images. Images are ImageNet-normalised; damage targets are class 0–3 on post-target buildings, 255 elsewhere
