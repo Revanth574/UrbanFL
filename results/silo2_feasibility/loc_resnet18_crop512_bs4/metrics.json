@@ -1,0 +1,233 @@
+{
+ "metrics": {
+  "note": "Feasibility timings only. Train loss is a sanity signal, not a result; no val/test data were used.",
+  "model": {
+   "arch": "U-Net, resnet18 encoder (ImageNet weights)",
+   "params": 14413537
+  },
+  "train_pairs": 1715,
+  "steps_per_epoch": 429,
+  "peak_vram_allocated_mib": 1514.68994140625,
+  "peak_vram_reserved_mib": 1576.0,
+  "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "gpu_total_mib": 4095.5,
+  "epoch_seconds": 138.64487680001184,
+  "data_wait_seconds": 28.474938001018018,
+  "compute_seconds": 106.95924499968532,
+  "seconds_per_step": 0.32318153100235864,
+  "dataloader_startup_seconds": 10.38344610001271,
+  "full_res_eval_seconds_per_image": 0.12752427435957658,
+  "val_images": 414,
+  "val_eval_seconds": 52.79504958486471,
+  "fedavg_aggregation_seconds_9_clients": 0.24262360006105155,
+  "checkpoint_mib": 165.14670085906982,
+  "checkpoint_save_seconds": 1.0244569000788033,
+  "clients_train_pairs": {
+   "hurricane-florence": 217,
+   "hurricane-harvey": 226,
+   "hurricane-matthew": 159,
+   "hurricane-michael": 249,
+   "mexico-earthquake": 88,
+   "midwest-flooding": 186,
+   "palu-tsunami": 77,
+   "santa-rosa-wildfire": 152,
+   "socal-fire": 361
+  },
+  "projections_hours": {
+   "centralized_30_epochs_h": 1.5953327198739713,
+   "centralized_30_epochs_train_only_h": 1.155373973333432,
+   "fl_9clients_E1_R30_h": 2.3761130407087667,
+   "fl_9clients_E2_R30_h": 3.531487014042199,
+   "fl_9clients_E1_R50_h": 3.9601884011812776,
+   "fl_9clients_E2_R50_h": 5.885811690070332
+  },
+  "projection_formulae": {
+   "centralized": "epochs x (epoch_seconds + val_images x eval_s_per_image)",
+   "fl": "rounds x (E x epoch_seconds + 9 x dataloader_startup + aggregation + val_images x eval_s_per_image)"
+  },
+  "train_loss_log_sanity_only": [
+   {
+    "step": 1,
+    "epoch": 0,
+    "loss": 1.5498064756393433
+   },
+   {
+    "step": 25,
+    "epoch": 0,
+    "loss": 1.2248715162277222
+   },
+   {
+    "step": 50,
+    "epoch": 0,
+    "loss": 1.3621591329574585
+   },
+   {
+    "step": 75,
+    "epoch": 0,
+    "loss": 1.07564377784729
+   },
+   {
+    "step": 100,
+    "epoch": 0,
+    "loss": 1.0024677515029907
+   },
+   {
+    "step": 125,
+    "epoch": 0,
+    "loss": 1.1007869243621826
+   },
+   {
+    "step": 150,
+    "epoch": 0,
+    "loss": 1.0777571201324463
+   },
+   {
+    "step": 175,
+    "epoch": 0,
+    "loss": 0.981425404548645
+   },
+   {
+    "step": 200,
+    "epoch": 0,
+    "loss": 1.2265316247940063
+   },
+   {
+    "step": 225,
+    "epoch": 0,
+    "loss": 0.9608720541000366
+   },
+   {
+    "step": 250,
+    "epoch": 0,
+    "loss": 1.0380951166152954
+   },
+   {
+    "step": 275,
+    "epoch": 0,
+    "loss": 0.9585680365562439
+   },
+   {
+    "step": 300,
+    "epoch": 0,
+    "loss": 0.9394696950912476
+   },
+   {
+    "step": 325,
+    "epoch": 0,
+    "loss": 1.012885570526123
+   },
+   {
+    "step": 350,
+    "epoch": 0,
+    "loss": 0.7774181365966797
+   },
+   {
+    "step": 375,
+    "epoch": 0,
+    "loss": 0.9999883770942688
+   },
+   {
+    "step": 400,
+    "epoch": 0,
+    "loss": 0.7394744753837585
+   },
+   {
+    "step": 425,
+    "epoch": 0,
+    "loss": 0.7038320302963257
+   }
+  ],
+  "training_git": {
+   "commit": "b9c9cee69836972b79fba459c976c6896680b9a3",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "encoder": "resnet18",
+  "crop": 512,
+  "batch_size": 4,
+  "num_workers": 4,
+  "lr": 0.0003,
+  "split_seed": 0,
+  "checkpoint_dir": "C:\\Users\\kvlnr\\OneDrive\\Desktop\\FL\\checkpoints\\silo2_feasibility_loc_resnet18_crop512_bs4_b9c9cee",
+  "checkpoint_every": 200,
+  "eval_images": 40,
+  "allow_dirty": false,
+  "train_config": {
+   "epochs": 1,
+   "batch_size": 4,
+   "lr": 0.0003,
+   "weight_decay": 0.0001,
+   "amp": true,
+   "num_workers": 4,
+   "seed": 0,
+   "max_steps": null,
+   "log_every": 25
+  },
+  "split_strategy": "spatial_block"
+ },
+ "split_sizes": {
+  "hurricane-florence": {
+   "train": 217,
+   "train_dropped_empty": 2,
+   "val": 53,
+   "test": 47
+  },
+  "hurricane-harvey": {
+   "train": 226,
+   "train_dropped_empty": 10,
+   "val": 42,
+   "test": 41
+  },
+  "hurricane-matthew": {
+   "train": 159,
+   "train_dropped_empty": 7,
+   "val": 34,
+   "test": 38
+  },
+  "hurricane-michael": {
+   "train": 249,
+   "train_dropped_empty": 4,
+   "val": 46,
+   "test": 44
+  },
+  "mexico-earthquake": {
+   "train": 88,
+   "train_dropped_empty": 0,
+   "val": 17,
+   "test": 16
+  },
+  "midwest-flooding": {
+   "train": 186,
+   "train_dropped_empty": 20,
+   "val": 37,
+   "test": 36
+  },
+  "palu-tsunami": {
+   "train": 77,
+   "train_dropped_empty": 1,
+   "val": 17,
+   "test": 18
+  },
+  "santa-rosa-wildfire": {
+   "train": 152,
+   "train_dropped_empty": 4,
+   "val": 32,
+   "test": 38
+  },
+  "socal-fire": {
+   "train": 361,
+   "train_dropped_empty": 216,
+   "val": 136,
+   "test": 110
+  }
+ },
+ "runtime_s": 138.645,
+ "git": {
+  "commit": "b9c9cee69836972b79fba459c976c6896680b9a3",
+  "dirty": false
+ },
+ "written_at": "2026-10-28T10:20:01",
+ "python": "3.11.9"
+}
