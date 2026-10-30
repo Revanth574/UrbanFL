@@ -1,0 +1,99 @@
+{
+ "metrics": {
+  "note": "Timing of ONE FedAvg round; no accuracy claims (val numbers are not reported).",
+  "round_s": 169.56349880003836,
+  "train_s": 135.102295699995,
+  "eval_s": 34.381291900062934,
+  "train_pairs": 1715,
+  "val_images": 414,
+  "process_wall_s_incl_worker_startup": 175.54667249997146,
+  "peak_vram_allocated_mib": 2369.43994140625,
+  "training_git": {
+   "commit": "babbf673fba3d520946bbeb259cbe81c778bc47f",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "encoder": "resnet18",
+  "pretrained": "ImageNet",
+  "crop": 512,
+  "batch_size": 4,
+  "eval_batch_size": 2,
+  "amp": true,
+  "num_workers": 4,
+  "weight_decay": 0.0001,
+  "loss": "BCEWithLogits + soft Dice",
+  "optimizer": "AdamW",
+  "ckpt_every_steps": 200,
+  "split": "spatial_block",
+  "lr": 0.0003,
+  "local_epochs": 1,
+  "clients": [
+   "hurricane-florence",
+   "hurricane-harvey",
+   "hurricane-matthew",
+   "hurricane-michael",
+   "mexico-earthquake",
+   "midwest-flooding",
+   "palu-tsunami",
+   "santa-rosa-wildfire",
+   "socal-fire"
+  ],
+  "loader": "one persistent DataLoader + client-aware batch sampler"
+ },
+ "split_sizes": {
+  "hurricane-florence": {
+   "train": 217,
+   "val": 53,
+   "test": 47
+  },
+  "hurricane-harvey": {
+   "train": 226,
+   "val": 42,
+   "test": 41
+  },
+  "hurricane-matthew": {
+   "train": 159,
+   "val": 34,
+   "test": 38
+  },
+  "hurricane-michael": {
+   "train": 249,
+   "val": 46,
+   "test": 44
+  },
+  "mexico-earthquake": {
+   "train": 88,
+   "val": 17,
+   "test": 16
+  },
+  "midwest-flooding": {
+   "train": 186,
+   "val": 37,
+   "test": 36
+  },
+  "palu-tsunami": {
+   "train": 77,
+   "val": 17,
+   "test": 18
+  },
+  "santa-rosa-wildfire": {
+   "train": 152,
+   "val": 32,
+   "test": 38
+  },
+  "socal-fire": {
+   "train": 361,
+   "val": 136,
+   "test": 110
+  }
+ },
+ "runtime_s": 169.563,
+ "git": {
+  "commit": "babbf673fba3d520946bbeb259cbe81c778bc47f",
+  "dirty": false
+ },
+ "written_at": "2026-10-31T00:58:49",
+ "python": "3.11.9"
+}
