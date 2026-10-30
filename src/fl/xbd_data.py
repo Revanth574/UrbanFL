@@ -105,6 +105,11 @@ class XBDPairDataset(Dataset):
         return np.asarray(Image.open(self.dir / "targets" / f"{pid}_{phase}_disaster_target.png"))
 
     def __getitem__(self, i: int) -> dict:
+        return self.get(i, self.epoch)
+
+    def get(self, i: int, epoch: int) -> dict:
+        """Item i with the augmentation of `epoch`. Persistent DataLoader workers hold their own dataset copy, so the
+        epoch travels with the index (src/fl/client_loader.py) instead of via set_epoch."""
         pid = self.ids[i]
         pre = self._img(pid, "pre")
         if self.stage == "loc":
@@ -117,7 +122,7 @@ class XBDPairDataset(Dataset):
             target = damage_target(post_t, uncl)
             arrays = [pre, post, target]
         if self.train:
-            rng = np.random.default_rng([self.seed, self.epoch, i])
+            rng = np.random.default_rng([self.seed, epoch, i])
             arrays = random_crop_flip(arrays, self.crop, rng)
         target = torch.from_numpy(np.ascontiguousarray(arrays[-1]))
         item = {"pre": _to_tensor_image(arrays[0]), "target": target,
