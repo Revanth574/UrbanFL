@@ -2,11 +2,11 @@
 FedAvg for Silo 2 segmentation (stage 1 localisation), sharing one persistent DataLoader across all clients.
 
 Round r (E local epochs):
-  1. every client starts from the global weights, runs E local epochs of AdamW (fresh optimizer state each round: client
-     optimizer state is never communicated) with AMP, on batches from the shared loader (client c, local epoch
-     r*E + e, sample order epoch_order(n_c, seed_of(c), r*E + e));
-  2. server: sample-size-weighted fedavg_aggregate of the client weights (BatchNorm running statistics are averaged
-     too; integer counters are taken from the first client);
+  1. every client starts from the global weights, runs E local epochs of AdamW (fresh optimizer state each round,
+     OPTIMIZER_STATE_POLICY) with AMP, on batches from the shared loader (client c, local epoch r*E + e, sample order
+     epoch_order(n_c, seed_of(c), r*E + e));
+  2. server: sample-size-weighted fedavg_aggregate of the client weights; BatchNorm running statistics are averaged
+     like weights and num_batches_tracked is kept as the int64 maximum (BATCHNORM_POLICY);
   3. every client evaluates the new global model on its OWN val set; the server selects the round with the lowest
      image-weighted mean val loss (pooled per-image loss). Val F1 is logged, never used for selection.
 Checkpoints are written at round boundaries (every `ckpt_every_rounds`): global weights, best weights so far, history,
@@ -27,6 +27,25 @@ from src.fl.checkpoint import CheckpointManager, rng_state, set_rng_state
 from src.fl.client_loader import PersistentClientLoader
 from src.fl.seg_eval import SegEvaluator, pooled_f1, weighted_loss
 from src.fl.seg_train import loc_batch_to_io
+
+
+OPTIMIZER_STATE_POLICY = (
+    "reset every round: each client builds a fresh AdamW (and AMP GradScaler) from the broadcast global weights at the "
+    "start of every round; Adam moment estimates are client-local, never communicated and never carried across rounds "
+    "(they would describe a model the client no longer has)")
+BATCHNORM_POLICY = (
+    "BatchNorm running_mean / running_var are float buffers and are averaged with the same sample-size weights as the "
+    "parameters (the global model is evaluated with these averaged statistics); num_batches_tracked (int64) is not "
+    "averaged: the maximum across clients is kept, still int64. It is unused because every BatchNorm layer has "
+    "momentum set (asserted). Note: averaging running_var ignores between-client differences in the means; FedBN "
+    "(client-local BN) is a possible alternative, not used here.")
+
+
+def check_bn_momentum(model: nn.Module) -> None:
+    """num_batches_tracked only matters when a BatchNorm layer has momentum=None; refuse such models."""
+    bad = [n for n, m in model.named_modules() if isinstance(m, nn.modules.batchnorm._BatchNorm) and m.momentum is None]
+    if bad:
+        raise ValueError(f"BatchNorm layers with momentum=None (cumulative averaging) are not supported in FL: {bad}")
 
 
 @dataclass
@@ -53,6 +72,7 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
     batch size cfg.batch_size and sampler seed client_seed(cfg.seed, client index)."""
     device = torch.device(device)
     use_amp = cfg.amp and device.type == "cuda"
+    check_bn_momentum(model)
     clients = sorted(train_sets)
     sizes = {c: len(train_sets[c]) for c in clients}
     index = {c: i for i, c in enumerate(clients)}

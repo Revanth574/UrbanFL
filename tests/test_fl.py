@@ -34,11 +34,11 @@ def states_equal(s1, s2):
 
 
 def test_fedavg_aggregate_weighted_average():
-    g = {"w": torch.zeros(2), "n": torch.tensor(0)}
+    g = {"w": torch.zeros(2), "n": torch.tensor(0, dtype=torch.int64)}
     out = fedavg_aggregate(g, [{"w": torch.tensor([1.0, 0.0]), "n": torch.tensor(5)},
                                {"w": torch.tensor([4.0, 3.0]), "n": torch.tensor(7)}], [1, 2])
     assert torch.allclose(out["w"], torch.tensor([3.0, 2.0]))
-    assert out["n"].item() == 5          # integer buffers are not averaged
+    assert out["n"].item() == 7 and out["n"].dtype == torch.int64   # integer buffers: max, not averaged
 
 
 def test_single_client_fedavg_equals_plain_sgd():

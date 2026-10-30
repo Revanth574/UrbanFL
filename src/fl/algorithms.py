@@ -23,7 +23,14 @@ ALGORITHMS = ("fedavg", "fedprox")
 def fedavg_aggregate(global_state: dict[str, torch.Tensor],
                      client_states: Sequence[dict[str, torch.Tensor]],
                      client_sizes: Sequence[int]) -> dict[str, torch.Tensor]:
-    """Sample-size-weighted average of client state_dicts: sum_k (n_k / n) * w_k, key by key."""
+    """
+    Sample-size-weighted average of client state_dicts: sum_k (n_k / n) * w_k, key by key.
+    - Floating-point entries (weights, biases, AND BatchNorm running_mean / running_var buffers) are averaged with the
+      same weights.
+    - Integer entries (BatchNorm num_batches_tracked) are NOT averaged (that would produce a fractional counter): the
+      maximum across clients is kept, as an int64. It is only read by BatchNorm when momentum=None (cumulative
+      average); the Silo 2 FL loop asserts momentum is set, so the counter never affects the model.
+    """
     if not client_states or len(client_states) != len(client_sizes):
         raise ValueError("need one size per client state, and at least one client")
     total = float(sum(client_sizes))
@@ -32,8 +39,8 @@ def fedavg_aggregate(global_state: dict[str, torch.Tensor],
     new_state = {}
     for key, ref in global_state.items():
         stacked = torch.stack([state[key].to(ref.dtype) for state in client_states])
-        if not torch.is_floating_point(ref):     # integer buffers (e.g. BatchNorm counters): not averaged
-            new_state[key] = stacked[0].clone()
+        if not torch.is_floating_point(ref):     # integer buffers (BatchNorm num_batches_tracked): max, stays int
+            new_state[key] = stacked.max(dim=0).values.clone()
             continue
         weights = torch.tensor([n / total for n in client_sizes], dtype=ref.dtype, device=ref.device)
         new_state[key] = (stacked * weights.view(-1, *([1] * ref.dim()))).sum(dim=0)

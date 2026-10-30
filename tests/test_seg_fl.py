@@ -47,6 +47,50 @@ def test_evaluator_counts_on_synthetic_xbd(tmp_path):
     assert ev.evaluate(ZeroModel(), clients=["ev-b"]).keys() == {"ev-b"}
 
 
+def test_batchnorm_aggregation_running_stats_and_counter():
+    """BN running_mean/var are averaged with the sample-size weights; num_batches_tracked stays an int64 maximum."""
+    from src.fl.algorithms import fedavg_aggregate
+    from src.fl.seg_fl import check_bn_momentum
+
+    def bn_state(mean, var, nbt, weight):
+        bn = torch.nn.BatchNorm2d(3)
+        with torch.no_grad():
+            bn.running_mean.copy_(torch.tensor(mean))
+            bn.running_var.copy_(torch.tensor(var))
+            bn.num_batches_tracked.fill_(nbt)
+            bn.weight.fill_(weight)
+        return {k: v.clone() for k, v in bn.state_dict().items()}
+
+    a = bn_state([1.0, 2.0, 3.0], [1.0, 1.0, 1.0], 10, 1.0)
+    b = bn_state([3.0, 2.0, 1.0], [3.0, 3.0, 3.0], 4, 5.0)
+    out = fedavg_aggregate(a, [a, b], [1, 3])                                 # weights 0.25 / 0.75
+    assert torch.allclose(out["running_mean"], torch.tensor([2.5, 2.0, 1.5]))
+    assert torch.allclose(out["running_var"], torch.tensor([2.5, 2.5, 2.5]))
+    assert torch.allclose(out["weight"], torch.full((3,), 4.0))               # same weights as the parameters
+    assert out["num_batches_tracked"].dtype == torch.int64 and out["num_batches_tracked"].item() == 10
+    fresh = torch.nn.BatchNorm2d(3)
+    fresh.load_state_dict(out)                                                # loads cleanly into a real BN layer
+    assert torch.allclose(fresh.running_mean, out["running_mean"])
+    check_bn_momentum(torch.nn.Sequential(torch.nn.BatchNorm2d(3)))           # momentum 0.1: accepted
+    with pytest.raises(ValueError, match="momentum=None"):
+        check_bn_momentum(torch.nn.Sequential(torch.nn.BatchNorm2d(3, momentum=None)))
+
+
+def test_unet_batchnorm_survives_a_fedavg_round(tmp_path):
+    """After a real round the global U-Net's BN statistics are finite, changed from init, and the counter is an int."""
+    from src.fl.models import UNetResNet
+    torch.manual_seed(0)
+    model = UNetResNet("resnet18", pretrained=False)
+    init_mean = model.stem[1].running_mean.clone()
+    train_sets = {"c1": ToySegDataset(n=4, size=32, seed=1), "c2": ToySegDataset(n=2, size=32, seed=2)}
+    val = SegEvaluator({"c1": ToySegDataset(n=2, size=32, seed=9)}, batch_size=2)
+    cfg = SegFLConfig(rounds=1, local_epochs=1, batch_size=2, lr=1e-3, amp=False, num_workers=0, seed=0)
+    res = run_seg_fedavg(model, train_sets, val, cfg, bce_dice_loss, "cpu")
+    g = res["final_state"]
+    assert torch.isfinite(g["stem.1.running_var"]).all() and not torch.equal(g["stem.1.running_mean"], init_mean)
+    assert g["stem.1.num_batches_tracked"].dtype == torch.int64 and g["stem.1.num_batches_tracked"].item() == 2
+
+
 def toy_fl(tmp, model, max_rounds=None, rounds=3):
     train_sets = {"c1": ToySegDataset(n=6, seed=1), "c2": ToySegDataset(n=4, seed=2)}
     val = SegEvaluator({"c1": ToySegDataset(n=3, seed=9), "c2": ToySegDataset(n=2, seed=8)}, batch_size=2)

@@ -37,7 +37,8 @@ from src.fl.models import UNetResNet, bce_dice_loss
 from src.fl.partition_xbd import load_xbd_partition, pair_ids
 from src.fl.client_loader import PersistentClientLoader
 from src.fl.seg_eval import SegEvaluator, pooled_f1, weighted_loss
-from src.fl.seg_fl import SegFLConfig, client_seed, run_seg_fedavg
+from src.fl.seg_eval import f1_from_counts
+from src.fl.seg_fl import BATCHNORM_POLICY, OPTIMIZER_STATE_POLICY, SegFLConfig, client_seed, run_seg_fedavg
 from src.fl.seg_train import TrainConfig, train
 from src.fl.utils import RESULTS_DIR, require_clean_tree, set_seed, write_metrics
 from src.fl.xbd_data import XBDPairDataset
@@ -47,9 +48,20 @@ SWEEP_DIR = EXPERIMENT_DIR / "lr_sweep"
 METHODS = ("centralized", "local_only", "fedavg")
 LR_GRID = [1e-4, 3e-4, 1e-3]
 SWEEP_EPOCHS, EPOCHS, ROUNDS, LOCAL_EPOCHS = 10, 30, 30, 1
+NOISY_MIN_TEST_PAIRS = 20                 # per-event test F1 from fewer pairs is flagged "noisy"
+SENSITIVITY_EXCLUDE = ("socal-fire",)     # pooled F1 without these events is reported as a sensitivity check
+PROTOCOL = {
+    "optimizer": "AdamW(lr = lr-sweep choice, betas = (0.9, 0.999), eps = 1e-8, weight_decay = 1e-4) with an AMP "
+                 "GradScaler; identical for centralized, local-only and every FedAvg client",
+    "optimizer_state_centralized_and_local_only": "kept across epochs (one continuous run per model)",
+    "optimizer_state_fedavg": OPTIMIZER_STATE_POLICY,
+    "batchnorm_aggregation_fedavg": BATCHNORM_POLICY,
+    "aggregation_weights_fedavg": "client train-set size (number of pairs)",
+}
 COMMON = {"encoder": "resnet18", "pretrained": "ImageNet", "crop": 512, "batch_size": 4, "eval_batch_size": 2,
           "amp": True, "num_workers": 4, "weight_decay": 1e-4, "loss": "BCEWithLogits + soft Dice",
-          "optimizer": "AdamW", "ckpt_every_steps": 200, "split": "spatial_block"}
+          "ckpt_every_steps": 200, "split": "spatial_block", "protocol": PROTOCOL,
+          "checkpoint_retention": "resume checkpoints deleted once a run completes; best_model.pt kept"}
 
 
 class Data:
@@ -127,12 +139,24 @@ def ckpt_manager(run: str, git: dict, signature: dict, base: str | None) -> Chec
     return CheckpointManager(d, COMMON["ckpt_every_steps"], keep_last=2, signature={**signature, "commit": git["commit"]})
 
 
+def report_test(test: dict) -> dict:
+    """Headline = pooled pixel F1 over all event test sets; per-event F1 flagged noisy below NOISY_MIN_TEST_PAIRS;
+    pooled F1 without SENSITIVITY_EXCLUDE as a sensitivity check."""
+    per_event = {e: {**v, "noisy": v["n_images"] < NOISY_MIN_TEST_PAIRS} for e, v in test.items()}
+    excl = {e: v for e, v in test.items() if e not in SENSITIVITY_EXCLUDE}
+    return {"test_pooled_loc_f1": pooled_f1(test),
+            "test_pooled_loc_f1_excl_socal_fire": pooled_f1(excl),
+            "test_per_event": per_event,
+            "noisy_events": sorted(e for e, v in per_event.items() if v["noisy"]),
+            "reporting": {"headline": "test_pooled_loc_f1", "noisy_rule": f"< {NOISY_MIN_TEST_PAIRS} test pairs",
+                          "sensitivity_excluded": list(SENSITIVITY_EXCLUDE)}}
+
+
 def test_report(model, hub: Hub) -> dict:
     model.to(hub.device)
     test = hub.evaluator("test").evaluate(model)
     held = hub.evaluator("heldout").evaluate(model)
-    return {"test_per_event": test, "test_pooled_loc_f1": pooled_f1(test), "heldout": held,
-            "heldout_loc_f1": pooled_f1(held)}
+    return {**report_test(test), "heldout": held, "heldout_loc_f1": pooled_f1(held)}
 
 
 def run_centralized(data: Data, lr: float, epochs: int, device, git, ckpt_base, tag: str) -> dict:
@@ -176,27 +200,33 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
             mgr = ckpt_manager(f"{tag}_seed{data.seed}/{e}", git,
                                {"method": "local_only", "client": e, "lr": lr, "epochs": epochs, "seed": data.seed},
                                ckpt_base)
-            best_path = mgr.dir / "best_model.pt"
+            best_path, done_path = mgr.dir / "best_model.pt", mgr.dir / "done.json"
+            if done_path.exists() and best_path.exists():            # client finished before an interruption
+                info = json.loads(done_path.read_text(encoding="utf-8"))
+            else:
+                def on_epoch_end(epoch, m, extra, e=e, best_path=best_path):
+                    loss = val_eval.evaluate(m, clients=[e])[e]["loss"]      # own val set only
+                    extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": loss})
+                    if loss < extra.get("best_loss", float("inf")):
+                        extra.update(best_loss=loss, best_epoch=epoch + 1)
+                        save_atomic({k: v.detach().cpu() for k, v in m.state_dict().items()}, best_path)
 
-            def on_epoch_end(epoch, m, extra, e=e, best_path=best_path):
-                loss = val_eval.evaluate(m, clients=[e])[e]["loss"]          # own val set only
-                extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": loss})
-                if loss < extra.get("best_loss", float("inf")):
-                    extra.update(best_loss=loss, best_epoch=epoch + 1)
-                    save_atomic({k: v.detach().cpu() for k, v in m.state_dict().items()}, best_path)
-
-            cfg = TrainConfig(epochs=epochs, batch_size=COMMON["batch_size"], lr=lr,
-                              weight_decay=COMMON["weight_decay"], amp=True, num_workers=COMMON["num_workers"],
-                              seed=data.seed)
-            st = train(model, data.train[e], cfg, bce_dice_loss, device, ckpt=mgr, on_epoch_end=on_epoch_end,
-                       loader=hub.loader, loader_key=f"train/{e}")
-            wall += st["wall_s"]
+                cfg = TrainConfig(epochs=epochs, batch_size=COMMON["batch_size"], lr=lr,
+                                  weight_decay=COMMON["weight_decay"], amp=True, num_workers=COMMON["num_workers"],
+                                  seed=data.seed)
+                st = train(model, data.train[e], cfg, bce_dice_loss, device, ckpt=mgr, on_epoch_end=on_epoch_end,
+                           loader=hub.loader, loader_key=f"train/{e}")
+                info = {"best_epoch": st["extra"]["best_epoch"], "best_val_loss": st["extra"]["best_loss"],
+                        "history": st["extra"]["history"], "wall_s": st["wall_s"], "training_git": git}
+                done_path.write_text(json.dumps(info), encoding="utf-8")
+                mgr.prune_resume_checkpoints()                        # client done: keep best_model.pt only
+            wall += info["wall_s"]
             model.load_state_dict(torch.load(best_path, map_location=device))
             test_counts[e] = test_eval.evaluate(model, clients=[e])[e]
             held_by_client[e] = pooled_f1(held_eval.evaluate(model))
-            per_client[e] = {"best_epoch": st["extra"]["best_epoch"], "best_val_loss": st["extra"]["best_loss"],
-                             "history": st["extra"]["history"], "checkpoint_dir": str(mgr.dir)}
-        return {"selection": per_client, "test_per_event": test_counts, "test_pooled_loc_f1": pooled_f1(test_counts),
+            per_client[e] = {k: info[k] for k in ("best_epoch", "best_val_loss", "history")} | \
+                            {"checkpoint_dir": str(mgr.dir)}
+        return {"selection": per_client, **report_test(test_counts),
                 "heldout_loc_f1_by_client_model": held_by_client,
                 "heldout_loc_f1": float(np.mean(list(held_by_client.values()))),
                 "heldout_note": "mean over the 9 client models (local-only has no single model)",
@@ -222,6 +252,7 @@ def run_fedavg(data: Data, lr: float, rounds: int, device, git, ckpt_base, tag: 
                "history": st["history"], "checkpoint_dir": str(mgr.dir),
                "timing": {"round_s": [h["round_s"] for h in st["history"]]}}
         if st["best_state"] is not None and max_rounds_this_call is None:
+            save_atomic(st["best_state"], mgr.dir / "best_model.pt")  # kept after the resume checkpoints are pruned
             model.load_state_dict(st["best_state"])
             out.update(test_report(model, hub))
         return out
@@ -236,20 +267,39 @@ def _load(p: Path):
 
 
 def write_run(run_dir: Path, method: str, res: dict, data: Data, lr: float, git: dict, runtime: float, extra_cfg: dict):
-    write_metrics(run_dir / "metrics.json", {**res, "training_git": git}, seed=data.seed,
+    write_metrics(run_dir / "metrics.json", {**res, "protocol": PROTOCOL, "training_git": git}, seed=data.seed,
                   config={**COMMON, **extra_cfg, "method": method, "lr": lr,
                           "split_file": f"data/splits/silo2_seed{data.seed}.json"},
                   split_sizes=data.split_sizes(), runtime_s=runtime)
+
+
+def completed(run_dir: Path, git: dict) -> dict | None:
+    """The run's metrics if it already finished at this commit (campaign restarts skip it), else None."""
+    m = _load(run_dir / "metrics.json")
+    if m and m["metrics"].get("training_git", {}).get("commit") == git["commit"] and not m["git"]["dirty"]:
+        return m["metrics"]
+    return None
+
+
+def prune_run(res: dict) -> None:
+    """Run finished and its metrics are written: delete resume checkpoints, keep best_model.pt."""
+    if res.get("checkpoint_dir"):
+        CheckpointManager(Path(res["checkpoint_dir"]), every_n_steps=1).prune_resume_checkpoints()
 
 
 def lr_sweep(device, git, ckpt_base, limit=None, out_dir=SWEEP_DIR) -> dict:
     data = Data(0, limit)
     losses = {}
     for lr in LR_GRID:
-        t0 = time.perf_counter()
-        res = run_centralized(data, lr, SWEEP_EPOCHS, device, git, ckpt_base, tag=f"sweep_lr{lr:g}")
-        write_run(out_dir / f"centralized_lr{lr:g}_seed0", "centralized", res, data, lr, git,
-                  time.perf_counter() - t0, {"epochs": SWEEP_EPOCHS})
+        run_dir = out_dir / f"centralized_lr{lr:g}_seed0"
+        res = completed(run_dir, git) if limit is None else None
+        if res is None:
+            t0 = time.perf_counter()
+            res = run_centralized(data, lr, SWEEP_EPOCHS, device, git, ckpt_base, tag=f"sweep_lr{lr:g}")
+            write_run(run_dir, "centralized", res, data, lr, git, time.perf_counter() - t0, {"epochs": SWEEP_EPOCHS})
+            prune_run(res)
+        else:
+            print(f"  sweep lr={lr:g}: already completed at this commit, reusing", flush=True)
         losses[lr] = res["selection"]["best_val_loss"]
         print(f"  sweep lr={lr:g}: best val loss {losses[lr]:.4f} @ epoch {res['selection']['best_epoch']}", flush=True)
     best = min(losses, key=losses.get)
@@ -271,16 +321,25 @@ def summarize(seeds: list[int]) -> dict:
             continue
         events = sorted(next(iter(rs.values()))["test_per_event"])
         out["methods"][m] = {
-            "test_pooled_loc_f1": ms([r["test_pooled_loc_f1"] for r in rs.values()]),
+            "test_pooled_loc_f1 (headline)": ms([r["test_pooled_loc_f1"] for r in rs.values()]),
+            "test_pooled_loc_f1_excl_socal_fire (sensitivity)":
+                ms([r["test_pooled_loc_f1_excl_socal_fire"] for r in rs.values()]),
             "heldout_loc_f1": ms([r["heldout_loc_f1"] for r in rs.values()]),
-            "test_loc_f1_per_event": {e: ms([r["test_per_event"][e]["f1"] for r in rs.values()]) for e in events}}
+            "test_loc_f1_per_event": {
+                e: {**ms([r["test_per_event"][e]["f1"] for r in rs.values()]),
+                    "test_pairs_by_seed": {s: r["test_per_event"][e]["n_images"] for s, r in rs.items()},
+                    "noisy": any(r["test_per_event"][e]["noisy"] for r in rs.values())} for e in events}}
     for a, b in (("fedavg", "local_only"), ("fedavg", "centralized"), ("centralized", "local_only")):
         common = sorted(set(runs.get(a, {})) & set(runs.get(b, {})))
         if len(common) >= 2:
-            x = np.array([runs[a][s]["test_pooled_loc_f1"] for s in common])
-            y = np.array([runs[b][s]["test_pooled_loc_f1"] for s in common])
-            out["paired"][f"{a}_minus_{b}"] = {**ms(x - y), "p_paired_t": float(sstats.ttest_rel(x, y).pvalue),
-                                              "seeds": common}
+            for key, label in (("test_pooled_loc_f1", ""), ("test_pooled_loc_f1_excl_socal_fire", "_excl_socal_fire")):
+                x = np.array([runs[a][s][key] for s in common])
+                y = np.array([runs[b][s][key] for s in common])
+                out["paired"][f"{a}_minus_{b}{label}"] = {**ms(x - y), "seeds": common,
+                                                         "p_paired_t": float(sstats.ttest_rel(x, y).pvalue)}
+    out["reporting"] = {"headline": "pooled test localisation F1 (pixel F1 at p = 0.5)",
+                        "noisy_rule": f"per-event F1 flagged noisy if any seed has < {NOISY_MIN_TEST_PAIRS} test pairs",
+                        "sensitivity": f"pooled F1 excluding {list(SENSITIVITY_EXCLUDE)}"}
     EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
     (EXPERIMENT_DIR / "summary.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(json.dumps(out, indent=1))
@@ -340,6 +399,10 @@ def main() -> None:
     for seed in args.seeds:
         data = Data(seed, args.smoke)
         for method in args.method or []:
+            run_dir = out_root / f"{method}_seed{seed}"
+            if args.smoke is None and completed(run_dir, git):
+                print(f"seed {seed} {method}: already completed at this commit, skipping", flush=True)
+                continue
             t0 = time.perf_counter()
             if method == "centralized":
                 res = run_centralized(data, lr, epochs, device, git, args.checkpoint_dir, "centralized")
@@ -347,9 +410,11 @@ def main() -> None:
                 res = run_local_only(data, lr, epochs, device, git, args.checkpoint_dir, "local_only")
             else:
                 res = run_fedavg(data, lr, rounds, device, git, args.checkpoint_dir, "fedavg")
-            write_run(out_root / f"{method}_seed{seed}", method, res, data, lr, git, time.perf_counter() - t0,
+            write_run(run_dir, method, res, data, lr, git, time.perf_counter() - t0,
                       {"epochs": epochs} if method != "fedavg" else {"rounds": rounds, "local_epochs": LOCAL_EPOCHS})
-            print(f"seed {seed} {method}: test pooled loc F1 {res['test_pooled_loc_f1']:.4f}, "
+            prune_run(res)                                   # metrics written: keep best_model.pt only
+            print(f"seed {seed} {method}: test pooled loc F1 {res['test_pooled_loc_f1']:.4f} "
+                  f"(excl. socal-fire {res['test_pooled_loc_f1_excl_socal_fire']:.4f}), "
                   f"held-out {res['heldout_loc_f1']:.4f}", flush=True)
 
 

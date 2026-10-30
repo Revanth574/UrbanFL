@@ -96,6 +96,17 @@ class CheckpointManager:
             old.unlink()
         return path
 
+    def prune_resume_checkpoints(self) -> int:
+        """Delete every resume checkpoint (ckpt_step*.pt, *.tmp) once a run is complete; other files such as
+        best_model.pt and done.json stay. Returns the number of bytes freed."""
+        freed = 0
+        if self.dir.exists():
+            for p in list(self.dir.iterdir()):
+                if _NAME.match(p.name) or p.name.endswith(".pt.tmp"):
+                    freed += p.stat().st_size
+                    p.unlink()
+        return freed
+
     def load_latest(self, map_location: str | torch.device = "cpu") -> dict | None:
         path = self.latest()
         if path is None:
