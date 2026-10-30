@@ -42,6 +42,16 @@ def resolve_checkpoint_dir(explicit: str | Path | None, run_name: str) -> Path:
     return base.expanduser() / run_name
 
 
+def save_atomic(obj, path: str | Path) -> Path:
+    """torch.save via a temporary file + os.replace (e.g. best-model weights next to the checkpoints)."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    torch.save(obj, tmp)
+    os.replace(tmp, path)
+    return path
+
+
 def rng_state() -> dict:
     return {"python": random.getstate(), "numpy": np.random.get_state(), "torch": torch.get_rng_state(),
             "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None}

@@ -176,6 +176,30 @@ Seed 0 per event (val ring = buffer tiles forced into val):
 | santa-rosa-wildfire | 152 (+4) | 32 | 38 | 50 (40) | 11 |
 | socal-fire | 361 (+216) | 136 | 110 | 34 (48) | 25 |
 
+Per-event test sets, all seeds — test pairs (building-free share); ⚠ = fewer than 20 test pairs or more than 50%
+building-free test pairs:
+
+| Event | seed 0 | seed 1 | seed 2 | seed 3 | seed 4 |
+|---|---|---|---|---|---|
+| hurricane-florence | 47 (4%) | 42 (2%) | 43 (0%) | 50 (16%) | 41 (2%) |
+| hurricane-harvey | 41 (7%) | 41 (0%) | 49 (4%) | 41 (0%) | 42 (5%) |
+| hurricane-matthew | 38 (8%) | 32 (6%) | 36 (0%) | 34 (18%) | 33 (21%) |
+| hurricane-michael | 44 (2%) | 52 (4%) | 45 (13%) | 59 (7%) | 50 (2%) |
+| mexico-earthquake | 16 (0%) ⚠ | 18 (0%) ⚠ | 16 (0%) ⚠ | 18 (0%) ⚠ | 16 (0%) ⚠ |
+| midwest-flooding | 36 (3%) | 36 (22%) | 36 (19%) | 40 (25%) | 36 (17%) |
+| palu-tsunami | 18 (0%) ⚠ | 15 (0%) ⚠ | 17 (6%) ⚠ | 18 (0%) ⚠ | 16 (0%) ⚠ |
+| santa-rosa-wildfire | 38 (3%) | 29 (3%) | 31 (0%) | 30 (0%) | 29 (7%) |
+| socal-fire | 110 (68%) ⚠ | 117 (56%) ⚠ | 110 (70%) ⚠ | 108 (53%) ⚠ | 110 (62%) ⚠ |
+| guatemala-volcano (held out) | 18 (6%) | 18 (6%) | 18 (6%) | 18 (6%) | 18 (6%) |
+
+- mexico-earthquake and palu-tsunami are below 20 test pairs on every seed: the events have only 121 / 113 pairs, so
+  15% is ≈ 17. Mexico's tiles are dense urban (32k buildings), so the pixel counts are large but the tile-level
+  variance of per-event F1 is high; report these two per-event numbers with that caveat.
+- socal-fire test sets are 53–70% building-free: the event is 50% building-free and, under spatial blocks, empty tiles
+  cluster geographically. For localisation F1 (pooled pixel F1) empty tiles contribute only false positives.
+- Possible remedies, not applied: a larger test fraction for small events, or stratifying block assignment on
+  building presence.
+
 Trade-off: fractions are approximate (blocks are indivisible), and the split is no longer stratified on building
 presence. Test areas are geographically distinct from training areas within each event, so within-event test scores
 measure spatial generalisation rather than interpolation between neighbouring tiles.
