@@ -1,5 +1,6 @@
 {
  "protocol": "leave-one-event-out: train on 9 events, test on all rows of the held-out 10th; checkpoint selection on the 9 training events' val sets only",
+ "lr_mode": "shared",
  "seeds": [
   0,
   1,
@@ -26,10 +27,66 @@
  ],
  "lrs": {
   "local_only": 0.1,
-  "fedavg_E1": 0.1,
-  "centralized": 0.01
+  "fedavg_E1": {
+   "2013_Pakistan_eq": 0.1,
+   "2014_California_Earthquake": 0.1,
+   "2014_Chile_Earthquake_cl": 0.1,
+   "2014_Chile_Earthquake_en": 0.1,
+   "2014_Hurricane_Odile_Mexico_en": 0.1,
+   "2014_India_floods": 0.1,
+   "2014_Pakistan_floods": 0.1,
+   "2014_Philippines_Typhoon_Hagupit_en": 0.1,
+   "2015_Cyclone_Pam_en": 0.1,
+   "2015_Nepal_Earthquake_en": 0.1
+  },
+  "centralized": {
+   "2013_Pakistan_eq": 0.01,
+   "2014_California_Earthquake": 0.01,
+   "2014_Chile_Earthquake_cl": 0.01,
+   "2014_Chile_Earthquake_en": 0.01,
+   "2014_Hurricane_Odile_Mexico_en": 0.01,
+   "2014_India_floods": 0.01,
+   "2014_Pakistan_floods": 0.01,
+   "2014_Philippines_Typhoon_Hagupit_en": 0.01,
+   "2015_Cyclone_Pam_en": 0.01,
+   "2015_Nepal_Earthquake_en": 0.01
+  }
  },
- "lr_note": "chosen on seed 0 with all 10 events' val sets, i.e. including each fold's held-out event; kept unchanged so the recipes match the in-distribution runs",
+ "lr_notes": {
+  "local_only": "chosen on seed 0 with all 10 events' val sets, i.e. including each fold's held-out event; kept unchanged so the recipes match the in-distribution runs (not re-chosen per fold)",
+  "fedavg_E1": [
+   "chosen on seed 0 with all 10 events' val sets, i.e. including each fold's held-out event; kept unchanged so the recipes match the in-distribution runs"
+  ],
+  "centralized": [
+   "chosen on seed 0 with all 10 events' val sets, i.e. including each fold's held-out event; kept unchanged so the recipes match the in-distribution runs"
+  ]
+ },
+ "run_sources": {
+  "fedavg_E1": {
+   "2013_Pakistan_eq": "silo1_unseen\\fedavg_E1_holdout-2013_Pakistan_eq_seed<k>",
+   "2014_California_Earthquake": "silo1_unseen\\fedavg_E1_holdout-2014_California_Earthquake_seed<k>",
+   "2014_Chile_Earthquake_cl": "silo1_unseen\\fedavg_E1_holdout-2014_Chile_Earthquake_cl_seed<k>",
+   "2014_Chile_Earthquake_en": "silo1_unseen\\fedavg_E1_holdout-2014_Chile_Earthquake_en_seed<k>",
+   "2014_Hurricane_Odile_Mexico_en": "silo1_unseen\\fedavg_E1_holdout-2014_Hurricane_Odile_Mexico_en_seed<k>",
+   "2014_India_floods": "silo1_unseen\\fedavg_E1_holdout-2014_India_floods_seed<k>",
+   "2014_Pakistan_floods": "silo1_unseen\\fedavg_E1_holdout-2014_Pakistan_floods_seed<k>",
+   "2014_Philippines_Typhoon_Hagupit_en": "silo1_unseen\\fedavg_E1_holdout-2014_Philippines_Typhoon_Hagupit_en_seed<k>",
+   "2015_Cyclone_Pam_en": "silo1_unseen\\fedavg_E1_holdout-2015_Cyclone_Pam_en_seed<k>",
+   "2015_Nepal_Earthquake_en": "silo1_unseen\\fedavg_E1_holdout-2015_Nepal_Earthquake_en_seed<k>"
+  },
+  "centralized": {
+   "2013_Pakistan_eq": "silo1_unseen\\centralized_holdout-2013_Pakistan_eq_seed<k>",
+   "2014_California_Earthquake": "silo1_unseen\\centralized_holdout-2014_California_Earthquake_seed<k>",
+   "2014_Chile_Earthquake_cl": "silo1_unseen\\centralized_holdout-2014_Chile_Earthquake_cl_seed<k>",
+   "2014_Chile_Earthquake_en": "silo1_unseen\\centralized_holdout-2014_Chile_Earthquake_en_seed<k>",
+   "2014_Hurricane_Odile_Mexico_en": "silo1_unseen\\centralized_holdout-2014_Hurricane_Odile_Mexico_en_seed<k>",
+   "2014_India_floods": "silo1_unseen\\centralized_holdout-2014_India_floods_seed<k>",
+   "2014_Pakistan_floods": "silo1_unseen\\centralized_holdout-2014_Pakistan_floods_seed<k>",
+   "2014_Philippines_Typhoon_Hagupit_en": "silo1_unseen\\centralized_holdout-2014_Philippines_Typhoon_Hagupit_en_seed<k>",
+   "2015_Cyclone_Pam_en": "silo1_unseen\\centralized_holdout-2015_Cyclone_Pam_en_seed<k>",
+   "2015_Nepal_Earthquake_en": "silo1_unseen\\centralized_holdout-2015_Nepal_Earthquake_en_seed<k>"
+  }
+ },
  "metric_definitions": {
   "pooled_heldout_macro_f1": "9-class macro-F1 over all held-out predictions of the 10 folds concatenated (each tweet once; local_only: once per other-event model, 9x)",
   "event_d4_macro_f1": "macro-F1 on one held-out event over classes with >= 3 true examples; local_only = mean over the 9 other-event models",
@@ -339,6 +396,18 @@
       0.644468769000353
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.5798697631958103,
+    "std": 0.05113448847681425,
+    "n": 5,
+    "values": [
+     0.4928739063192844,
+     0.6211417470580253,
+     0.5851547551218724,
+     0.5870181442946454,
+     0.6131602631852241
+    ]
    }
   },
   "2014_California_Earthquake": {
@@ -492,6 +561,18 @@
       0.6451495056881836
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.601942096152768,
+    "std": 0.04309127865765282,
+    "n": 5,
+    "values": [
+     0.5870281216148687,
+     0.558669892199304,
+     0.6613454270597128,
+     0.5713083100284979,
+     0.6313587298614564
+    ]
    }
   },
   "2014_Chile_Earthquake_cl": {
@@ -645,6 +726,18 @@
       0.6512591864411653
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.37464799013136746,
+    "std": 0.015125419470067533,
+    "n": 5,
+    "values": [
+     0.362487118263755,
+     0.39369770967758183,
+     0.37277249512184674,
+     0.3860741940300926,
+     0.35820843356356113
+    ]
    }
   },
   "2014_Chile_Earthquake_en": {
@@ -798,6 +891,18 @@
       0.6238958769085934
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.6699622326383723,
+    "std": 0.039104471173173345,
+    "n": 5,
+    "values": [
+     0.6793543597215851,
+     0.6125202696307428,
+     0.6514066782669303,
+     0.694143527363294,
+     0.7123863282093096
+    ]
    }
   },
   "2014_Hurricane_Odile_Mexico_en": {
@@ -951,6 +1056,18 @@
       0.6286927673227499
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.5924045496671158,
+    "std": 0.04407581087008796,
+    "n": 5,
+    "values": [
+     0.5387604020755923,
+     0.6088093065011864,
+     0.6449441254319302,
+     0.5552041361360714,
+     0.6143047781907985
+    ]
    }
   },
   "2014_India_floods": {
@@ -1104,6 +1221,18 @@
       0.6280814340220608
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.5772231871271332,
+    "std": 0.07115833342173536,
+    "n": 5,
+    "values": [
+     0.683960196616832,
+     0.49758244206773616,
+     0.5784704925083359,
+     0.5305293985356322,
+     0.5955734059071296
+    ]
    }
   },
   "2014_Pakistan_floods": {
@@ -1257,6 +1386,18 @@
       0.6567123790959768
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.47123280548422464,
+    "std": 0.04410020865713843,
+    "n": 5,
+    "values": [
+     0.4702643979830069,
+     0.5428194346972478,
+     0.4230356460843368,
+     0.45372099955939277,
+     0.4663235490971391
+    ]
    }
   },
   "2014_Philippines_Typhoon_Hagupit_en": {
@@ -1410,6 +1551,18 @@
       0.626966030014481
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.643106092612647,
+    "std": 0.029416765926188013,
+    "n": 5,
+    "values": [
+     0.6834248801634523,
+     0.6175485608608857,
+     0.6622062785905082,
+     0.6372315167897455,
+     0.615119226658643
+    ]
    }
   },
   "2015_Cyclone_Pam_en": {
@@ -1563,6 +1716,18 @@
       0.6462120266239078
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.5440951619142445,
+    "std": 0.037629789441999795,
+    "n": 5,
+    "values": [
+     0.5097607704617334,
+     0.6062188491767521,
+     0.5504937049260877,
+     0.5274786018880506,
+     0.5265238831185981
+    ]
    }
   },
   "2015_Nepal_Earthquake_en": {
@@ -1716,6 +1881,18 @@
       0.6304597190656369
      ]
     }
+   },
+   "reference_review1_local_own_event_d4_macro_f1": {
+    "mean": 0.5475259058248125,
+    "std": 0.03096789554062826,
+    "n": 5,
+    "values": [
+     0.5878527888960469,
+     0.5294735553296168,
+     0.5440495829131661,
+     0.5672397379445918,
+     0.509013864040641
+    ]
    }
   }
  },
@@ -1839,6 +2016,148 @@
    }
   }
  },
+ "fedavg_vs_centralized_over_events": {
+  "rule": "clear iff |mean paired diff| > t(0.975,4)=2.776 x SE over seeds; verdict 'comparable' unless one side has >= 6/10 clear events",
+  "wins_by_seed_mean": 9,
+  "losses_by_seed_mean": 1,
+  "clear": {
+   "fedavg_better": 3,
+   "centralized_better": 0
+  },
+  "verdict": "comparable",
+  "per_event": {
+   "2013_Pakistan_eq": {
+    "mean_diff": 0.004667989122705529,
+    "se_over_seeds": 0.0011598357630156753,
+    "noise_threshold": 0.0032202203270582197,
+    "outcome": "fedavg_better",
+    "diffs_by_seed": [
+     0.003557429052849559,
+     0.0059714953765864776,
+     0.002686884977357251,
+     0.00859920323690172,
+     0.0025249329698326384
+    ]
+   },
+   "2014_California_Earthquake": {
+    "mean_diff": -0.0003935298927180475,
+    "se_over_seeds": 0.002711541216676462,
+    "noise_threshold": 0.007528445338583432,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     -0.004519035766423263,
+     -0.004218695394412553,
+     -0.0018424464088011017,
+     0.010185121945077813,
+     -0.0015725938390311334
+    ]
+   },
+   "2014_Chile_Earthquake_cl": {
+    "mean_diff": 0.0005000043380438468,
+    "se_over_seeds": 0.003146952296363067,
+    "noise_threshold": 0.008737340299528194,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     -0.005058885153379877,
+     0.011014573512272974,
+     0.004490453126022864,
+     -0.003394929731722951,
+     -0.004551190062973776
+    ]
+   },
+   "2014_Chile_Earthquake_en": {
+    "mean_diff": 0.03371353926599165,
+    "se_over_seeds": 0.004486712386977459,
+    "noise_threshold": 0.012457110645253875,
+    "outcome": "fedavg_better",
+    "diffs_by_seed": [
+     0.024068273439827204,
+     0.04476729982790839,
+     0.02370974150977656,
+     0.0329922566813412,
+     0.04303012487110491
+    ]
+   },
+   "2014_Hurricane_Odile_Mexico_en": {
+    "mean_diff": 0.001816921053001197,
+    "se_over_seeds": 0.004470447317857822,
+    "noise_threshold": 0.012411951573710955,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     -0.0036735388169774064,
+     0.012907642500650907,
+     -0.011561274983716396,
+     0.0013859073103335007,
+     0.01002586925471538
+    ]
+   },
+   "2014_India_floods": {
+    "mean_diff": 0.01043782452550963,
+    "se_over_seeds": 0.00422425041260267,
+    "noise_threshold": 0.011728399381200441,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     0.0031692046990068334,
+     0.0121868630094214,
+     0.0005570760738700109,
+     0.011627244752584143,
+     0.02464873409266577
+    ]
+   },
+   "2014_Pakistan_floods": {
+    "mean_diff": 0.005651476553310541,
+    "se_over_seeds": 0.0024091599695262697,
+    "noise_threshold": 0.006688900405029677,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     0.010750841096753228,
+     0.002474707790226238,
+     0.012177364772141541,
+     0.0023518962938595123,
+     0.0005025728135721885
+    ]
+   },
+   "2014_Philippines_Typhoon_Hagupit_en": {
+    "mean_diff": 0.004844966527586836,
+    "se_over_seeds": 0.0020754757009828584,
+    "noise_threshold": 0.005762444350950816,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     0.009743823063193213,
+     0.008871134877720843,
+     -0.0013482519952427996,
+     0.004867555710819094,
+     0.002090570981443829
+    ]
+   },
+   "2015_Cyclone_Pam_en": {
+    "mean_diff": 0.00558986884224415,
+    "se_over_seeds": 0.0026355148607078247,
+    "noise_threshold": 0.007317362334688284,
+    "outcome": "comparable",
+    "diffs_by_seed": [
+     0.006917121055464381,
+     0.010433805093004622,
+     0.0009848979203304076,
+     -0.001948281708641475,
+     0.011561801851062814
+    ]
+   },
+   "2015_Nepal_Earthquake_en": {
+    "mean_diff": 0.006589529636552416,
+    "se_over_seeds": 0.0022429046236496167,
+    "noise_threshold": 0.0062273015637574775,
+    "outcome": "fedavg_better",
+    "diffs_by_seed": [
+     0.00886594065087365,
+     0.012321277233660943,
+     0.004798640525265352,
+     -0.0009936409310683514,
+     0.007955430704030486
+    ]
+   }
+  }
+ },
  "in_distribution_reference": {
   "local_only_own_test_pooled_macro_f1": {
    "mean": 0.6000289724021007,
@@ -1851,6 +2170,147 @@
     0.5982284781263848,
     0.6035900314164331
    ]
+  },
+  "review1_local_only": {
+   "source": "results/silo1_baselines/local_only_seed<k>/metrics.json",
+   "training_commits": [
+    "92f80ae11e55f24e2fc921fa05e9b2bd3ce345cb"
+   ],
+   "per_event_d4_macro_f1": {
+    "2013_Pakistan_eq": {
+     "mean": 0.5798697631958103,
+     "std": 0.05113448847681425,
+     "n": 5,
+     "values": [
+      0.4928739063192844,
+      0.6211417470580253,
+      0.5851547551218724,
+      0.5870181442946454,
+      0.6131602631852241
+     ]
+    },
+    "2014_California_Earthquake": {
+     "mean": 0.601942096152768,
+     "std": 0.04309127865765282,
+     "n": 5,
+     "values": [
+      0.5870281216148687,
+      0.558669892199304,
+      0.6613454270597128,
+      0.5713083100284979,
+      0.6313587298614564
+     ]
+    },
+    "2014_Chile_Earthquake_cl": {
+     "mean": 0.37464799013136746,
+     "std": 0.015125419470067533,
+     "n": 5,
+     "values": [
+      0.362487118263755,
+      0.39369770967758183,
+      0.37277249512184674,
+      0.3860741940300926,
+      0.35820843356356113
+     ]
+    },
+    "2014_Chile_Earthquake_en": {
+     "mean": 0.6699622326383723,
+     "std": 0.039104471173173345,
+     "n": 5,
+     "values": [
+      0.6793543597215851,
+      0.6125202696307428,
+      0.6514066782669303,
+      0.694143527363294,
+      0.7123863282093096
+     ]
+    },
+    "2014_Hurricane_Odile_Mexico_en": {
+     "mean": 0.5924045496671158,
+     "std": 0.04407581087008796,
+     "n": 5,
+     "values": [
+      0.5387604020755923,
+      0.6088093065011864,
+      0.6449441254319302,
+      0.5552041361360714,
+      0.6143047781907985
+     ]
+    },
+    "2014_India_floods": {
+     "mean": 0.5772231871271332,
+     "std": 0.07115833342173536,
+     "n": 5,
+     "values": [
+      0.683960196616832,
+      0.49758244206773616,
+      0.5784704925083359,
+      0.5305293985356322,
+      0.5955734059071296
+     ]
+    },
+    "2014_Pakistan_floods": {
+     "mean": 0.47123280548422464,
+     "std": 0.04410020865713843,
+     "n": 5,
+     "values": [
+      0.4702643979830069,
+      0.5428194346972478,
+      0.4230356460843368,
+      0.45372099955939277,
+      0.4663235490971391
+     ]
+    },
+    "2014_Philippines_Typhoon_Hagupit_en": {
+     "mean": 0.643106092612647,
+     "std": 0.029416765926188013,
+     "n": 5,
+     "values": [
+      0.6834248801634523,
+      0.6175485608608857,
+      0.6622062785905082,
+      0.6372315167897455,
+      0.615119226658643
+     ]
+    },
+    "2015_Cyclone_Pam_en": {
+     "mean": 0.5440951619142445,
+     "std": 0.037629789441999795,
+     "n": 5,
+     "values": [
+      0.5097607704617334,
+      0.6062188491767521,
+      0.5504937049260877,
+      0.5274786018880506,
+      0.5265238831185981
+     ]
+    },
+    "2015_Nepal_Earthquake_en": {
+     "mean": 0.5475259058248125,
+     "std": 0.03096789554062826,
+     "n": 5,
+     "values": [
+      0.5878527888960469,
+      0.5294735553296168,
+      0.5440495829131661,
+      0.5672397379445918,
+      0.509013864040641
+     ]
+    }
+   },
+   "pooled_macro_f1": {
+    "mean": 0.5998546163179438,
+    "std": 0.0024789766398228444,
+    "n": 5,
+    "values": [
+     0.5996176839835967,
+     0.6007596054874234,
+     0.5974832485408839,
+     0.5978225121613822,
+     0.6035900314164331
+    ]
+   },
+   "note": "in-distribution (trained on the event's own labels, tested on its own test split); compare with the held-out test_split columns"
   },
   "note": "fedavg/centralized seen-event test F1 per fold is in per_event[*][method]"
  },

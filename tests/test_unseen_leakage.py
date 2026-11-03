@@ -90,6 +90,50 @@ def test_local_model_trains_on_own_event_only(monkeypatch, data):
     assert seen == [(codes(data, [HOLDOUT], ["train"]), codes(data, [HOLDOUT], ["val"]))]
 
 
+def test_sweep_never_scores_heldout(monkeypatch, tmp_path, data, part):
+    """The per-fold lr sweep only trains on the 9; it never predicts on (or loads) the held-out event."""
+    seen = []
+
+    def fake_train_centralized(d, train_events, lr, seed, device):
+        seen.append(set(d))
+        return None, {"best_val_loss": lr, "best_epoch": 1, "history": [{"val_loss": lr}]}
+
+    monkeypatch.setattr(U, "train_centralized", fake_train_centralized)
+    monkeypatch.setattr(U, "predict", lambda *a: pytest.fail("sweep must not predict"))
+    monkeypatch.setattr(U, "SWEEP_DIR", tmp_path)
+    m = U.sweep_run("centralized", part, data, HOLDOUT, 0.01, "cpu", {"commit": "x", "dirty": False})
+    assert seen == [set(data) - {HOLDOUT}] and m["val_loss"] == 0.01
+
+
+def test_resource_guard(tmp_path):
+    log = tmp_path / "campaign_x.log"
+    log.write_text("CRASH old\n", encoding="utf-8")
+    guard = U.ResourceGuard(None, str(tmp_path / "campaign_*.log"))
+    guard.check()                                   # pre-existing CRASH lines are ignored
+    with log.open("a", encoding="utf-8") as f:
+        f.write("CKPT ok\nCRASH step (attempt 1)\n")
+    with pytest.raises(U.GuardStop):
+        guard.check()
+    with pytest.raises(U.GuardStop):
+        U.ResourceGuard(1e9, None).check()           # RAM floor no machine meets
+
+
+def test_fedavg_vs_centralized_verdict():
+    events = [f"e{i}" for i in range(10)]
+    seeds = list(range(5))
+
+    def per_seed(diff_fn):
+        return {s: {U.FL_NAME: {"per_event": {h: {"all_rows": {"d4_macro_f1": 0.5 + diff_fn(i, s)}}
+                                              for i, h in enumerate(events)}},
+                    "centralized": {"per_event": {h: {"all_rows": {"d4_macro_f1": 0.5}} for h in events}}}
+                for s in seeds}
+
+    noisy = U.fedavg_vs_centralized(per_seed(lambda i, s: 0.01 * (-1) ** s), seeds, events)
+    assert noisy["verdict"] == "comparable" and noisy["clear"] == {"fedavg_better": 0, "centralized_better": 0}
+    clear = U.fedavg_vs_centralized(per_seed(lambda i, s: 0.05 + 0.001 * s), seeds, events)
+    assert clear["verdict"] == "fedavg_better" and clear["wins_by_seed_mean"] == 10
+
+
 def test_holm():
     adj = U.holm({"a": 0.01, "b": 0.04, "c": 0.03})
     assert adj == pytest.approx({"a": 0.03, "c": 0.06, "b": 0.06})
