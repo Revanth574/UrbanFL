@@ -17,6 +17,7 @@ It is used for centralized training now and as the client update in Silo 2 FL la
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import asdict, dataclass
 from typing import Callable, Iterator
@@ -25,8 +26,21 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, Sampler
 
-from src.fl.checkpoint import CheckpointManager, rng_state, set_rng_state
+from src.fl.checkpoint import CheckpointManager, rng_fingerprint, rng_state, set_rng_state
 from src.fl.client_loader import PersistentClientLoader, epoch_order
+
+
+TRACE = os.environ.get("URBANFL_TRACE") == "1"
+
+
+def assert_on_device(model: nn.Module, opt: torch.optim.Optimizer | None, device: torch.device) -> None:
+    """After a resume: parameters and optimizer moment tensors must live on the training device."""
+    bad = [n for n, p in model.named_parameters() if p.device.type != device.type]
+    if opt is not None:
+        for group in opt.state.values():
+            bad += [k for k, v in group.items() if torch.is_tensor(v) and k != "step" and v.device.type != device.type]
+    if bad:
+        raise RuntimeError(f"tensors not on {device} after resume: {bad[:5]}")
 
 
 @dataclass
@@ -85,21 +99,26 @@ def train(model: nn.Module, dataset: Dataset, cfg: TrainConfig, loss_fn: Callabl
     epoch, step_in_epoch, global_step, resumed_from = 0, 0, 0, None
     extra: dict = {}
 
-    state = ckpt.load_latest(map_location=device) if ckpt else None
+    state = ckpt.load_latest() if ckpt else None            # always loaded on CPU (see CheckpointManager)
     if state is not None:
-        model.load_state_dict(state["model"])
-        opt.load_state_dict(state["optimizer"])
-        scaler.load_state_dict(state["scaler"])
-        set_rng_state(state["rng"])
+        model.load_state_dict(state["model"])                # copies into the parameters on `device`
+        opt.load_state_dict(state["optimizer"])              # casts state tensors to each parameter's device
+        scaler.load_state_dict(state["scaler"])              # plain python numbers
+        set_rng_state(state["rng"])                          # CPU uint8 RNG tensors
+        assert_on_device(model, opt, device)
         extra = state.get("extra", {})
         epoch, step_in_epoch, global_step = state["epoch"], state["step_in_epoch"], state["global_step"]
         resumed_from = global_step
+        print(f"RESUME {ckpt.dir.name}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
+              f"rng={rng_fingerprint()} (saved rng={rng_fingerprint(state['rng'])})", flush=True)
 
     def save() -> None:
         if ckpt is not None:
             ckpt.save({"model": model.state_dict(), "optimizer": opt.state_dict(), "scaler": scaler.state_dict(),
                        "rng": rng_state(), "epoch": epoch, "step_in_epoch": step_in_epoch, "extra": extra,
                        "train_config": asdict(cfg)}, global_step)
+            print(f"CKPT {ckpt.dir.name}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
+                  f"rng={rng_fingerprint()}", flush=True)
 
     # One persistent loader for the whole run (workers start once). Sample order: epoch_order(n, seed, epoch), resumed
     # at batch `step_in_epoch`; the loader has its own generator, so iterating never consumes the global torch RNG
@@ -130,6 +149,9 @@ def train(model: nn.Module, dataset: Dataset, cfg: TrainConfig, loss_fn: Callabl
             step_in_epoch += 1
             loss_v = loss.item()                     # syncs the GPU, so `compute` measures real work
             compute += time.perf_counter() - t0
+            if TRACE:                                # opt-in: sampling order + loss per step (resume smoke tests)
+                print(f"TRACE run={ckpt.dir.name if ckpt else loader_key} step={global_step} epoch={epoch} ids={','.join(batch.get('pair_id', []))} "
+                      f"loss={loss_v:.6f}", flush=True)
             if global_step % cfg.log_every == 0 or global_step == 1:
                 losses.append({"step": global_step, "epoch": epoch, "loss": loss_v})
             if on_step is not None:

@@ -23,10 +23,10 @@ import torch
 import torch.nn as nn
 
 from src.fl.algorithms import fedavg_aggregate
-from src.fl.checkpoint import CheckpointManager, rng_state, set_rng_state
+from src.fl.checkpoint import CheckpointManager, rng_fingerprint, rng_state, set_rng_state
 from src.fl.client_loader import PersistentClientLoader
 from src.fl.seg_eval import SegEvaluator, pooled_f1, weighted_loss
-from src.fl.seg_train import loc_batch_to_io
+from src.fl.seg_train import TRACE, assert_on_device, loc_batch_to_io
 
 
 OPTIMIZER_STATE_POLICY = (
@@ -85,16 +85,20 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
     local = copy.deepcopy(model)
     start_round, history, best = 0, [], {"round": None, "loss": float("inf"), "state": None}
 
-    state = ckpt.load_latest(map_location=device) if ckpt else None
+    state = ckpt.load_latest() if ckpt else None            # always loaded on CPU (see CheckpointManager)
     if state is not None:
-        model.load_state_dict(state["global"])
-        set_rng_state(state["rng"])
-        start_round, history, best = state["round"], state["history"], state["best"]
+        model.load_state_dict(state["global"])               # copies into the parameters on `device`
+        set_rng_state(state["rng"])                          # CPU uint8 RNG tensors
+        assert_on_device(model, None, device)                # client optimizers are rebuilt every round anyway
+        start_round, history, best = state["round"], state["history"], state["best"]   # best["state"] stays on CPU
+        print(f"RESUME {ckpt.dir.name}: completed_rounds={start_round} best_round={best['round']} "
+              f"rng={rng_fingerprint()} (saved rng={rng_fingerprint(state['rng'])})", flush=True)
 
     def save(completed_rounds: int) -> None:
         if ckpt is not None:
             ckpt.save({"global": model.state_dict(), "rng": rng_state(), "round": completed_rounds,
                        "history": history, "best": best, "fl_config": asdict(cfg)}, completed_rounds)
+            print(f"CKPT {ckpt.dir.name}: completed_rounds={completed_rounds} rng={rng_fingerprint()}", flush=True)
 
     if device.type == "cuda":
         torch.cuda.reset_peak_memory_stats(device)
@@ -126,8 +130,12 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
             scaler.scale(loss).backward()
             scaler.step(opt)
             scaler.update()
-            loss_sum += loss.item()
+            loss_v = loss.item()
+            loss_sum += loss_v
             n_steps += 1
+            if TRACE:                                        # opt-in: sampling order + loss (resume smoke tests)
+                print(f"TRACE run={ckpt.dir.name if ckpt else 'fedavg'} round={r + 1} client={c} step={n_steps} ids={','.join(batch.get('pair_id', []))} "
+                      f"loss={loss_v:.6f}", flush=True)
         states[current] = {k: v.detach().clone() for k, v in local.state_dict().items()}
         client_loss[current] = loss_sum / max(1, n_steps)
         t_train = time.perf_counter() - t0
@@ -142,6 +150,9 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
                  "client_train_loss": client_loss, "train_s": t_train, "eval_s": t_eval,
                  "round_s": time.perf_counter() - t0}
         history.append(entry)
+        print(f"ROUND {r + 1}/{cfg.rounds}: fed_val_loss={fed_val_loss:.4f} "
+              f"mean_client_train_loss={sum(client_loss.values()) / len(client_loss):.4f} "
+              f"round_s={entry['round_s']:.0f}", flush=True)
         if fed_val_loss < best["loss"]:
             best = {"round": r + 1, "loss": fed_val_loss,
                     "state": {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}}

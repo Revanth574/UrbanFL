@@ -57,12 +57,30 @@ def rng_state() -> dict:
             "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None}
 
 
+def _cpu_bytes(t: torch.Tensor) -> torch.Tensor:
+    """torch.set_rng_state / torch.cuda.set_rng_state_all accept only CPU uint8 tensors."""
+    return t.detach().to(device="cpu", dtype=torch.uint8)
+
+
 def set_rng_state(state: dict) -> None:
     random.setstate(state["python"])
     np.random.set_state(state["numpy"])
-    torch.set_rng_state(state["torch"])
+    torch.set_rng_state(_cpu_bytes(state["torch"]))
     if state.get("cuda") is not None and torch.cuda.is_available():
-        torch.cuda.set_rng_state_all(state["cuda"])
+        torch.cuda.set_rng_state_all([_cpu_bytes(s) for s in state["cuda"]])
+
+
+def rng_fingerprint(state: dict | None = None) -> str:
+    """Short hash of python + numpy + torch CPU + CUDA RNG states (current state if None), for resume logs."""
+    import hashlib
+    state = rng_state() if state is None else state
+    h = hashlib.sha1()
+    h.update(repr(state["python"]).encode())
+    h.update(np.asarray(state["numpy"][1]).tobytes())
+    h.update(_cpu_bytes(state["torch"]).numpy().tobytes())
+    for s in state.get("cuda") or []:
+        h.update(_cpu_bytes(s).numpy().tobytes())
+    return h.hexdigest()[:12]
 
 
 class CheckpointManager:
@@ -107,11 +125,17 @@ class CheckpointManager:
                     p.unlink()
         return freed
 
-    def load_latest(self, map_location: str | torch.device = "cpu") -> dict | None:
+    def load_latest(self) -> dict | None:
+        """
+        Newest checkpoint, ALWAYS loaded onto the CPU. Callers move what they need: load_state_dict copies weights
+        into the (GPU) parameters, Optimizer.load_state_dict casts its state to each parameter's device, and RNG
+        states must stay CPU uint8 tensors (loading with map_location='cuda' moved them to the GPU and made
+        torch.set_rng_state fail on resume).
+        """
         path = self.latest()
         if path is None:
             return None
-        state = torch.load(path, map_location=map_location, weights_only=False)
+        state = torch.load(path, map_location="cpu", weights_only=False)
         if state.get("signature") != self.signature:
             raise ValueError(f"checkpoint {path} was written by a different run configuration; refusing to resume.\n"
                              f"  saved:   {state.get('signature')}\n  current: {self.signature}")

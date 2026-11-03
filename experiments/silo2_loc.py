@@ -177,6 +177,8 @@ def run_centralized(data: Data, lr: float, epochs: int, device, git, ckpt_base, 
             if entry["val_loss"] < extra.get("best_loss", float("inf")):
                 extra.update(best_loss=entry["val_loss"], best_epoch=entry["epoch"])
                 save_atomic({k: v.detach().cpu() for k, v in m.state_dict().items()}, best_path)
+            print(f"EPOCH {run} {entry['epoch']}/{epochs}: val_loss={entry['val_loss']:.4f} "
+                  f"(best {extra['best_loss']:.4f} @ epoch {extra['best_epoch']})", flush=True)
 
         cfg = TrainConfig(epochs=epochs, batch_size=COMMON["batch_size"], lr=lr, weight_decay=COMMON["weight_decay"],
                           amp=True, num_workers=COMMON["num_workers"], seed=data.seed)
@@ -203,6 +205,8 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
             best_path, done_path = mgr.dir / "best_model.pt", mgr.dir / "done.json"
             if done_path.exists() and best_path.exists():            # client finished before an interruption
                 info = json.loads(done_path.read_text(encoding="utf-8"))
+                print(f"SKIP local_only client {e}: done.json found (best epoch {info['best_epoch']}), "
+                      f"not retrained", flush=True)
             else:
                 def on_epoch_end(epoch, m, extra, e=e, best_path=best_path):
                     loss = val_eval.evaluate(m, clients=[e])[e]["loss"]      # own val set only
@@ -210,6 +214,8 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
                     if loss < extra.get("best_loss", float("inf")):
                         extra.update(best_loss=loss, best_epoch=epoch + 1)
                         save_atomic({k: v.detach().cpu() for k, v in m.state_dict().items()}, best_path)
+                    print(f"EPOCH local_only {e} {epoch + 1}/{epochs}: val_loss={loss:.4f} "
+                          f"(best {extra['best_loss']:.4f} @ epoch {extra['best_epoch']})", flush=True)
 
                 cfg = TrainConfig(epochs=epochs, batch_size=COMMON["batch_size"], lr=lr,
                                   weight_decay=COMMON["weight_decay"], amp=True, num_workers=COMMON["num_workers"],
@@ -219,8 +225,11 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
                 info = {"best_epoch": st["extra"]["best_epoch"], "best_val_loss": st["extra"]["best_loss"],
                         "history": st["extra"]["history"], "wall_s": st["wall_s"], "training_git": git}
                 done_path.write_text(json.dumps(info), encoding="utf-8")
-                mgr.prune_resume_checkpoints()                        # client done: keep best_model.pt only
+                freed = mgr.prune_resume_checkpoints()                # client done: keep best_model.pt only
+                print(f"DONE local_only client {e}: done.json written, pruned {freed / 2**20:.0f} MiB of resume "
+                      f"checkpoints", flush=True)
             wall += info["wall_s"]
+            model.to(device)                     # a SKIPped client never went through train(), which moves it
             model.load_state_dict(torch.load(best_path, map_location=device))
             test_counts[e] = test_eval.evaluate(model, clients=[e])[e]
             held_by_client[e] = pooled_f1(held_eval.evaluate(model))
@@ -273,10 +282,12 @@ def write_run(run_dir: Path, method: str, res: dict, data: Data, lr: float, git:
                   split_sizes=data.split_sizes(), runtime_s=runtime)
 
 
-def completed(run_dir: Path, git: dict) -> dict | None:
-    """The run's metrics if it already finished at this commit (campaign restarts skip it), else None."""
+def completed(run_dir: Path, git: dict, allow_dirty: bool = False) -> dict | None:
+    """The run's metrics if it already finished at this commit (campaign restarts skip it), else None.
+    allow_dirty is for smoke tests only (they run on an uncommitted tree)."""
     m = _load(run_dir / "metrics.json")
-    if m and m["metrics"].get("training_git", {}).get("commit") == git["commit"] and not m["git"]["dirty"]:
+    if m and m["metrics"].get("training_git", {}).get("commit") == git["commit"] and (
+            allow_dirty or not m["git"]["dirty"]):
         return m["metrics"]
     return None
 
@@ -284,7 +295,9 @@ def completed(run_dir: Path, git: dict) -> dict | None:
 def prune_run(res: dict) -> None:
     """Run finished and its metrics are written: delete resume checkpoints, keep best_model.pt."""
     if res.get("checkpoint_dir"):
-        CheckpointManager(Path(res["checkpoint_dir"]), every_n_steps=1).prune_resume_checkpoints()
+        freed = CheckpointManager(Path(res["checkpoint_dir"]), every_n_steps=1).prune_resume_checkpoints()
+        print(f"PRUNED {Path(res['checkpoint_dir']).name}: {freed / 2**20:.0f} MiB of resume checkpoints deleted, "
+              f"best_model.pt kept", flush=True)
 
 
 def lr_sweep(device, git, ckpt_base, limit=None, out_dir=SWEEP_DIR) -> dict:
@@ -292,7 +305,7 @@ def lr_sweep(device, git, ckpt_base, limit=None, out_dir=SWEEP_DIR) -> dict:
     losses = {}
     for lr in LR_GRID:
         run_dir = out_dir / f"centralized_lr{lr:g}_seed0"
-        res = completed(run_dir, git) if limit is None else None
+        res = completed(run_dir, git, allow_dirty=limit is not None)
         if res is None:
             t0 = time.perf_counter()
             res = run_centralized(data, lr, SWEEP_EPOCHS, device, git, ckpt_base, tag=f"sweep_lr{lr:g}")
@@ -377,10 +390,22 @@ def main() -> None:
     ap.add_argument("--checkpoint-dir", default=None, help="default: checkpoint_dir from the user config")
     ap.add_argument("--smoke", type=int, default=None, help="limit pairs per client/split (code check only)")
     ap.add_argument("--allow-dirty", action="store_true")
+    # smoke-test overrides (refused without --smoke, so the real protocol cannot be changed by accident)
+    ap.add_argument("--epochs", type=int, default=None)
+    ap.add_argument("--rounds", type=int, default=None)
+    ap.add_argument("--sweep-epochs", type=int, default=None)
+    ap.add_argument("--ckpt-every", type=int, default=None)
     args = ap.parse_args()
     if args.summarize:
         summarize(args.seeds)
         return
+    overrides = {k: v for k, v in (("epochs", args.epochs), ("rounds", args.rounds),
+                                   ("sweep_epochs", args.sweep_epochs), ("ckpt_every", args.ckpt_every)) if v}
+    if overrides and args.smoke is None:
+        raise SystemExit(f"{sorted(overrides)} may only be overridden together with --smoke")
+    global SWEEP_EPOCHS
+    SWEEP_EPOCHS = args.sweep_epochs or SWEEP_EPOCHS
+    COMMON["ckpt_every_steps"] = args.ckpt_every or COMMON["ckpt_every_steps"]
     git = require_clean_tree(args.allow_dirty)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # smoke runs (code check on a few pairs) never write into the repo
@@ -395,12 +420,12 @@ def main() -> None:
     if choice is None:
         raise FileNotFoundError("run the lr sweep first (--lr-sweep)")
     lr = choice["lr"]
-    epochs, rounds = (EPOCHS, ROUNDS) if args.smoke is None else (1, 1)
+    epochs, rounds = (EPOCHS, ROUNDS) if args.smoke is None else (args.epochs or 1, args.rounds or 1)
     for seed in args.seeds:
         data = Data(seed, args.smoke)
         for method in args.method or []:
             run_dir = out_root / f"{method}_seed{seed}"
-            if args.smoke is None and completed(run_dir, git):
+            if completed(run_dir, git, allow_dirty=args.smoke is not None):
                 print(f"seed {seed} {method}: already completed at this commit, skipping", flush=True)
                 continue
             t0 = time.perf_counter()

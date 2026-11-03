@@ -79,13 +79,21 @@ def main() -> None:
     ap.add_argument("--log-dir", default=None, help="default: <checkpoint_dir>/silo2_loc")
     ap.add_argument("--seeds", type=int, nargs="+", default=list(SEEDS))
     ap.add_argument("--smoke", type=int, default=None, help="pass --smoke N --allow-dirty to every step (code check)")
+    ap.add_argument("--checkpoint-dir", default=None, help="passed to every step (smoke tests: keep their "
+                                                           "checkpoints away from the real ones)")
+    ap.add_argument("--step-args", nargs=argparse.REMAINDER, default=[],
+                    help="extra arguments for every step, smoke tests only (e.g. --epochs 3 --ckpt-every 5)")
     args = ap.parse_args()
+    if args.step_args and args.smoke is None:
+        raise SystemExit("--step-args is only allowed together with --smoke")
     git = require_clean_tree(allow_dirty=args.smoke is not None)
     log_dir = Path(args.log_dir) if args.log_dir else resolve_checkpoint_dir(None, "silo2_loc")
     log_dir.mkdir(parents=True, exist_ok=True)
     tag = git["commit"][:7] + ("_smoke" if args.smoke is not None else "")
     log_path, status_path = log_dir / f"campaign_{tag}.log", log_dir / f"campaign_{tag}_status.json"
-    extra = ["--smoke", str(args.smoke), "--allow-dirty"] if args.smoke is not None else []
+    extra = ["--smoke", str(args.smoke), "--allow-dirty", *args.step_args] if args.smoke is not None else []
+    if args.checkpoint_dir:
+        extra += ["--checkpoint-dir", args.checkpoint_dir]
 
     def log(msg: str) -> None:
         line = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}"
