@@ -82,6 +82,7 @@ def dp_aggregate(global_state: dict[str, torch.Tensor], client_states: Sequence[
         noise = torch.randn(v.shape, generator=generator, dtype=v.dtype).to(v.device) * sigma if sigma > 0 else 0.0
         new_state[k] = v + (sum_delta[k] + noise) / expected_clients
     return new_state, {"n_clients": len(client_states), "mean_delta_norm": float(np.mean(norms)) if norms else None,
+                       "client_delta_norms": [float(n) for n in norms],          # pre-clip, sampled clients only
                        "frac_clipped": clipped / len(client_states) if client_states else None,
                        "noise_std_per_coordinate": sigma / expected_clients}
 

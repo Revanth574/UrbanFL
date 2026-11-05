@@ -27,6 +27,7 @@ def test_dp_aggregate_no_noise_is_unweighted_mean_of_clipped_deltas():
     expected = (torch.tensor([0.1, 0, 0, 0]) + torch.tensor([0, 0.6, 0.8, 0])) / 2
     assert torch.allclose(new["w"], expected)
     assert st["frac_clipped"] == 0.5
+    assert st["client_delta_norms"] == pytest.approx([0.1, 5.0])          # PRE-clip norms (clip calibration)
 
 
 def test_dp_noise_std_matches_z_C_over_m():

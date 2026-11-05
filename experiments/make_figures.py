@@ -336,6 +336,9 @@ def fig_e() -> Path:
 # ── (f) DP privacy-utility ─────────────────────────────────────────────────
 
 DP_Z, DP_C, DP_Q = (0.5, 1.0, 2.0), (0.1, 1.0), (0.5, 1.0)
+_DP_CAL = RESULTS / "silo1_dp" / "clip_calibration" / "metrics.json"     # C_cal (experiments.silo1_dp --calibrate-clip)
+if _DP_CAL.exists() and (_c := json.loads(_DP_CAL.read_text(encoding="utf-8"))["metrics"]["chosen_clip"]) not in DP_C:
+    DP_C = (*DP_C, _c)
 
 
 def _dp_name(z: float, C: float, q: float) -> str:
@@ -345,7 +348,7 @@ def _dp_name(z: float, C: float, q: float) -> str:
 def fig_f() -> Path:
     """Pooled test macro-F1 (final-round model) vs client-level ε at δ = 1e-5, from results/silo1_dp/*/metrics.json."""
     q_color = {1.0: BLUE, 0.5: ORANGE}
-    c_marker = {1.0: "o", 0.1: "s"}
+    c_marker = {C: m for C, m in zip(DP_C, ("s", "o", "^"))}          # 0.1, 1.0, then the calibrated C
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     eps_max = 0.0
     used = []

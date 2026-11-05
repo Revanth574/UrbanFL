@@ -10,6 +10,11 @@ Grid: z (noise multiplier) in {0.5, 1, 2}, C (clip norm) in {0.1, 1.0}, q (clien
 references (z = 0: clipping + unweighted mean + local class weights + Poisson sampling, ε = ∞) for each (C, q), which
 isolate the cost of the noise from the cost of the DP pipeline itself.
 
+Calibrated clip (--calibrate-clip): C = 0.1 clips every update and C = 1.0 almost none, so a third C is set from the
+data: one run of the DP pipeline with z = 0, q = 1, seed 0 and no effective clipping logs every client's pre-clip
+update norm over all 100 rounds; C_cal = their median rounded to 0.1 (results/silo1_dp/clip_calibration/). C_cal then
+joins C_GRID with the same z, q and seeds. Like the lr, C_cal is tuned on private updates: outside the guarantee.
+
 Inside the DP boundary: only clipped, noised model updates leave a client. Class weights are therefore CLIENT-LOCAL
 (the federated label-count sum used by non-private FedAvg would be outside the accountant).
 Outside the guarantee (stated, not hidden): the client lr was tuned on non-private runs, and the secondary
@@ -18,6 +23,8 @@ Outside the guarantee (stated, not hidden): the client lr was tuned on non-priva
 Writes results/silo1_dp/<config>_seed<k>/{metrics.json, predictions_final.json, predictions_selected.json}.
 
 Usage:  python -m experiments.silo1_dp --workers 5 --threads 2
+        python -m experiments.silo1_dp --calibrate-clip
+        python -m experiments.silo1_dp --configs <the dp_*_C<C_cal>_* names> --workers 3 --threads 2
         python -m experiments.silo1_dp --summarize
 """
 
@@ -50,6 +57,17 @@ SEEDS = [0, 1, 2, 3, 4]
 N_CLASSES = len(LABELS)
 ROUNDS, LOCAL_EPOCHS = 100, 1
 Z_GRID, C_GRID, Q_GRID = (0.5, 1.0, 2.0), (0.1, 1.0), (0.5, 1.0)
+CALIBRATION_DIR = EXPERIMENT_DIR / "clip_calibration"
+CALIBRATION_SEED, NO_CLIP = 0, 1e9
+
+
+def calibrated_clip() -> float | None:
+    path = CALIBRATION_DIR / "metrics.json"
+    return json.loads(path.read_text(encoding="utf-8"))["metrics"]["chosen_clip"] if path.exists() else None
+
+
+if calibrated_clip() is not None and calibrated_clip() not in C_GRID:
+    C_GRID = (*C_GRID, calibrated_clip())
 
 
 def config_name(z: float, C: float, q: float) -> str:
@@ -110,6 +128,44 @@ def run_one(run_dir: Path, part, cfg: dict, lr: float, seed: int, device: str, g
                           "client_sampling": "Poisson, rate q", "device": device, "labels": list(LABELS),
                           "split_file": f"data/splits/silo1_seed{seed}.json"},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
+    return metrics
+
+
+def calibrate_clip(device: str, git: dict) -> dict:
+    """z = 0, q = 1, no effective clipping: the natural pre-clip norm of every client update -> C_cal = median."""
+    part = load_partition(CALIBRATION_SEED)
+    clients, _ = build_clients(part, device)
+    local_weights = [class_weights(c.y_train.cpu().numpy(), N_CLASSES) for c in clients]
+    lr = fl_lr()
+    t0 = time.perf_counter()
+    res = run_fl("fedavg", clients, ROUNDS, LOCAL_EPOCHS, lr, FL_COMMON["batch_size"], 1.0, CALIBRATION_SEED,
+                 client_class_weights=local_weights, n_classes=N_CLASSES, head=FL_COMMON["head"], device=device,
+                 dp={"clip": NO_CLIP, "noise_multiplier": 0.0, "delta": DEFAULT_DELTA})
+    runtime = time.perf_counter() - t0
+    rounds = res["history"][1:]
+    norms = np.array([n for h in rounds for n in h["dp"]["client_delta_norms"]])
+    by_client = np.array([h["dp"]["client_delta_norms"] for h in rounds])          # (rounds, clients), q = 1
+    median = float(np.median(norms))
+    metrics = {
+        "rule": "C_cal = median pre-clip client update norm (all clients x 100 rounds), rounded to 0.1",
+        "chosen_clip": round(median, 1), "median_norm": median, "n_norms": int(norms.size),
+        "percentiles": {f"p{p}": float(np.percentile(norms, p)) for p in (10, 25, 50, 75, 90)},
+        "median_by_client": {c.name: float(np.median(by_client[:, k])) for k, c in enumerate(clients)},
+        "median_by_round_block": {f"{a + 1}-{a + 10}": float(np.median(by_client[a:a + 10])) for a in range(0, ROUNDS, 10)},
+        "per_round_client_norms": by_client.tolist(),
+        "note": "tuned on private updates (like the lr): outside the reported epsilon",
+        "training_git": git,
+    }
+    write_metrics(CALIBRATION_DIR / "metrics.json", metrics, seed=CALIBRATION_SEED,
+                  config={"method": "DP-FedAvg pipeline, z = 0, no effective clipping", "clip": NO_CLIP,
+                          "noise_multiplier": 0.0, "client_fraction": 1.0, "rounds": ROUNDS,
+                          "local_epochs": LOCAL_EPOCHS, "lr": lr, "batch_size": FL_COMMON["batch_size"],
+                          "head": FL_COMMON["head"], "class_weights": "client-local", "device": device,
+                          "split_file": f"data/splits/silo1_seed{CALIBRATION_SEED}.json"},
+                  split_sizes=part.split_sizes(), runtime_s=runtime)
+    print(f"clip calibration: median pre-clip norm {median:.4f} over {norms.size} updates "
+          f"(p25 {metrics['percentiles']['p25']:.3f}, p75 {metrics['percentiles']['p75']:.3f}) -> C_cal = "
+          f"{metrics['chosen_clip']:g}", flush=True)
     return metrics
 
 
@@ -190,6 +246,7 @@ def main() -> None:
     ap.add_argument("--seeds", type=int, nargs="+", default=SEEDS)
     ap.add_argument("--configs", nargs="+", default=list(CONFIGS), choices=list(CONFIGS))
     ap.add_argument("--summarize", action="store_true")
+    ap.add_argument("--calibrate-clip", action="store_true", help="set C_cal from the median client update norm")
     ap.add_argument("--device", default="cpu", choices=["cpu", "cuda"])
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--workers", type=int, default=1)
@@ -199,6 +256,11 @@ def main() -> None:
         summarize(args.seeds)
         return
     git = require_clean_tree(args.allow_dirty)
+    if args.calibrate_clip:
+        if args.threads:
+            torch.set_num_threads(args.threads)
+        calibrate_clip(args.device, git)
+        return
     lr = fl_lr()
     jobs = [{"label": f"{n}_seed{s}", "run_dir": str(EXPERIMENT_DIR / f"{n}_seed{s}"), "cfg": CONFIGS[n], "lr": lr,
              "seed": s, "device": args.device, "threads": args.threads, "git": git}
