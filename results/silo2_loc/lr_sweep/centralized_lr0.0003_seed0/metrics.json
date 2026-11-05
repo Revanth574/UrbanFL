@@ -1,0 +1,264 @@
+{
+ "metrics": {
+  "selection": {
+   "best_epoch": 9,
+   "best_val_loss": 0.4542744347065291
+  },
+  "history": [
+   {
+    "epoch": 1,
+    "val_loss": 0.8309995153387963,
+    "pooled_val_loc_f1_logged_only": 0.758558811039064
+   },
+   {
+    "epoch": 2,
+    "val_loss": 0.7012937184117266,
+    "pooled_val_loc_f1_logged_only": 0.7630656966439464
+   },
+   {
+    "epoch": 3,
+    "val_loss": 0.6239322187459987,
+    "pooled_val_loc_f1_logged_only": 0.7457312691143927
+   },
+   {
+    "epoch": 4,
+    "val_loss": 0.5521969777590411,
+    "pooled_val_loc_f1_logged_only": 0.7910150214390675
+   },
+   {
+    "epoch": 5,
+    "val_loss": 0.5658650036163376,
+    "pooled_val_loc_f1_logged_only": 0.7797383170596871
+   },
+   {
+    "epoch": 6,
+    "val_loss": 0.5668471531519568,
+    "pooled_val_loc_f1_logged_only": 0.7556769965267923
+   },
+   {
+    "epoch": 7,
+    "val_loss": 0.5573725299414806,
+    "pooled_val_loc_f1_logged_only": 0.7547534221036969
+   },
+   {
+    "epoch": 8,
+    "val_loss": 0.471562223068038,
+    "pooled_val_loc_f1_logged_only": 0.7642920465480872
+   },
+   {
+    "epoch": 9,
+    "val_loss": 0.4542744347065291,
+    "pooled_val_loc_f1_logged_only": 0.7819412563090998
+   },
+   {
+    "epoch": 10,
+    "val_loss": 0.45709594367026996,
+    "pooled_val_loc_f1_logged_only": 0.7611077146905277
+   }
+  ],
+  "test_pooled_loc_f1": 0.7747565724817427,
+  "test_pooled_loc_f1_excl_socal_fire": 0.7837512147764557,
+  "test_per_event": {
+   "hurricane-florence": {
+    "loss": 0.3005319893201615,
+    "n_images": 47,
+    "tp": 1142939,
+    "fp": 190274,
+    "fn": 467854,
+    "f1": 0.7764515425579975,
+    "noisy": false
+   },
+   "hurricane-harvey": {
+    "loss": 0.4148581485922744,
+    "n_images": 41,
+    "tp": 4214316,
+    "fp": 718107,
+    "fn": 1212454,
+    "f1": 0.813637896311035,
+    "noisy": false
+   },
+   "hurricane-matthew": {
+    "loss": 0.5429917809210325,
+    "n_images": 38,
+    "tp": 185285,
+    "fp": 132466,
+    "fn": 68704,
+    "f1": 0.6481442613775492,
+    "noisy": false
+   },
+   "hurricane-michael": {
+    "loss": 0.500889581035484,
+    "n_images": 44,
+    "tp": 3108754,
+    "fp": 1133130,
+    "fn": 1122917,
+    "f1": 0.7337543687389767,
+    "noisy": false
+   },
+   "mexico-earthquake": {
+    "loss": 0.5577227380126715,
+    "n_images": 16,
+    "tp": 3566780,
+    "fp": 1141836,
+    "fn": 770084,
+    "f1": 0.7886325546018564,
+    "noisy": true
+   },
+   "midwest-flooding": {
+    "loss": 0.4553187063170804,
+    "n_images": 36,
+    "tp": 1128713,
+    "fp": 210746,
+    "fn": 800960,
+    "f1": 0.6905276385291264,
+    "noisy": false
+   },
+   "palu-tsunami": {
+    "loss": 0.3723237133688397,
+    "n_images": 18,
+    "tp": 2544578,
+    "fp": 440680,
+    "fn": 431829,
+    "f1": 0.8536467580784898,
+    "noisy": true
+   },
+   "santa-rosa-wildfire": {
+    "loss": 0.3787461751581807,
+    "n_images": 38,
+    "tp": 3020919,
+    "fp": 1008932,
+    "fn": 585396,
+    "f1": 0.7912135487887508,
+    "noisy": false
+   },
+   "socal-fire": {
+    "loss": 0.584359269309789,
+    "n_images": 110,
+    "tp": 377499,
+    "fp": 638863,
+    "fn": 140928,
+    "f1": 0.49192299397506756,
+    "noisy": false
+   }
+  },
+  "noisy_events": [
+   "mexico-earthquake",
+   "palu-tsunami"
+  ],
+  "reporting": {
+   "headline": "test_pooled_loc_f1",
+   "noisy_rule": "< 20 test pairs",
+   "sensitivity_excluded": [
+    "socal-fire"
+   ]
+  },
+  "heldout": {
+   "guatemala-volcano": {
+    "loss": 0.40836117996109855,
+    "n_images": 18,
+    "tp": 309172,
+    "fp": 116633,
+    "fn": 101631,
+    "f1": 0.739108399632803
+   }
+  },
+  "heldout_loc_f1": 0.739108399632803,
+  "timing": {
+   "wall_s": 6502.1543102,
+   "data_wait_s": 51.20856469998671,
+   "compute_s": 6156.372508699956
+  },
+  "checkpoint_dir": "C:\\data\\checkpoints\\silo2_loc\\sweep_lr0.0003_seed0_112dab9",
+  "protocol": {
+   "optimizer": "AdamW(lr = lr-sweep choice, betas = (0.9, 0.999), eps = 1e-8, weight_decay = 1e-4) with an AMP GradScaler; identical for centralized, local-only and every FedAvg client",
+   "optimizer_state_centralized_and_local_only": "kept across epochs (one continuous run per model)",
+   "optimizer_state_fedavg": "reset every round: each client builds a fresh AdamW (and AMP GradScaler) from the broadcast global weights at the start of every round; Adam moment estimates are client-local, never communicated and never carried across rounds (they would describe a model the client no longer has)",
+   "batchnorm_aggregation_fedavg": "BatchNorm running_mean / running_var are float buffers and are averaged with the same sample-size weights as the parameters (the global model is evaluated with these averaged statistics); num_batches_tracked (int64) is not averaged: the maximum across clients is kept, still int64. It is unused because every BatchNorm layer has momentum set (asserted). Note: averaging running_var ignores between-client differences in the means; FedBN (client-local BN) is a possible alternative, not used here.",
+   "aggregation_weights_fedavg": "client train-set size (number of pairs)"
+  },
+  "training_git": {
+   "commit": "112dab99e615bfade73279911c7150130952be77",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "encoder": "resnet18",
+  "pretrained": "ImageNet",
+  "crop": 512,
+  "batch_size": 4,
+  "eval_batch_size": 2,
+  "amp": true,
+  "num_workers": 4,
+  "weight_decay": 0.0001,
+  "loss": "BCEWithLogits + soft Dice",
+  "ckpt_every_steps": 200,
+  "split": "spatial_block",
+  "protocol": {
+   "optimizer": "AdamW(lr = lr-sweep choice, betas = (0.9, 0.999), eps = 1e-8, weight_decay = 1e-4) with an AMP GradScaler; identical for centralized, local-only and every FedAvg client",
+   "optimizer_state_centralized_and_local_only": "kept across epochs (one continuous run per model)",
+   "optimizer_state_fedavg": "reset every round: each client builds a fresh AdamW (and AMP GradScaler) from the broadcast global weights at the start of every round; Adam moment estimates are client-local, never communicated and never carried across rounds (they would describe a model the client no longer has)",
+   "batchnorm_aggregation_fedavg": "BatchNorm running_mean / running_var are float buffers and are averaged with the same sample-size weights as the parameters (the global model is evaluated with these averaged statistics); num_batches_tracked (int64) is not averaged: the maximum across clients is kept, still int64. It is unused because every BatchNorm layer has momentum set (asserted). Note: averaging running_var ignores between-client differences in the means; FedBN (client-local BN) is a possible alternative, not used here.",
+   "aggregation_weights_fedavg": "client train-set size (number of pairs)"
+  },
+  "checkpoint_retention": "resume checkpoints deleted once a run completes; best_model.pt kept",
+  "epochs": 10,
+  "method": "centralized",
+  "lr": 0.0003,
+  "split_file": "data/splits/silo2_seed0.json"
+ },
+ "split_sizes": {
+  "hurricane-florence": {
+   "train": 217,
+   "val": 53,
+   "test": 47
+  },
+  "hurricane-harvey": {
+   "train": 226,
+   "val": 42,
+   "test": 41
+  },
+  "hurricane-matthew": {
+   "train": 159,
+   "val": 34,
+   "test": 38
+  },
+  "hurricane-michael": {
+   "train": 249,
+   "val": 46,
+   "test": 44
+  },
+  "mexico-earthquake": {
+   "train": 88,
+   "val": 17,
+   "test": 16
+  },
+  "midwest-flooding": {
+   "train": 186,
+   "val": 37,
+   "test": 36
+  },
+  "palu-tsunami": {
+   "train": 77,
+   "val": 17,
+   "test": 18
+  },
+  "santa-rosa-wildfire": {
+   "train": 152,
+   "val": 32,
+   "test": 38
+  },
+  "socal-fire": {
+   "train": 361,
+   "val": 136,
+   "test": 110
+  }
+ },
+ "runtime_s": 6527.715,
+ "git": {
+  "commit": "112dab99e615bfade73279911c7150130952be77",
+  "dirty": false
+ },
+ "written_at": "2026-11-03T13:31:29",
+ "python": "3.11.9"
+}
