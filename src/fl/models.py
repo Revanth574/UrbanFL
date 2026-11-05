@@ -110,6 +110,31 @@ class UNetResNet(nn.Module):
         return self.head(self.dec0(d, None))
 
 
+class SiameseDamageNet(nn.Module):
+    """
+    Stage 2 (damage): ONE stage-1 U-Net body (encoder + decoder, shared weights) runs on the pre and on the post image;
+    the two 32-channel full-resolution feature maps are concatenated and a new 1x1 head gives n_classes logits.
+    Every stage-1 weight is reused unchanged except the binary localisation head, which is dropped.
+    Input: x = cat([pre, post], dim=1), shape (B, 6, H, W)  ->  logits (B, n_classes, H, W).
+    """
+
+    def __init__(self, body: UNetResNet, n_classes: int = 4):
+        super().__init__()
+        self.body = body
+        self.body.head = nn.Identity()                    # stage-1 localisation head dropped
+        self.head = nn.Conv2d(64, n_classes, 1)
+
+    @classmethod
+    def from_stage1(cls, stage1_state: dict, encoder: str = "resnet18", n_classes: int = 4) -> "SiameseDamageNet":
+        body = UNetResNet(encoder, pretrained=False)
+        body.load_state_dict(stage1_state)
+        return cls(body, n_classes)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        pre, post = x[:, :3], x[:, 3:]
+        return self.head(torch.cat([self.body(pre), self.body(post)], dim=1))
+
+
 def bce_dice_loss(logits: torch.Tensor, target: torch.Tensor, smooth: float = 1.0) -> torch.Tensor:
     """Binary segmentation loss: BCEWithLogits + (1 - soft Dice). logits (B,1,H,W) or (B,H,W); target in {0,1}."""
     logits = logits.squeeze(1) if logits.dim() == 4 else logits

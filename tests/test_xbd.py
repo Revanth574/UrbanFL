@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 from PIL import Image, ImageDraw
-from sklearn.metrics import f1_score
 
 from src.fl import partition_xbd as PX
 from src.fl.xbd_data import (IGNORE_INDEX, XBDPairDataset, damage_target, loc_target, random_crop_flip,
@@ -218,22 +217,58 @@ def test_augmentation_identical_across_arrays_and_reproducible(xbd):
     assert not np.array_equal(e0a["pre"], ds[0]["pre"])                       # new epoch -> new augmentation
 
 
-def test_xview2_score_matches_sklearn():
+def _official_get_row_pair(lp, dp, lt, dt):
+    """Line-by-line port of RowPairCalculator.get_row_pair / compute_tp_fn_fp (DIUx-xView/xView2_scoring)."""
+    def extract_buildings(x):
+        b = x.copy()
+        b[x > 0] = 1
+        return b
+
+    def compute_tp_fn_fp(pred, targ, c):
+        return [np.logical_and(pred == c, targ == c).sum(), np.logical_and(pred != c, targ == c).sum(),
+                np.logical_and(pred == c, targ != c).sum()]
+
+    lp_b, lt_b, dt_b = map(extract_buildings, (lp, lt, dt))
+    dp = dp * lp_b
+    dp, dt = dp[dt_b == 1], dt[dt_b == 1]
+    lrow = compute_tp_fn_fp(lp_b, lt_b, 1)
+    drow = []
+    for i in range(1, 5):
+        drow += compute_tp_fn_fp(dp, dt, i)
+    return lrow, drow
+
+
+def test_xview2_score_matches_official_scoring_code():
     rng = np.random.default_rng(0)
-    loc_gt, loc_pred = rng.integers(0, 2, 500), rng.integers(0, 2, 500)
-    dmg_gt = rng.integers(0, 4, 500)
-    dmg_gt[rng.random(500) < 0.3] = IGNORE_INDEX
-    dmg_pred = rng.integers(0, 4, 500)
-    s = XView2Scorer()
-    s.update_loc(loc_pred[:200], loc_gt[:200]); s.update_loc(loc_pred[200:], loc_gt[200:])   # accumulates
-    s.update_damage(dmg_pred[:300], dmg_gt[:300]); s.update_damage(dmg_pred[300:], dmg_gt[300:])
+    s, L, D = XView2Scorer(), np.zeros(3), np.zeros(12)              # L, D: official TP, FN, FP summed over images
+    for _ in range(4):
+        lt = (rng.random((40, 40)) < 0.4).astype(np.uint8)            # pre target
+        dt = (rng.integers(1, 5, (40, 40)) * (rng.random((40, 40)) < 0.4)).astype(np.uint8)   # post target 0..4
+        lp = (rng.random((40, 40)) < 0.5).astype(np.uint8)            # stage-1 mask
+        dmg_class = rng.integers(0, 4, (40, 40))                      # stage-2 argmax, 0..3
+        s.update(lp, lt, dmg_class, dt)
+        lrow, drow = _official_get_row_pair(lp, (dmg_class + 1).astype(np.int64), lt, dt.astype(np.int64))
+        L += lrow
+        D += drow
+    f1 = lambda tp, fn, fp: 2 * tp / (2 * tp + fp + fn)                # noqa: E731
     r = s.compute()
-    assert r["loc_f1"] == pytest.approx(f1_score(loc_gt, loc_pred))
-    v = dmg_gt != IGNORE_INDEX
-    per = f1_score(dmg_gt[v], dmg_pred[v], labels=[0, 1, 2, 3], average=None)
-    assert list(r["damage_f1"].values()) == pytest.approx(list(per))
-    harm = 4 / sum(1 / (f + 1e-6) for f in per)
-    assert r["score"] == pytest.approx(0.3 * r["loc_f1"] + 0.7 * harm)
+    assert r["loc_f1"] == pytest.approx(f1(*L))
+    per = [f1(*D[3 * i:3 * i + 3]) for i in range(4)]
+    assert list(r["damage_f1"].values()) == pytest.approx(per)
+    assert r["score"] == pytest.approx(0.3 * f1(*L) + 0.7 * 4 / sum((x + 1e-6) ** -1 for x in per))
+
+
+def test_xview2_missed_building_is_a_damage_false_negative():
+    dt = np.array([[1, 1, 4, 0]])                    # post target: two no-damage px, one destroyed px, background
+    lt = np.array([[1, 1, 1, 0]])
+    lp = np.array([[1, 0, 1, 1]])                    # stage 1 misses pixel 1, predicts a building on background
+    dmg = np.array([[0, 0, 3, 2]])                   # stage 2 would be right on every building pixel
+    s = XView2Scorer()
+    s.update(lp, lt, dmg, dt)
+    nd, _, _, de = s.dmg
+    assert nd.tolist() == [1, 0, 1]                  # no-damage: 1 TP, 0 FP, 1 FN (the missed pixel)
+    assert de.tolist() == [1, 0, 0]                  # destroyed: TP; background damage prediction is never scored
+    assert s.loc.tolist() == [2, 1, 1]
 
 
 # ── real data (skipped unless the xBD path is configured and the split files exist) ─────────────────────────

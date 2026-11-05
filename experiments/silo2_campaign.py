@@ -1,7 +1,10 @@
 """
-Silo 2 stage-1 campaign: runs experiments.silo2_loc step by step in the order
+Silo 2 campaign: runs one experiment module step by step (--experiment silo2_loc = stage 1, the default;
+silo2_dmg = stage 2) in the order
 
-  lr sweep  ->  seed 0: centralized, local_only, fedavg  ->  seed 1: ...  ->  seed 2: ...  ->  summary
+  lr sweep  ->  seed 0: its methods  ->  seed 1: ...  ->  seed 2: ...  ->  summary
+
+stage 1: centralized, local_only, fedavg;  stage 2: centralized, local_only, fedavg, fedavg_ft
 
 so a full comparison exists after seed 0. Every step is its own subprocess (a crash cannot take the campaign down).
 On a crash the step is started once more; it resumes from its last checkpoint (same commit, same checkpoint dir).
@@ -12,7 +15,7 @@ so restarting the campaign after a reboot continues where it stopped.
 Progress (campaign events + every step's own output) is appended to a log file, and a status JSON is rewritten after
 every step; both live next to the checkpoints (default C:/data/checkpoints/silo2_loc/), outside the repo.
 
-Usage:  python -m experiments.silo2_campaign            (requires a clean, committed tree)
+Usage:  python -m experiments.silo2_campaign [--experiment silo2_dmg]      (requires a clean, committed tree)
 """
 
 from __future__ import annotations
@@ -30,13 +33,14 @@ from src.fl.utils import REPO_ROOT, require_clean_tree
 
 SEEDS = (0, 1, 2)
 METHODS = ("centralized", "local_only", "fedavg")
+EXPERIMENT_METHODS = {"silo2_loc": METHODS, "silo2_dmg": ("centralized", "local_only", "fedavg", "fedavg_ft")}
 
 
-def campaign_steps(seeds=SEEDS, extra: list[str] | None = None) -> list[tuple[str, list[str]]]:
+def campaign_steps(seeds=SEEDS, extra: list[str] | None = None, methods=METHODS) -> list[tuple[str, list[str]]]:
     extra = extra or []
     steps = [("lr_sweep", ["--lr-sweep", *extra])]
     for s in seeds:
-        steps += [(f"{m}_seed{s}", ["--method", m, "--seeds", str(s), *extra]) for m in METHODS]
+        steps += [(f"{m}_seed{s}", ["--method", m, "--seeds", str(s), *extra]) for m in methods]
     return steps
 
 
@@ -76,7 +80,8 @@ def run_campaign(steps: list[tuple[str, list[str]]], runner: Callable[[list[str]
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Silo 2 stage-1 campaign runner.")
-    ap.add_argument("--log-dir", default=None, help="default: <checkpoint_dir>/silo2_loc")
+    ap.add_argument("--experiment", default="silo2_loc", choices=sorted(EXPERIMENT_METHODS))
+    ap.add_argument("--log-dir", default=None, help="default: <checkpoint_dir>/<experiment>")
     ap.add_argument("--seeds", type=int, nargs="+", default=list(SEEDS))
     ap.add_argument("--smoke", type=int, default=None, help="pass --smoke N --allow-dirty to every step (code check)")
     ap.add_argument("--checkpoint-dir", default=None, help="passed to every step (smoke tests: keep their "
@@ -87,7 +92,7 @@ def main() -> None:
     if args.step_args and args.smoke is None:
         raise SystemExit("--step-args is only allowed together with --smoke")
     git = require_clean_tree(allow_dirty=args.smoke is not None)
-    log_dir = Path(args.log_dir) if args.log_dir else resolve_checkpoint_dir(None, "silo2_loc")
+    log_dir = Path(args.log_dir) if args.log_dir else resolve_checkpoint_dir(None, args.experiment)
     log_dir.mkdir(parents=True, exist_ok=True)
     tag = git["commit"][:7] + ("_smoke" if args.smoke is not None else "")
     log_path, status_path = log_dir / f"campaign_{tag}.log", log_dir / f"campaign_{tag}_status.json"
@@ -103,11 +108,12 @@ def main() -> None:
 
     def runner(step_args: list[str]) -> int:
         with log_path.open("a", encoding="utf-8") as f:
-            return subprocess.call([sys.executable, "-u", "-m", "experiments.silo2_loc", *step_args],
+            return subprocess.call([sys.executable, "-u", "-m", f"experiments.{args.experiment}", *step_args],
                                    cwd=REPO_ROOT, stdout=f, stderr=subprocess.STDOUT)
 
-    log(f"campaign start at commit {git['commit']} (dirty={git['dirty']}); log {log_path}")
-    status = run_campaign(campaign_steps(args.seeds, extra), runner, log, status_path)
+    log(f"campaign {args.experiment} start at commit {git['commit']} (dirty={git['dirty']}); log {log_path}")
+    status = run_campaign(campaign_steps(args.seeds, extra, EXPERIMENT_METHODS[args.experiment]), runner, log,
+                          status_path)
     if not status["aborted"] and args.smoke is None:
         rc = runner(["--summarize", "--seeds", *map(str, args.seeds)])
         log(f"summary written (exit code {rc})")

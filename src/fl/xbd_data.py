@@ -27,6 +27,7 @@ from torch.utils.data import Dataset
 
 IGNORE_INDEX = 255
 DAMAGE_CLASSES = ("no-damage", "minor-damage", "major-damage", "destroyed")
+DAMAGE_SUBTYPES = set(DAMAGE_CLASSES)
 IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
 IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 STAGES = ("loc", "damage")
@@ -44,6 +45,45 @@ def rasterize_unclassified(label_path: Path, shape: tuple[int, int]) -> np.ndarr
         for poly in (geom.geoms if geom.geom_type == "MultiPolygon" else [geom]):
             draw.polygon([(x, y) for x, y in poly.exterior.coords], fill=1)
     return np.asarray(mask, dtype=bool)
+
+
+def post_buildings(label_path: Path) -> list[dict]:
+    """Every building polygon of a post-disaster label file: {uid, subtype, polygons: [exterior coords]}."""
+    out = []
+    for f in json.loads(label_path.read_text(encoding="utf-8"))["features"]["xy"]:
+        geom = wkt.loads(f["wkt"])
+        out.append({"uid": f["properties"].get("uid"), "subtype": f["properties"].get("subtype"),
+                    "polygons": [list(p.exterior.coords) for p in (geom.geoms if geom.geom_type == "MultiPolygon"
+                                                                     else [geom])]})
+    return out
+
+
+def building_instances(buildings: list[dict], shape: tuple[int, int]) -> np.ndarray:
+    """int32 map: k + 1 on the pixels of buildings[k], 0 elsewhere (later polygons win on overlaps)."""
+    img = Image.new("I", (shape[1], shape[0]), 0)
+    draw = ImageDraw.Draw(img)
+    for k, b in enumerate(buildings):
+        for poly in b["polygons"]:
+            draw.polygon([(x, y) for x, y in poly], fill=k + 1)
+    return np.asarray(img, dtype=np.int32)
+
+
+def has_classified_building(label_path: Path) -> bool:
+    """True if the post label file has at least one building with a damage subtype (not un-classified)."""
+    feats = json.loads(label_path.read_text(encoding="utf-8"))["features"]["xy"]
+    return any(f["properties"].get("subtype") in DAMAGE_SUBTYPES for f in feats)
+
+
+def damage_pixel_counts(split_dir: Path, pair_ids: Sequence[str]) -> np.ndarray:
+    """Pixels per damage class (no / minor / major / destroyed) in the full-size damage targets of these pairs,
+    un-classified buildings excluded exactly as in training (damage_target)."""
+    counts = np.zeros(len(DAMAGE_CLASSES), dtype=np.int64)
+    for pid in pair_ids:
+        post_t = np.asarray(Image.open(Path(split_dir) / "targets" / f"{pid}_post_disaster_target.png"))
+        t = damage_target(post_t, rasterize_unclassified(Path(split_dir) / "labels" / f"{pid}_post_disaster.json",
+                                                         post_t.shape))
+        counts += np.bincount(t[t != IGNORE_INDEX].ravel(), minlength=len(DAMAGE_CLASSES))[:len(DAMAGE_CLASSES)]
+    return counts
 
 
 def loc_target(pre_target: np.ndarray) -> np.ndarray:
@@ -81,7 +121,8 @@ class XBDPairDataset(Dataset):
     """
     One item per pre/post pair id ("<event>_<8 digits>"). Returns a dict with
       pre (3,H,W) float, post (3,H,W) float [damage stage only], target (H,W) int64,
-      building (H,W) bool = ground-truth building pixels of the scored mask, pair_id, event.
+      building (H,W) bool = ground-truth building pixels of the scored mask, pair_id, event;
+      damage stage, train=False only: pre_target / post_target (H,W) int64 = the stored targets, for xbd_metrics.
     """
 
     def __init__(self, split_dir: Path, pair_ids: Sequence[str], stage: str, *, train: bool = False,
@@ -130,6 +171,9 @@ class XBDPairDataset(Dataset):
                 "pair_id": pid, "event": pid.rsplit("_", 1)[0]}
         if self.stage == "damage":
             item["post"] = _to_tensor_image(arrays[1])
+            if not self.train:                # full-size evaluation: raw targets for the official xView2 score
+                item["pre_target"] = torch.from_numpy(self._target(pid, "pre").astype(np.int64))
+                item["post_target"] = torch.from_numpy(post_t.astype(np.int64))
         return item
 
 

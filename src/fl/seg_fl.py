@@ -67,7 +67,8 @@ def client_seed(seed: int, index: int) -> int:
 
 def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, cfg: SegFLConfig, loss_fn,
                    device: str | torch.device, ckpt: CheckpointManager | None = None,
-                   loader: PersistentClientLoader | None = None, prefix: str = "") -> dict:
+                   loader: PersistentClientLoader | None = None, prefix: str = "",
+                   batch_to_io=loc_batch_to_io) -> dict:
     """`loader` (optional): a shared PersistentClientLoader whose entries prefix + client serve the train sets with
     batch size cfg.batch_size and sampler seed client_seed(cfg.seed, client index)."""
     device = torch.device(device)
@@ -122,7 +123,7 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
                 local.train()
                 opt = torch.optim.AdamW(local.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
                 scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
-            x, y = loc_batch_to_io(batch, device)
+            x, y = batch_to_io(batch, device)
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
                 out = local(x)
             loss = loss_fn(out.float(), y)
@@ -145,7 +146,8 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
         val = evaluator.evaluate(model)
         fed_val_loss = weighted_loss(val)
         t_eval = time.perf_counter() - t1
-        entry = {"round": r + 1, "fed_val_loss": fed_val_loss, "pooled_val_loc_f1_logged_only": pooled_f1(val),
+        entry = {"round": r + 1, "fed_val_loss": fed_val_loss,
+                 **({"pooled_val_loc_f1_logged_only": pooled_f1(val)} if "tp" in next(iter(val.values())) else {}),
                  "client_val": {c: {"loss": v["loss"], "n_images": v["n_images"]} for c, v in val.items()},
                  "client_train_loss": client_loss, "train_s": t_train, "eval_s": t_eval,
                  "round_s": time.perf_counter() - t0}
