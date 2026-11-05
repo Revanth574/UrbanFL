@@ -5,6 +5,8 @@ Silo 2 stage 1 — building localisation (pre image -> building mask), same prot
   centralized  : union of all clients' train sets, EPOCHS epochs, checkpoint = epoch with lowest pooled val loss
   local_only   : one model per client on its own train set, EPOCHS epochs, checkpoint = lowest loss on ITS OWN val set
   fedavg       : 9 clients, E = 1, ROUNDS rounds, checkpoint = round with lowest image-weighted federated val loss
+  fedavg_ft    : each client fine-tunes its seed's FedAvg model for up to FT_EPOCHS epochs on its own train set;
+                 epoch 0..FT_EPOCHS (0 = FedAvg unchanged) chosen by the client's own val loss (fresh AdamW, same lr)
 Seeds 0-2; seed s uses the spatial_block split silo2_seed{s}.json and seeds the model/data order with s.
 Model: U-Net (ResNet18, ImageNet weights), 512 crops, batch 4, AMP, AdamW (lr from the sweep, wd 1e-4), BCE + Dice.
 Reported: test localisation F1 (pixel F1 at p = 0.5) pooled over all event test sets and per event, held-out
@@ -15,6 +17,7 @@ Checkpoints: resolve_checkpoint_dir -> C:/data/checkpoints/silo2_loc/<run>_<comm
 
 Usage:  python -m experiments.silo2_loc --lr-sweep
         python -m experiments.silo2_loc --method centralized local_only fedavg --seeds 0 1 2
+        python -m experiments.silo2_loc --method fedavg_ft --seeds 0 1 2        (after fedavg)
         python -m experiments.silo2_loc --summarize
         python -m experiments.silo2_loc --measure-round       # timing only: one FedAvg round, no results claims
 """
@@ -45,9 +48,9 @@ from src.fl.xbd_data import XBDPairDataset
 
 EXPERIMENT_DIR = RESULTS_DIR / "silo2_loc"
 SWEEP_DIR = EXPERIMENT_DIR / "lr_sweep"
-METHODS = ("centralized", "local_only", "fedavg")
+METHODS = ("centralized", "local_only", "fedavg", "fedavg_ft")
 LR_GRID = [1e-4, 3e-4, 1e-3]
-SWEEP_EPOCHS, EPOCHS, ROUNDS, LOCAL_EPOCHS = 10, 30, 30, 1
+SWEEP_EPOCHS, EPOCHS, ROUNDS, LOCAL_EPOCHS, FT_EPOCHS = 10, 30, 30, 1, 2
 NOISY_MIN_TEST_PAIRS = 20                 # per-event test F1 from fewer pairs is flagged "noisy"
 SENSITIVITY_EXCLUDE = ("socal-fire",)     # pooled F1 without these events is reported as a sensitivity check
 PROTOCOL = {
@@ -192,29 +195,42 @@ def run_centralized(data: Data, lr: float, epochs: int, device, git, ckpt_base, 
         hub.close()
 
 
-def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, tag: str) -> dict:
+def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, tag: str,
+                   method: str = "local_only", init_state: dict | None = None, signature: dict | None = None) -> dict:
+    """One model per client, trained on its own train set, checkpoint = lowest loss on its own val set.
+    init_state=None: local-only from ImageNet weights. init_state given (FedAvg + local fine-tuning): every client
+    starts from it and epoch 0 (the unchanged start model) is a selection candidate too."""
     hub = data.hub("local_only", device)
     try:
         val_eval, test_eval, held_eval = hub.evaluator("val"), hub.evaluator("test"), hub.evaluator("heldout")
         per_client, test_counts, held_by_client, wall = {}, {}, {}, 0.0
         for e in data.clients:
             model = new_model(data.seed)
+            if init_state is not None:
+                model.load_state_dict(init_state)
             mgr = ckpt_manager(f"{tag}_seed{data.seed}/{e}", git,
-                               {"method": "local_only", "client": e, "lr": lr, "epochs": epochs, "seed": data.seed},
-                               ckpt_base)
+                               {"method": method, "client": e, "lr": lr, "epochs": epochs, "seed": data.seed,
+                                **(signature or {})}, ckpt_base)
             best_path, done_path = mgr.dir / "best_model.pt", mgr.dir / "done.json"
             if done_path.exists() and best_path.exists():            # client finished before an interruption
                 info = json.loads(done_path.read_text(encoding="utf-8"))
-                print(f"SKIP local_only client {e}: done.json found (best epoch {info['best_epoch']}), "
+                print(f"SKIP {method} client {e}: done.json found (best epoch {info['best_epoch']}), "
                       f"not retrained", flush=True)
             else:
-                def on_epoch_end(epoch, m, extra, e=e, best_path=best_path):
+                # epoch-0 candidate: own val loss of the start model, computed before train() (which may restore a
+                # mid-run checkpoint), so a resumed client reaches the same value
+                start_loss = val_eval.evaluate(model.to(device), clients=[e])[e]["loss"] if init_state else None
+
+                def on_epoch_end(epoch, m, extra, e=e, best_path=best_path, start_loss=start_loss):
+                    if start_loss is not None and "history" not in extra:
+                        extra.update(history=[{"epoch": 0, "val_loss": start_loss}], best_loss=start_loss, best_epoch=0)
+                        save_atomic({k: v.detach().cpu() for k, v in init_state.items()}, best_path)
                     loss = val_eval.evaluate(m, clients=[e])[e]["loss"]      # own val set only
                     extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": loss})
                     if loss < extra.get("best_loss", float("inf")):
                         extra.update(best_loss=loss, best_epoch=epoch + 1)
                         save_atomic({k: v.detach().cpu() for k, v in m.state_dict().items()}, best_path)
-                    print(f"EPOCH local_only {e} {epoch + 1}/{epochs}: val_loss={loss:.4f} "
+                    print(f"EPOCH {method} {e} {epoch + 1}/{epochs}: val_loss={loss:.4f} "
                           f"(best {extra['best_loss']:.4f} @ epoch {extra['best_epoch']})", flush=True)
 
                 cfg = TrainConfig(epochs=epochs, batch_size=COMMON["batch_size"], lr=lr,
@@ -226,7 +242,7 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
                         "history": st["extra"]["history"], "wall_s": st["wall_s"], "training_git": git}
                 done_path.write_text(json.dumps(info), encoding="utf-8")
                 freed = mgr.prune_resume_checkpoints()                # client done: keep best_model.pt only
-                print(f"DONE local_only client {e}: done.json written, pruned {freed / 2**20:.0f} MiB of resume "
+                print(f"DONE {method} client {e}: done.json written, pruned {freed / 2**20:.0f} MiB of resume "
                       f"checkpoints", flush=True)
             wall += info["wall_s"]
             model.to(device)                     # a SKIPped client never went through train(), which moves it
@@ -238,10 +254,41 @@ def run_local_only(data: Data, lr: float, epochs: int, device, git, ckpt_base, t
         return {"selection": per_client, **report_test(test_counts),
                 "heldout_loc_f1_by_client_model": held_by_client,
                 "heldout_loc_f1": float(np.mean(list(held_by_client.values()))),
-                "heldout_note": "mean over the 9 client models (local-only has no single model)",
+                "heldout_note": f"mean over the 9 client models ({method} has no single model)",
                 "timing": {"wall_s": wall}}
     finally:
         hub.close()
+
+
+def run_fedavg_ft(data: Data, lr: float, ft_epochs: int, device, git, ckpt_base, tag: str, source_root: Path) -> dict:
+    """FedAvg + local fine-tuning: every client fine-tunes ITS seed's FedAvg model (the committed run's best round)
+    for up to ft_epochs on its own train set; epoch 0..ft_epochs chosen by the client's own val loss."""
+    src = _load(source_root / f"fedavg_seed{data.seed}" / "metrics.json")
+    if src is None:
+        raise FileNotFoundError(f"FedAvg seed {data.seed} must finish before its fine-tuning")
+    src_path = Path(src["metrics"]["checkpoint_dir"]) / "best_model.pt"
+    init = torch.load(src_path, map_location="cpu")
+    source = {"fedavg_metrics": str(source_root / f"fedavg_seed{data.seed}" / "metrics.json"),
+              "fedavg_best_model": str(src_path), "fedavg_training_commit": src["metrics"]["training_git"]["commit"],
+              "fedavg_best_round": src["metrics"]["selection"]["best_round"]}
+    res = run_local_only(data, lr, ft_epochs, device, git, ckpt_base, tag, method="fedavg_ft", init_state=init,
+                         signature={"init": source["fedavg_best_model"],
+                                    "init_commit": source["fedavg_training_commit"]})
+    # start check: the loaded start model must reproduce the committed FedAvg test and held-out F1
+    model = new_model(data.seed)
+    model.load_state_dict(init)
+    hub = data.hub("local_only", device)
+    try:
+        start = test_report(model, hub)
+    finally:
+        hub.close()
+    check = {k: {"recomputed": start[k], "committed": src["metrics"][k]} for k in ("test_pooled_loc_f1", "heldout_loc_f1")}
+    if any(abs(v["recomputed"] - v["committed"]) > 2e-3 for v in check.values()):   # cuDNN noise only
+        raise AssertionError(f"start model does not reproduce the committed FedAvg run: {check}")
+    kept = [e for e, s in res["selection"].items() if s["best_epoch"] == 0]
+    return {**res, "source": source, "start_check": {**check, "clients_kept_epoch0": kept},
+            "heldout_loc_f1_global_start_model": start["heldout_loc_f1"],
+            "heldout_note_global": "held-out F1 of the FedAvg start model (what an unseen event would receive)"}
 
 
 def run_fedavg(data: Data, lr: float, rounds: int, device, git, ckpt_base, tag: str,
@@ -342,7 +389,8 @@ def summarize(seeds: list[int]) -> dict:
                 e: {**ms([r["test_per_event"][e]["f1"] for r in rs.values()]),
                     "test_pairs_by_seed": {s: r["test_per_event"][e]["n_images"] for s, r in rs.items()},
                     "noisy": any(r["test_per_event"][e]["noisy"] for r in rs.values())} for e in events}}
-    for a, b in (("fedavg", "local_only"), ("fedavg", "centralized"), ("centralized", "local_only")):
+    for a, b in (("fedavg", "local_only"), ("fedavg", "centralized"), ("centralized", "local_only"),
+                 ("fedavg_ft", "fedavg"), ("fedavg_ft", "local_only"), ("fedavg_ft", "centralized")):
         common = sorted(set(runs.get(a, {})) & set(runs.get(b, {})))
         if len(common) >= 2:
             for key, label in (("test_pooled_loc_f1", ""), ("test_pooled_loc_f1_excl_socal_fire", "_excl_socal_fire")):
@@ -421,6 +469,7 @@ def main() -> None:
         raise FileNotFoundError("run the lr sweep first (--lr-sweep)")
     lr = choice["lr"]
     epochs, rounds = (EPOCHS, ROUNDS) if args.smoke is None else (args.epochs or 1, args.rounds or 1)
+    ft_epochs = FT_EPOCHS if args.smoke is None else min(FT_EPOCHS, epochs)
     for seed in args.seeds:
         data = Data(seed, args.smoke)
         for method in args.method or []:
@@ -433,10 +482,14 @@ def main() -> None:
                 res = run_centralized(data, lr, epochs, device, git, args.checkpoint_dir, "centralized")
             elif method == "local_only":
                 res = run_local_only(data, lr, epochs, device, git, args.checkpoint_dir, "local_only")
+            elif method == "fedavg_ft":
+                res = run_fedavg_ft(data, lr, ft_epochs, device, git, args.checkpoint_dir, "fedavg_ft", out_root)
             else:
                 res = run_fedavg(data, lr, rounds, device, git, args.checkpoint_dir, "fedavg")
-            write_run(run_dir, method, res, data, lr, git, time.perf_counter() - t0,
-                      {"epochs": epochs} if method != "fedavg" else {"rounds": rounds, "local_epochs": LOCAL_EPOCHS})
+            extra_cfg = {"fedavg": {"rounds": rounds, "local_epochs": LOCAL_EPOCHS},
+                         "fedavg_ft": {"ft_epochs": ft_epochs, "ft_selection": "epoch 0..ft_epochs by own val loss",
+                                       "ft_optimizer": "fresh AdamW per client, lr = sweep lr"}}.get(method, {"epochs": epochs})
+            write_run(run_dir, method, res, data, lr, git, time.perf_counter() - t0, extra_cfg)
             prune_run(res)                                   # metrics written: keep best_model.pt only
             print(f"seed {seed} {method}: test pooled loc F1 {res['test_pooled_loc_f1']:.4f} "
                   f"(excl. socal-fire {res['test_pooled_loc_f1_excl_socal_fire']:.4f}), "
