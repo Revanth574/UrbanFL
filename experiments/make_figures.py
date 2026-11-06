@@ -353,7 +353,7 @@ def fig_f() -> Path:
     eps_max = 0.0
     used = []
     for q in DP_Q:
-        for C in DP_C:
+        for C in sorted(DP_C):
             xs, ys, es = [], [], []
             for z in DP_Z:
                 rs = runs("silo1_dp", _dp_name(z, C, q))
@@ -361,6 +361,8 @@ def fig_f() -> Path:
                 m, s = ms([r["pooled_test_macro_f1"] for r in rs])
                 xs.append(eps); ys.append(m); es.append(s)
                 eps_max = max(eps_max, eps)
+                if C != min(DP_C):          # every C shares ε at a given (z, q): label z once, on the C = 0.1 line
+                    continue
                 # q = 1 labels above-left, q = 0.5 below-right: the two series sit close together at ε ≈ 35-45
                 off, ha = ((-5, 6), "right") if q == 1.0 else ((5, -11), "left")
                 ax.annotate(f"z={z:g}", (eps, m), xytext=off, textcoords="offset points", ha=ha, fontsize=6.5,
