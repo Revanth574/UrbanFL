@@ -1,0 +1,111 @@
+{
+ "metrics": {
+  "source": "results/silo2_feasibility/dmg_epoch_round_resnet18_crop512_bs4/metrics.json",
+  "source_commit": "d03451bef86af20ea8cddc0f9d276fa83ce5c926",
+  "projection_hours": {
+   "lr_sweep_h": 2.4148466334166665,
+   "centralized_per_seed_h": 2.325181103916667,
+   "local_only_per_seed_h": 2.683843221916667,
+   "fedavg_per_seed_h": 2.4087217964166667,
+   "fedavg_ft_per_seed_h": 0.5826603017499999,
+   "per_seed_h": 8.000406424000001,
+   "seeds": 3,
+   "total_h": 26.41606590541667,
+   "validations": {
+    "sweep_run": 5,
+    "epochs_run": 15,
+    "fedavg_run": 15,
+    "fedavg_ft_client": 2
+   },
+   "rule": "validate every 2 epochs / rounds and always the final one",
+   "assumptions": "no sleep / crash / restart time; worker start-up and checkpoint writes are inside the measured epoch and round times"
+  },
+  "previous_projection_hours_validate_every_epoch": {
+   "lr_sweep_h": 2.82197957925,
+   "centralized_per_seed_h": 2.7323140497500007,
+   "local_only_per_seed_h": 3.0909761677500005,
+   "fedavg_per_seed_h": 2.834273941416667,
+   "fedavg_ft_per_seed_h": 0.6098024981388889,
+   "per_seed_h": 9.267366657055556,
+   "seeds": 3,
+   "total_h": 30.62407955041667,
+   "assumptions": "epoch = measured train + val pass; local-only = EPOCHS pooled epochs + 9 client test/held-out scorings (held-out scored by each client model, an over-estimate); no sleep / crash time"
+  }
+ },
+ "seed": 0,
+ "config": {
+  "val_every": 2,
+  "lr_grid": [
+   0.0001,
+   0.0003,
+   0.001
+  ],
+  "sweep_epochs": 10,
+  "epochs": 30,
+  "rounds": 30,
+  "ft_epochs": 2
+ },
+ "split_sizes": {
+  "hurricane-florence": {
+   "train": 214,
+   "train_before_building_filter": 217,
+   "val": 53,
+   "test": 47
+  },
+  "hurricane-harvey": {
+   "train": 220,
+   "train_before_building_filter": 226,
+   "val": 42,
+   "test": 41
+  },
+  "hurricane-matthew": {
+   "train": 153,
+   "train_before_building_filter": 159,
+   "val": 34,
+   "test": 38
+  },
+  "hurricane-michael": {
+   "train": 247,
+   "train_before_building_filter": 249,
+   "val": 46,
+   "test": 44
+  },
+  "mexico-earthquake": {
+   "train": 88,
+   "train_before_building_filter": 88,
+   "val": 17,
+   "test": 16
+  },
+  "midwest-flooding": {
+   "train": 178,
+   "train_before_building_filter": 186,
+   "val": 37,
+   "test": 36
+  },
+  "palu-tsunami": {
+   "train": 76,
+   "train_before_building_filter": 77,
+   "val": 17,
+   "test": 18
+  },
+  "santa-rosa-wildfire": {
+   "train": 150,
+   "train_before_building_filter": 152,
+   "val": 32,
+   "test": 38
+  },
+  "socal-fire": {
+   "train": 276,
+   "train_before_building_filter": 361,
+   "val": 136,
+   "test": 110
+  }
+ },
+ "runtime_s": 0.0,
+ "git": {
+  "commit": "402209aa40ee1d5b6b38f6bce410d1f419280400",
+  "dirty": false
+ },
+ "written_at": "2026-11-07T02:11:12",
+ "python": "3.11.9"
+}
