@@ -15,8 +15,10 @@ stage-1 model, fedavg_ft client k its stage-1 fedavg_ft model.
 
 Loss: class-weighted cross-entropy on scored pixels (src/fl/dmg_eval.py). Class weights = the Silo 1 rule
 (models.class_weights_from_counts: total / (n_present x count_c), absent classes 0) on DAMAGE PIXEL counts of the
-training split: centralized = pooled counts; fedavg / fedavg_ft = federated sum of the clients' 4-bin pixel
-histograms (one-off upload, same numbers as pooled); local_only = the client's own counts.
+training split, capped at WEIGHT_CAP: centralized = pooled counts; fedavg / fedavg_ft = federated sum of the clients'
+4-bin pixel histograms (one-off upload, same numbers as pooled); local_only = the client's own counts. The cap never
+binds on pooled counts (max ~4.8); it stops a client's near-absent class (e.g. palu minor-damage, 0.01% of pixels ->
+raw weight ~3,500) from dominating that client's loss. Raw and capped weights are both reported (--class-stats).
 Training pairs: pairs with >= 1 classified building (building-free pairs give no damage gradient); val / test /
 held-out: all pairs (localisation F1 needs them). Selection never reads test data:
   lr sweep    : centralized, split seed 0, LR_GRID, SWEEP_EPOCHS, min best pooled val loss
@@ -66,7 +68,9 @@ STAGE1_DIR = RESULTS_DIR / "silo2_loc"
 METHODS = ("centralized", "local_only", "fedavg", "fedavg_ft")
 LR_GRID = [1e-4, 3e-4, 1e-3]
 SWEEP_EPOCHS, EPOCHS, ROUNDS, LOCAL_EPOCHS, FT_EPOCHS = 10, 30, 30, 1, 2
-CLASS_WEIGHTS = "models.class_weights_from_counts on damage-pixel counts of the training split (Silo 1 rule)"
+WEIGHT_CAP = 10.0
+CLASS_WEIGHTS = (f"models.class_weights_from_counts on damage-pixel counts of the training split (Silo 1 rule), "
+                 f"capped at {WEIGHT_CAP:g}")
 PROTOCOL = {**LOC_PROTOCOL,
             "init": "each method from its own stage-1 weights (see module docstring); new head seeded with the run seed",
             "class_weights": {"rule": CLASS_WEIGHTS, "centralized": "pooled counts",
@@ -117,6 +121,9 @@ class DmgData:
 
     def weights(self, client: str | None = None) -> torch.Tensor:
         """Federated / pooled weights (client=None) or one client's own weights."""
+        return self.raw_weights(client).clamp(max=WEIGHT_CAP)
+
+    def raw_weights(self, client: str | None = None) -> torch.Tensor:
         counts = self.class_counts()
         return class_weights_from_counts(np.sum(list(counts.values()), axis=0) if client is None else counts[client])
 
@@ -428,8 +435,9 @@ def class_stats(seeds: list[int]) -> dict:
         pooled = np.sum(list(counts.values()), axis=0)
         out["seeds"][str(s)] = {
             "pooled_pixel_counts": pooled.tolist(), "pooled_pixel_share": (pooled / pooled.sum()).tolist(),
-            "pooled_weights": d.weights().tolist(),
+            "pooled_weights": d.weights().tolist(), "pooled_weights_uncapped": d.raw_weights().tolist(),
             "by_client": {e: {"pixel_counts": counts[e], "weights": d.weights(e).tolist(),
+                              "weights_uncapped": d.raw_weights(e).tolist(),
                               "train_pairs": len(d.train_ids[e]),
                               "train_pairs_before_building_filter": d.n_train_pairs_before_filter[e]}
                           for e in d.clients}}
