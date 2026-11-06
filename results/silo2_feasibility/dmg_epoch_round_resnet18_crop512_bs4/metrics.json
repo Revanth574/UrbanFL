@@ -1,0 +1,141 @@
+{
+ "metrics": {
+  "note": "Timing only (seed-0 split, real data, RTX 3050); no accuracy claims.",
+  "train_pairs": 1602,
+  "steps_per_epoch": 401,
+  "epoch_train_s": 224.78584720000003,
+  "s_per_step": 0.5605632099750625,
+  "data_wait_s": 41.253024299999424,
+  "compute_s": 183.5285873000003,
+  "val_pass_s": 97.711907,
+  "test_and_heldout_scoring_s": 161.3979531,
+  "fedavg_round_s": 334.7329412,
+  "fedavg_round_train_s": 232.87048259999995,
+  "fedavg_round_eval_s": 101.59240240000008,
+  "fedavg_process_wall_s": 339.0213945999999,
+  "peak_vram_allocated_mib": 2446.36767578125,
+  "fedavg_peak_vram_allocated_mib": null,
+  "protocol_counts": {
+   "lr_grid": [
+    0.0001,
+    0.0003,
+    0.001
+   ],
+   "sweep_epochs": 10,
+   "epochs": 30,
+   "rounds": 30,
+   "ft_epochs": 2
+  },
+  "projection_hours": {
+   "lr_sweep_h": 2.82197957925,
+   "centralized_per_seed_h": 2.7323140497500007,
+   "local_only_per_seed_h": 3.0909761677500005,
+   "fedavg_per_seed_h": 2.834273941416667,
+   "fedavg_ft_per_seed_h": 0.6098024981388889,
+   "per_seed_h": 9.267366657055556,
+   "seeds": 3,
+   "total_h": 30.62407955041667,
+   "assumptions": "epoch = measured train + val pass; local-only = EPOCHS pooled epochs + 9 client test/held-out scorings (held-out scored by each client model, an over-estimate); no sleep / crash time"
+  },
+  "training_git": {
+   "commit": "d03451bef86af20ea8cddc0f9d276fa83ce5c926",
+   "dirty": false
+  }
+ },
+ "seed": 0,
+ "config": {
+  "encoder": "resnet18",
+  "pretrained": "ImageNet",
+  "crop": 512,
+  "batch_size": 4,
+  "eval_batch_size": 2,
+  "amp": true,
+  "num_workers": 4,
+  "weight_decay": 0.0001,
+  "ckpt_every_steps": 200,
+  "split": "spatial_block",
+  "checkpoint_retention": "resume checkpoints deleted once a run completes; best_model.pt kept",
+  "model": "SiameseDamageNet(stage-1 UNetResNet body shared pre/post, 1x1 head on 64 ch)",
+  "loss": "class-weighted cross-entropy on scored building pixels (background, un-classified ignored)",
+  "train_pairs": "pairs with >= 1 classified building",
+  "protocol": {
+   "optimizer": "AdamW(lr = lr-sweep choice, betas = (0.9, 0.999), eps = 1e-8, weight_decay = 1e-4) with an AMP GradScaler; identical for centralized, local-only and every FedAvg client",
+   "optimizer_state_centralized_and_local_only": "kept across epochs (one continuous run per model)",
+   "optimizer_state_fedavg": "reset every round: each client builds a fresh AdamW (and AMP GradScaler) from the broadcast global weights at the start of every round; Adam moment estimates are client-local, never communicated and never carried across rounds (they would describe a model the client no longer has)",
+   "batchnorm_aggregation_fedavg": "BatchNorm running_mean / running_var are float buffers and are averaged with the same sample-size weights as the parameters (the global model is evaluated with these averaged statistics); num_batches_tracked (int64) is not averaged: the maximum across clients is kept, still int64. It is unused because every BatchNorm layer has momentum set (asserted). Note: averaging running_var ignores between-client differences in the means; FedBN (client-local BN) is a possible alternative, not used here.",
+   "aggregation_weights_fedavg": "client train-set size (number of pairs)",
+   "init": "each method from its own stage-1 weights (see module docstring); new head seeded with the run seed",
+   "class_weights": {
+    "rule": "models.class_weights_from_counts on damage-pixel counts of the training split (Silo 1 rule), capped at 10",
+    "centralized": "pooled counts",
+    "fedavg_and_fedavg_ft": "federated sum of client 4-bin pixel histograms",
+    "local_only": "own counts (absent classes weight 0)"
+   },
+   "fedavg_ft_optimizer": "fresh AdamW per client, lr = sweep lr; loss weights = federated weights"
+  },
+  "lr": 0.0003
+ },
+ "split_sizes": {
+  "hurricane-florence": {
+   "train": 214,
+   "train_before_building_filter": 217,
+   "val": 53,
+   "test": 47
+  },
+  "hurricane-harvey": {
+   "train": 220,
+   "train_before_building_filter": 226,
+   "val": 42,
+   "test": 41
+  },
+  "hurricane-matthew": {
+   "train": 153,
+   "train_before_building_filter": 159,
+   "val": 34,
+   "test": 38
+  },
+  "hurricane-michael": {
+   "train": 247,
+   "train_before_building_filter": 249,
+   "val": 46,
+   "test": 44
+  },
+  "mexico-earthquake": {
+   "train": 88,
+   "train_before_building_filter": 88,
+   "val": 17,
+   "test": 16
+  },
+  "midwest-flooding": {
+   "train": 178,
+   "train_before_building_filter": 186,
+   "val": 37,
+   "test": 36
+  },
+  "palu-tsunami": {
+   "train": 76,
+   "train_before_building_filter": 77,
+   "val": 17,
+   "test": 18
+  },
+  "santa-rosa-wildfire": {
+   "train": 150,
+   "train_before_building_filter": 152,
+   "val": 32,
+   "test": 38
+  },
+  "socal-fire": {
+   "train": 276,
+   "train_before_building_filter": 361,
+   "val": 136,
+   "test": 110
+  }
+ },
+ "runtime_s": 822.917,
+ "git": {
+  "commit": "d03451bef86af20ea8cddc0f9d276fa83ce5c926",
+  "dirty": false
+ },
+ "written_at": "2026-11-07T01:29:33",
+ "python": "3.11.9"
+}
