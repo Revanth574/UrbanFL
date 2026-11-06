@@ -85,8 +85,8 @@ def silo2() -> dict:
         ms = [_load(RESULTS_DIR / "silo2_loc" / f"{name}_seed{s}" / "metrics.json") for s in SILO2_SEEDS]
         if not all(ms):
             continue
-        src = [m["metrics"] if name == "fedavg" else _load(Path(m["metrics"]["source"]["fedavg_metrics"]))["metrics"]
-               for m in ms]
+        src = [_load(RESULTS_DIR / "silo2_loc" / f"fedavg_seed{s}" / "metrics.json")["metrics"]   # FT: its FedAvg rounds
+               for s in SILO2_SEEDS]
         rounds = len(src[0]["history"])
         clients = len(ms[0]["metrics"]["test_per_event"])
         per_round = sent * clients * 2
