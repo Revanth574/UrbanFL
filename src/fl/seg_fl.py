@@ -59,6 +59,7 @@ class SegFLConfig:
     num_workers: int = 4
     seed: int = 0
     max_rounds_this_call: int | None = None     # stop early (timing measurements, tests)
+    val_every: int = 1                           # federated validation every n-th round and always the last
 
 
 def client_seed(seed: int, index: int) -> int:
@@ -92,14 +93,14 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
         set_rng_state(state["rng"])                          # CPU uint8 RNG tensors
         assert_on_device(model, None, device)                # client optimizers are rebuilt every round anyway
         start_round, history, best = state["round"], state["history"], state["best"]   # best["state"] stays on CPU
-        print(f"RESUME {ckpt.dir.name}: completed_rounds={start_round} best_round={best['round']} "
+        print(f"RESUME {ckpt.label}: completed_rounds={start_round} best_round={best['round']} "
               f"rng={rng_fingerprint()} (saved rng={rng_fingerprint(state['rng'])})", flush=True)
 
     def save(completed_rounds: int) -> None:
         if ckpt is not None:
             ckpt.save({"global": model.state_dict(), "rng": rng_state(), "round": completed_rounds,
                        "history": history, "best": best, "fl_config": asdict(cfg)}, completed_rounds)
-            print(f"CKPT {ckpt.dir.name}: completed_rounds={completed_rounds} rng={rng_fingerprint()}", flush=True)
+            print(f"CKPT {ckpt.label}: completed_rounds={completed_rounds} rng={rng_fingerprint()}", flush=True)
 
     if device.type == "cuda":
         torch.cuda.reset_peak_memory_stats(device)
@@ -135,7 +136,7 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
             loss_sum += loss_v
             n_steps += 1
             if TRACE:                                        # opt-in: sampling order + loss (resume smoke tests)
-                print(f"TRACE run={ckpt.dir.name if ckpt else 'fedavg'} round={r + 1} client={c} step={n_steps} ids={','.join(batch.get('pair_id', []))} "
+                print(f"TRACE run={ckpt.label if ckpt else 'fedavg'} round={r + 1} client={c} step={n_steps} ids={','.join(batch.get('pair_id', []))} "
                       f"loss={loss_v:.6f}", flush=True)
         states[current] = {k: v.detach().clone() for k, v in local.state_dict().items()}
         client_loss[current] = loss_sum / max(1, n_steps)
@@ -143,19 +144,23 @@ def run_seg_fedavg(model: nn.Module, train_sets: dict, evaluator: SegEvaluator, 
 
         model.load_state_dict(fedavg_aggregate(global_state, [states[c] for c in clients], [sizes[c] for c in clients]))
         t1 = time.perf_counter()
-        val = evaluator.evaluate(model)
-        fed_val_loss = weighted_loss(val)
+        validate = (r + 1) % cfg.val_every == 0 or r + 1 == cfg.rounds
+        val = evaluator.evaluate(model) if validate else None
+        fed_val_loss = weighted_loss(val) if validate else None
         t_eval = time.perf_counter() - t1
         entry = {"round": r + 1, "fed_val_loss": fed_val_loss,
-                 **({"pooled_val_loc_f1_logged_only": pooled_f1(val)} if "tp" in next(iter(val.values())) else {}),
-                 "client_val": {c: {"loss": v["loss"], "n_images": v["n_images"]} for c, v in val.items()},
+                 **({"pooled_val_loc_f1_logged_only": pooled_f1(val)}
+                    if validate and "tp" in next(iter(val.values())) else {}),
+                 "client_val": {c: {"loss": v["loss"], "n_images": v["n_images"]} for c, v in val.items()}
+                 if validate else None,
                  "client_train_loss": client_loss, "train_s": t_train, "eval_s": t_eval,
                  "round_s": time.perf_counter() - t0}
         history.append(entry)
-        print(f"ROUND {r + 1}/{cfg.rounds}: fed_val_loss={fed_val_loss:.4f} "
+        shown = f"{fed_val_loss:.4f}" if validate else f"not validated (every {cfg.val_every})"
+        print(f"ROUND {r + 1}/{cfg.rounds}: fed_val_loss={shown} "
               f"mean_client_train_loss={sum(client_loss.values()) / len(client_loss):.4f} "
               f"round_s={entry['round_s']:.0f}", flush=True)
-        if fed_val_loss < best["loss"]:
+        if validate and fed_val_loss < best["loss"]:
             best = {"round": r + 1, "loss": fed_val_loss,
                     "state": {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}}
         rounds_done_now += 1

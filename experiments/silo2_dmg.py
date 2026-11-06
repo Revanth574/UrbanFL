@@ -51,7 +51,7 @@ from scipy import stats as sstats
 from experiments.silo2_loc import COMMON as LOC_COMMON
 from experiments.silo2_loc import NOISY_MIN_TEST_PAIRS, PROTOCOL as LOC_PROTOCOL, SENSITIVITY_EXCLUDE
 from experiments.silo2_loc import completed, prune_run
-from src.fl.checkpoint import CheckpointManager, resolve_checkpoint_dir, save_atomic
+from src.fl.checkpoint import CheckpointManager, file_sha256, resolve_checkpoint_dir, save_atomic
 from src.fl.client_loader import PersistentClientLoader
 from src.fl.config import xbd_split_dir
 from src.fl.dmg_eval import DamageValEvaluator, dmg_batch_to_io, pooled_score, weighted_ce_loss, xview2_evaluate
@@ -68,6 +68,7 @@ STAGE1_DIR = RESULTS_DIR / "silo2_loc"
 METHODS = ("centralized", "local_only", "fedavg", "fedavg_ft")
 LR_GRID = [1e-4, 3e-4, 1e-3]
 SWEEP_EPOCHS, EPOCHS, ROUNDS, LOCAL_EPOCHS, FT_EPOCHS = 10, 30, 30, 1, 2
+VAL_EVERY = 2          # validate every 2nd epoch / round and always the final one (all methods)
 WEIGHT_CAP = 10.0
 CLASS_WEIGHTS = (f"models.class_weights_from_counts on damage-pixel counts of the training split (Silo 1 rule), "
                  f"capped at {WEIGHT_CAP:g}")
@@ -76,7 +77,13 @@ PROTOCOL = {**LOC_PROTOCOL,
             "class_weights": {"rule": CLASS_WEIGHTS, "centralized": "pooled counts",
                               "fedavg_and_fedavg_ft": "federated sum of client 4-bin pixel histograms",
                               "local_only": "own counts (absent classes weight 0)"},
-            "fedavg_ft_optimizer": "fresh AdamW per client, lr = sweep lr; loss weights = federated weights"}
+            "fedavg_ft_optimizer": "fresh AdamW per client, lr = sweep lr; loss weights = federated weights",
+            "validation": (f"every {VAL_EVERY} epochs (centralized, local_only, fedavg_ft, lr sweep) or rounds "
+                           "(fedavg) and always the final one; checkpoint selection only among validated epochs / "
+                           "rounds. fedavg_ft also validates its start model (epoch 0), so with FT_EPOCHS = 2 its "
+                           "candidates are epochs 0 and 2"),
+            "resume_signature": "method, client, seed, lr, epochs / rounds, start-weights path + SHA-256, commit; "
+                                "a resume refuses any checkpoint whose signature differs"}
 COMMON = {**{k: v for k, v in LOC_COMMON.items() if k not in ("loss", "protocol")},
           "model": "SiameseDamageNet(stage-1 UNetResNet body shared pre/post, 1x1 head on 64 ch)",
           "loss": "class-weighted cross-entropy on scored building pixels (background, un-classified ignored)",
@@ -192,6 +199,17 @@ def new_dmg_model(seed: int, stage1_path: str) -> SiameseDamageNet:
     return SiameseDamageNet.from_stage1(torch.load(stage1_path, map_location="cpu"), COMMON["encoder"])
 
 
+def validate_now(done: int, total: int) -> bool:
+    """Epoch / round `done` (1-based) of `total` is validated: every VAL_EVERY-th and always the last."""
+    return done % VAL_EVERY == 0 or done == total
+
+
+def run_signature(method: str, seed: int, init_path: str, client: str | None = None, **settings) -> dict:
+    """What a checkpoint must match to be resumed (the commit is added by ckpt_manager)."""
+    return {"method": method, "client": client, "seed": seed, "init": str(init_path),
+            "init_sha256": file_sha256(init_path), **settings}
+
+
 def ckpt_manager(run: str, git: dict, signature: dict, base: str | None) -> CheckpointManager:
     d = resolve_checkpoint_dir(base, f"silo2_dmg/{run}_{git['commit'][:7]}")
     return CheckpointManager(d, COMMON["ckpt_every_steps"], keep_last=2, signature={**signature, "commit": git["commit"]})
@@ -233,11 +251,16 @@ def run_centralized(data: DmgData, lr: float, epochs: int, device, git, ckpt_bas
     hub = DmgHub(data, "centralized", device)
     try:
         val_eval = hub.val_evaluator(lambda c: w)
-        mgr = ckpt_manager(f"{tag}_seed{data.seed}", git, {"method": "centralized", "lr": lr, "epochs": epochs,
-                                                           "seed": data.seed, "init": src["best_model"]}, ckpt_base)
+        mgr = ckpt_manager(f"{tag}_seed{data.seed}", git,
+                           run_signature("centralized", data.seed, src["best_model"], lr=lr, epochs=epochs), ckpt_base)
         best_path = mgr.dir / "best_model.pt"
 
         def on_epoch_end(epoch, m, extra):
+            if not validate_now(epoch + 1, epochs):
+                extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": None})
+                print(f"EPOCH {tag}_seed{data.seed} {epoch + 1}/{epochs}: not validated (every {VAL_EVERY})",
+                      flush=True)
+                return
             loss = weighted_loss(val_eval.evaluate(m))
             extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": loss})
             if loss < extra.get("best_loss", float("inf")):
@@ -272,9 +295,8 @@ def run_per_client(data: DmgData, lr: float, epochs: int, device, git, ckpt_base
             init_path = init_of(e)
             model = new_dmg_model(data.seed, init_path) if not epoch0 else _load_dmg(init_path)
             init_state = {k: v.clone() for k, v in model.state_dict().items()} if epoch0 else None
-            mgr = ckpt_manager(f"{tag}_seed{data.seed}/{e}", git, {"method": method, "client": e, "lr": lr,
-                                                                    "epochs": epochs, "seed": data.seed,
-                                                                    "init": init_path}, ckpt_base)
+            mgr = ckpt_manager(f"{tag}_seed{data.seed}/{e}", git,
+                               run_signature(method, data.seed, init_path, client=e, lr=lr, epochs=epochs), ckpt_base)
             best_path, done_path = mgr.dir / "best_model.pt", mgr.dir / "done.json"
             if done_path.exists() and best_path.exists():
                 info = json.loads(done_path.read_text(encoding="utf-8"))
@@ -288,6 +310,11 @@ def run_per_client(data: DmgData, lr: float, epochs: int, device, git, ckpt_base
                     if start_loss is not None and "history" not in extra:
                         extra.update(history=[{"epoch": 0, "val_loss": start_loss}], best_loss=start_loss, best_epoch=0)
                         save_atomic({k: v.detach().cpu() for k, v in init_state.items()}, best_path)
+                    if not validate_now(epoch + 1, epochs):
+                        extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": None})
+                        print(f"EPOCH {method} {e} {epoch + 1}/{epochs}: not validated (every {VAL_EVERY})",
+                              flush=True)
+                        return
                     loss = val_eval.evaluate(m, clients=[e])[e]["loss"]
                     extra.setdefault("history", []).append({"epoch": epoch + 1, "val_loss": loss})
                     if loss < extra.get("best_loss", float("inf")):
@@ -357,7 +384,8 @@ def run_fedavg_ft(data, lr, ft_epochs, device, git, ckpt_base, tag, stage1_root,
                                                 "stage1_fedavg_ft_by_client": locs})
 
 
-def run_fedavg(data, lr, rounds, device, git, ckpt_base, tag, stage1_root, max_rounds_this_call=None):
+def run_fedavg(data, lr, rounds, device, git, ckpt_base, tag, stage1_root, max_rounds_this_call=None,
+               val_every=VAL_EVERY):
     src = stage1_source("fedavg", data.seed, stage1_root)
     model = new_dmg_model(data.seed, src["best_model"])
     w = data.weights()
@@ -365,10 +393,9 @@ def run_fedavg(data, lr, rounds, device, git, ckpt_base, tag, stage1_root, max_r
     try:
         cfg = SegFLConfig(rounds=rounds, local_epochs=LOCAL_EPOCHS, batch_size=COMMON["batch_size"], lr=lr,
                           weight_decay=COMMON["weight_decay"], num_workers=COMMON["num_workers"], seed=data.seed,
-                          max_rounds_this_call=max_rounds_this_call)
-        mgr = ckpt_manager(f"{tag}_seed{data.seed}", git, {"method": "fedavg", "lr": lr, "rounds": rounds,
-                                                            "E": LOCAL_EPOCHS, "seed": data.seed,
-                                                            "init": src["best_model"]}, ckpt_base)
+                          max_rounds_this_call=max_rounds_this_call, val_every=val_every)
+        mgr = ckpt_manager(f"{tag}_seed{data.seed}", git, run_signature("fedavg", data.seed, src["best_model"], lr=lr,
+                                                                        rounds=rounds, E=LOCAL_EPOCHS), ckpt_base)
         mgr.every = 1
         st = run_seg_fedavg(model, data.train, hub.val_evaluator(lambda c: w), cfg, weighted_ce_loss(w), device,
                             ckpt=mgr, loader=hub.loader, prefix="train/", batch_to_io=dmg_batch_to_io)
@@ -448,6 +475,52 @@ def class_stats(seeds: list[int]) -> dict:
     return out
 
 
+FEASIBILITY_DIR = RESULTS_DIR / "silo2_feasibility"
+TIMING_RUN = "dmg_epoch_round_resnet18_crop512_bs4"
+
+
+def n_validations(total: int) -> int:
+    return sum(validate_now(e, total) for e in range(1, total + 1))
+
+
+def project_hours(t: dict, n_clients: int) -> dict:
+    """Campaign hours from measured timings under the VAL_EVERY rule. Local-only / fine-tuning: every client
+    trains on its own pairs, so one pass over all clients ~ one pooled epoch, one validation of every client ~ one
+    full val pass; each client model is scored on test + held-out (an over-estimate: its test set is 1/9th)."""
+    ep, val, score = t["epoch_train_s"], t["val_pass_s"], t["test_and_heldout_scoring_s"]
+    rnd_train, rnd_eval = t["fedavg_round_train_s"], t["fedavg_round_eval_s"]
+    proj = {
+        "lr_sweep_h": len(LR_GRID) * (SWEEP_EPOCHS * ep + n_validations(SWEEP_EPOCHS) * val + score) / 3600,
+        "centralized_per_seed_h": (EPOCHS * ep + n_validations(EPOCHS) * val + score) / 3600,
+        "local_only_per_seed_h": (EPOCHS * ep + n_validations(EPOCHS) * val + n_clients * score) / 3600,
+        "fedavg_per_seed_h": (ROUNDS * rnd_train + n_validations(ROUNDS) * rnd_eval + score) / 3600,
+        "fedavg_ft_per_seed_h": (FT_EPOCHS * ep + (1 + n_validations(FT_EPOCHS)) * val + n_clients * score) / 3600,
+    }
+    per_seed = sum(v for k, v in proj.items() if k.endswith("per_seed_h"))
+    proj.update(per_seed_h=per_seed, seeds=3, total_h=proj["lr_sweep_h"] + 3 * per_seed,
+                validations={"sweep_run": n_validations(SWEEP_EPOCHS), "epochs_run": n_validations(EPOCHS),
+                             "fedavg_run": n_validations(ROUNDS), "fedavg_ft_client": 1 + n_validations(FT_EPOCHS)},
+                rule=f"validate every {VAL_EVERY} epochs / rounds and always the final one",
+                assumptions="no sleep / crash / restart time; worker start-up and checkpoint writes are inside the "
+                            "measured epoch and round times")
+    return proj
+
+
+def reproject(git: dict) -> dict:
+    """Recompute the projection from the committed timing run (validation cadence does not change the measured
+    per-epoch / per-round / per-pass times)."""
+    timing = _load(FEASIBILITY_DIR / TIMING_RUN / "metrics.json")
+    n_clients = len(timing["split_sizes"])
+    out = {"source": f"results/silo2_feasibility/{TIMING_RUN}/metrics.json",
+           "source_commit": timing["git"]["commit"], "projection_hours": project_hours(timing["metrics"], n_clients),
+           "previous_projection_hours_validate_every_epoch": timing["metrics"]["projection_hours"]}
+    write_metrics(FEASIBILITY_DIR / f"dmg_projection_val_every{VAL_EVERY}" / "metrics.json", out, seed=0,
+                  config={"val_every": VAL_EVERY, "lr_grid": LR_GRID, "sweep_epochs": SWEEP_EPOCHS, "epochs": EPOCHS,
+                          "rounds": ROUNDS, "ft_epochs": FT_EPOCHS}, split_sizes=timing["split_sizes"], runtime_s=0.0)
+    print(json.dumps(out["projection_hours"], indent=1))
+    return out
+
+
 def measure(device, git, ckpt_base, stage1_root: Path) -> dict:
     """Timing only: one centralized training epoch, its val pass, one FedAvg round, one test + held-out xView2
     evaluation; projects the campaign hours from these. No accuracy claims."""
@@ -470,25 +543,11 @@ def measure(device, git, ckpt_base, stage1_root: Path) -> dict:
         hub.close()
     with tempfile.TemporaryDirectory() as tmp:
         t0 = time.perf_counter()
-        fed, _ = run_fedavg(data, 3e-4, ROUNDS, device, git, tmp, "measure_round", stage1_root, max_rounds_this_call=1)
+        fed, _ = run_fedavg(data, 3e-4, ROUNDS, device, git, tmp, "measure_round", stage1_root, max_rounds_this_call=1,
+                            val_every=1)                 # timing: the measured round includes its validation
         fed_wall = time.perf_counter() - t0
     h = fed["history"][0]
-    epoch_s = st["wall_s"] + val_s
     n_steps = st["global_step"]
-    # local-only / fine-tuning: every client trains on its own pairs, so one pass over all clients ~ one epoch, plus
-    # one own-val evaluation per client per epoch (~ one full val pass) and one test + held-out scoring per client
-    proj = {
-        "lr_sweep_h": len(LR_GRID) * (SWEEP_EPOCHS * epoch_s + test_eval_s) / 3600,
-        "centralized_per_seed_h": (EPOCHS * epoch_s + test_eval_s) / 3600,
-        "local_only_per_seed_h": (EPOCHS * epoch_s + len(data.clients) * test_eval_s) / 3600,
-        "fedavg_per_seed_h": (ROUNDS * h["round_s"] + test_eval_s) / 3600,
-        "fedavg_ft_per_seed_h": (FT_EPOCHS * epoch_s + val_s + len(data.clients) * test_eval_s) / 3600,
-    }
-    per_seed = sum(v for k, v in proj.items() if k.endswith("per_seed_h"))
-    proj.update(per_seed_h=per_seed, seeds=3, total_h=proj["lr_sweep_h"] + 3 * per_seed,
-                assumptions="epoch = measured train + val pass; local-only = EPOCHS pooled epochs + 9 client "
-                            "test/held-out scorings (held-out scored by each client model, an over-estimate); "
-                            "no sleep / crash time")
     metrics = {"note": "Timing only (seed-0 split, real data, RTX 3050); no accuracy claims.",
                "train_pairs": len(data.all_train_ids), "steps_per_epoch": n_steps,
                "epoch_train_s": st["wall_s"], "s_per_step": st["wall_s"] / max(1, n_steps),
@@ -499,8 +558,9 @@ def measure(device, git, ckpt_base, stage1_root: Path) -> dict:
                "fedavg_peak_vram_allocated_mib": fed.get("peak_vram_allocated_mib"),
                "protocol_counts": {"lr_grid": LR_GRID, "sweep_epochs": SWEEP_EPOCHS, "epochs": EPOCHS,
                                    "rounds": ROUNDS, "ft_epochs": FT_EPOCHS},
-               "projection_hours": proj, "training_git": git}
-    write_metrics(RESULTS_DIR / "silo2_feasibility" / "dmg_epoch_round_resnet18_crop512_bs4" / "metrics.json",
+               "training_git": git}
+    metrics["projection_hours"] = project_hours(metrics, len(data.clients))
+    write_metrics(FEASIBILITY_DIR / TIMING_RUN / "metrics.json",
                   metrics, seed=0, config={**COMMON, "lr": 3e-4}, split_sizes=data.split_sizes(),
                   runtime_s=st["wall_s"] + val_s + test_eval_s + fed_wall)
     print(json.dumps({k: v for k, v in metrics.items() if k != "training_git"}, indent=1))
@@ -546,6 +606,7 @@ def main() -> None:
     ap.add_argument("--summarize", action="store_true")
     ap.add_argument("--class-stats", action="store_true")
     ap.add_argument("--measure", action="store_true")
+    ap.add_argument("--reproject", action="store_true", help="projection from the committed timing run")
     ap.add_argument("--checkpoint-dir", default=None)
     ap.add_argument("--stage1-root", default=None, help="default: results/silo2_loc (smoke: the stage-1 smoke dir)")
     ap.add_argument("--smoke", type=int, default=None, help="limit pairs per client/split (code check only)")
@@ -568,6 +629,9 @@ def main() -> None:
     git = require_clean_tree(args.allow_dirty)
     if args.class_stats:
         class_stats(args.seeds)
+        return
+    if args.reproject:
+        reproject(git)
         return
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     smoke_root = Path(tempfile.gettempdir())

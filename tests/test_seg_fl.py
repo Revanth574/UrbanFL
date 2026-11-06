@@ -91,11 +91,11 @@ def test_unet_batchnorm_survives_a_fedavg_round(tmp_path):
     assert g["stem.1.num_batches_tracked"].dtype == torch.int64 and g["stem.1.num_batches_tracked"].item() == 2
 
 
-def toy_fl(tmp, model, max_rounds=None, rounds=3):
+def toy_fl(tmp, model, max_rounds=None, rounds=3, val_every=1):
     train_sets = {"c1": ToySegDataset(n=6, seed=1), "c2": ToySegDataset(n=4, seed=2)}
     val = SegEvaluator({"c1": ToySegDataset(n=3, seed=9), "c2": ToySegDataset(n=2, seed=8)}, batch_size=2)
     cfg = SegFLConfig(rounds=rounds, local_epochs=1, batch_size=2, lr=1e-2, amp=False, num_workers=0, seed=4,
-                      max_rounds_this_call=max_rounds)
+                      max_rounds_this_call=max_rounds, val_every=val_every)
     mgr = CheckpointManager(tmp, every_n_steps=1, keep_last=2, signature={"toy": True})
     return run_seg_fedavg(model, train_sets, val, cfg, bce_dice_loss, "cpu", ckpt=mgr)
 
@@ -123,3 +123,13 @@ def test_seg_fedavg_selects_lowest_federated_val_loss(tmp_path):
     h = res["history"][res["best_round"] - 1]
     n = sum(v["n_images"] for v in h["client_val"].values())
     assert h["fed_val_loss"] == pytest.approx(sum(v["loss"] * v["n_images"] for v in h["client_val"].values()) / n)
+
+
+def test_seg_fedavg_validates_every_second_round_and_the_last(tmp_path):
+    res = toy_fl(tmp_path, fresh(0), rounds=5, val_every=2)
+    validated = [h["round"] for h in res["history"] if h["fed_val_loss"] is not None]
+    assert validated == [2, 4, 5]                                          # every 2nd + always the final round
+    assert res["best_round"] in validated
+    full = toy_fl(tmp_path / "full", fresh(0), rounds=5)                   # same training, validated every round
+    for r in validated:                                                    # skipping validation changes nothing else
+        assert res["history"][r - 1]["fed_val_loss"] == pytest.approx(full["history"][r - 1]["fed_val_loss"])

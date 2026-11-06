@@ -109,7 +109,7 @@ def train(model: nn.Module, dataset: Dataset, cfg: TrainConfig, loss_fn: Callabl
         extra = state.get("extra", {})
         epoch, step_in_epoch, global_step = state["epoch"], state["step_in_epoch"], state["global_step"]
         resumed_from = global_step
-        print(f"RESUME {ckpt.dir.name}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
+        print(f"RESUME {ckpt.label}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
               f"rng={rng_fingerprint()} (saved rng={rng_fingerprint(state['rng'])})", flush=True)
 
     def save() -> None:
@@ -117,7 +117,7 @@ def train(model: nn.Module, dataset: Dataset, cfg: TrainConfig, loss_fn: Callabl
             ckpt.save({"model": model.state_dict(), "optimizer": opt.state_dict(), "scaler": scaler.state_dict(),
                        "rng": rng_state(), "epoch": epoch, "step_in_epoch": step_in_epoch, "extra": extra,
                        "train_config": asdict(cfg)}, global_step)
-            print(f"CKPT {ckpt.dir.name}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
+            print(f"CKPT {ckpt.label}: global_step={global_step} epoch={epoch} step_in_epoch={step_in_epoch} "
                   f"rng={rng_fingerprint()}", flush=True)
 
     # One persistent loader for the whole run (workers start once). Sample order: epoch_order(n, seed, epoch), resumed
@@ -150,7 +150,7 @@ def train(model: nn.Module, dataset: Dataset, cfg: TrainConfig, loss_fn: Callabl
             loss_v = loss.item()                     # syncs the GPU, so `compute` measures real work
             compute += time.perf_counter() - t0
             if TRACE:                                # opt-in: sampling order + loss per step (resume smoke tests)
-                print(f"TRACE run={ckpt.dir.name if ckpt else loader_key} step={global_step} epoch={epoch} ids={','.join(batch.get('pair_id', []))} "
+                print(f"TRACE run={ckpt.label if ckpt else loader_key} step={global_step} epoch={epoch} ids={','.join(batch.get('pair_id', []))} "
                       f"loss={loss_v:.6f}", flush=True)
             if global_step % cfg.log_every == 0 or global_step == 1:
                 losses.append({"step": global_step, "epoch": epoch, "loss": loss_v})

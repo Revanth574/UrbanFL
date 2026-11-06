@@ -16,6 +16,7 @@ On Colab, point it at Google Drive, e.g. URBANFL_CHECKPOINT_DIR=/content/drive/M
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import random
@@ -40,6 +41,15 @@ def resolve_checkpoint_dir(explicit: str | Path | None, run_name: str) -> Path:
         except ConfigError:
             base = REPO_ROOT / "checkpoints"
     return base.expanduser() / run_name
+
+
+def file_sha256(path: str | Path, chunk: int = 1 << 22) -> str:
+    """Content hash of a weights file (part of a run signature: a resume refuses other start weights)."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while block := f.read(chunk):
+            h.update(block)
+    return h.hexdigest()
 
 
 def save_atomic(obj, path: str | Path) -> Path:
@@ -91,6 +101,9 @@ class CheckpointManager:
         self.every = every_n_steps
         self.keep_last = keep_last
         self.signature = json.loads(json.dumps(signature or {}, default=str))   # normalised, JSON-comparable
+        # log label: parent/leaf, so runs that share a leaf name (one client under local_only_seed0/ and under
+        # fedavg_ft_seed0/) stay distinguishable in RESUME / CKPT / TRACE lines
+        self.label = f"{self.dir.parent.name}/{self.dir.name}"
 
     def due(self, global_step: int) -> bool:
         return global_step % self.every == 0
