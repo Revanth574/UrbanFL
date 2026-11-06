@@ -358,6 +358,124 @@
      "noisy": false
     }
    }
+  },
+  "fedavg_ft": {
+   "test_pooled_loc_f1 (headline)": {
+    "mean": 0.819296561583272,
+    "std": 0.0028451135381777643,
+    "n": 3
+   },
+   "test_pooled_loc_f1_excl_socal_fire (sensitivity)": {
+    "mean": 0.8224093873702695,
+    "std": 0.002426172074998626,
+    "n": 3
+   },
+   "heldout_loc_f1": {
+    "mean": 0.6532876400519948,
+    "std": 0.02165443674212229,
+    "n": 3
+   },
+   "test_loc_f1_per_event": {
+    "hurricane-florence": {
+     "mean": 0.8258656483728547,
+     "std": 0.009099418180796397,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 47,
+      "1": 42,
+      "2": 43
+     },
+     "noisy": false
+    },
+    "hurricane-harvey": {
+     "mean": 0.832383620789777,
+     "std": 0.019685042403288295,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 41,
+      "1": 41,
+      "2": 49
+     },
+     "noisy": false
+    },
+    "hurricane-matthew": {
+     "mean": 0.7145625368526064,
+     "std": 0.012177616616477928,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 38,
+      "1": 32,
+      "2": 36
+     },
+     "noisy": false
+    },
+    "hurricane-michael": {
+     "mean": 0.8081574648098838,
+     "std": 0.028639997094047735,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 44,
+      "1": 52,
+      "2": 45
+     },
+     "noisy": false
+    },
+    "mexico-earthquake": {
+     "mean": 0.8128226429684889,
+     "std": 0.007498340055500306,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 16,
+      "1": 18,
+      "2": 16
+     },
+     "noisy": true
+    },
+    "midwest-flooding": {
+     "mean": 0.7549802667122308,
+     "std": 0.012645460729531323,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 36,
+      "1": 36,
+      "2": 36
+     },
+     "noisy": false
+    },
+    "palu-tsunami": {
+     "mean": 0.8652868137453712,
+     "std": 0.00368370726218119,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 18,
+      "1": 15,
+      "2": 17
+     },
+     "noisy": true
+    },
+    "santa-rosa-wildfire": {
+     "mean": 0.8194023273312223,
+     "std": 0.016634498536757827,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 38,
+      "1": 29,
+      "2": 31
+     },
+     "noisy": false
+    },
+    "socal-fire": {
+     "mean": 0.712424294571413,
+     "std": 0.045912441322048,
+     "n": 3,
+     "test_pairs_by_seed": {
+      "0": 110,
+      "1": 117,
+      "2": 110
+     },
+     "noisy": false
+    }
+   }
   }
  },
  "paired": {
@@ -426,6 +544,72 @@
     2
    ],
    "p_paired_t": 0.08024956120683767
+  },
+  "fedavg_ft_minus_fedavg": {
+   "mean": 0.020111045656445132,
+   "std": 0.009218575231362287,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.06344584541813754
+  },
+  "fedavg_ft_minus_fedavg_excl_socal_fire": {
+   "mean": 0.020540081309215658,
+   "std": 0.00930720851967358,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.06213033894853758
+  },
+  "fedavg_ft_minus_local_only": {
+   "mean": 0.006078840833765716,
+   "std": 0.003690819471123236,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.10405231693505591
+  },
+  "fedavg_ft_minus_local_only_excl_socal_fire": {
+   "mean": 0.003217993649322256,
+   "std": 0.0036317558869911,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.264611465897955
+  },
+  "fedavg_ft_minus_centralized": {
+   "mean": 0.025810134938854385,
+   "std": 0.01028917038332313,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.04910441534223447
+  },
+  "fedavg_ft_minus_centralized_excl_socal_fire": {
+   "mean": 0.024954752088480376,
+   "std": 0.00897903729676009,
+   "n": 3,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "p_paired_t": 0.04054836952439003
   }
  },
  "reporting": {
