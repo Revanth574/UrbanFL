@@ -22,6 +22,7 @@ import json
 
 import numpy as np
 
+from experiments.silo1_embed_cache import require_single_cache
 from src.fl.partition import LABEL_SHORT, LABELS
 from src.fl.utils import RESULTS_DIR, git_info, per_class_report
 
@@ -95,8 +96,12 @@ def summarize_method(prefix: str) -> dict:
 
 
 def main() -> None:
+    cache_sha = require_single_cache(
+        {f"{p}_seed{s}": json.loads((RESULTS_DIR / f"{p}_seed{s}" / "metrics.json").read_text(encoding="utf-8"))
+         for p in METHODS.values() for s in SEEDS}, "silo1_operator summary")
     summary = {
-        "seeds": SEEDS, "actionable_classes": list(ACTIONABLE), "min_support_per_event": MIN_SUPPORT,
+        "seeds": SEEDS, "embedding_cache_sha256": cache_sha, "actionable_classes": list(ACTIONABLE),
+        "min_support_per_event": MIN_SUPPORT,
         "precision_at_k": {"status": "missing", "reason": "committed runs saved predicted labels only "
                                                           "(y_true / y_pred), no class probabilities"},
         "definitions": {"triage_recall": "share of actionable test tweets predicted as any actionable class",

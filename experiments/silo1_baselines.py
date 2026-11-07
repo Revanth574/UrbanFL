@@ -36,7 +36,7 @@ import time
 import numpy as np
 import torch
 
-from experiments.silo1_embed_cache import load_embeddings
+from experiments.silo1_embed_cache import load_embeddings, require_single_cache, silo1_environment
 from src.fl.models import MLPHead, class_weights
 from src.fl.partition import LABEL_SHORT, LABELS, load_partition
 from src.fl.runner import ClientData, client_generator, evaluate, run_fl
@@ -214,7 +214,8 @@ def execute(method: str, part, seed: int, device: str, lr: float | None, run_dir
                           **({k: v for k, v in RECIPES[recipe_of(method)].items() if k != "choice_file"}
                              if method in TRAINED else {}),
                           "lr": lr, "device": device, "labels": list(LABELS),
-                          "split_file": f"data/splits/silo1_seed{seed}.json", "dedup_stats": part.stats},
+                          "split_file": f"data/splits/silo1_seed{seed}.json", "dedup_stats": part.stats,
+                          "environment": silo1_environment(device)},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
     return metrics
 
@@ -244,12 +245,15 @@ def lr_sweep(device: str, training_git: dict, recipe: str = "sgd") -> dict:
 def summarize(seeds: list[int]) -> dict:
     """Mean / sample std over seeds, read back from the per-run metrics.json files."""
     summary = {}
+    paths = {f"{m}_seed{s}": EXPERIMENT_DIR / f"{m}_seed{s}" / "metrics.json" for m in METHODS for s in seeds}
+    payloads = {k: json.loads(p.read_text(encoding="utf-8")) for k, p in paths.items() if p.exists()}
+    summary["embedding_cache_sha256"] = require_single_cache(payloads, "silo1_baselines summary")
     for method in METHODS:
         runs = [EXPERIMENT_DIR / f"{method}_seed{s}" / "metrics.json" for s in seeds]
         runs = [r for r in runs if r.exists()]
         if not runs:
             continue
-        ms = [json.loads(r.read_text(encoding="utf-8"))["metrics"] for r in runs]
+        ms = [payloads[r.parent.name]["metrics"] for r in runs]
         row = {"n_seeds": len(ms), "sources": [str(r.relative_to(EXPERIMENT_DIR.parent.parent)) for r in runs]}
         keys = {"pooled_test_macro_f1": lambda m: m["pooled_test_macro_f1"],
                 "pooled_test_accuracy": lambda m: m["pooled_test_accuracy"],

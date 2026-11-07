@@ -40,6 +40,7 @@ from scipy import stats
 from experiments.silo1_baselines import CONFIG as BASELINE_CONFIG
 from experiments.silo1_baselines import EXPERIMENT_DIR as BASELINE_DIR
 from experiments.silo1_baselines import client_arrays, compute_metrics
+from experiments.silo1_embed_cache import require_single_cache, silo1_environment
 from src.fl.algorithms import local_train
 from src.fl.models import MLPHead, class_weights_from_counts
 from src.fl.partition import LABELS, load_partition
@@ -106,7 +107,7 @@ def run_one(run_dir: Path, part, cfg: dict, lr: float, seed: int, device: str, t
     }
     write_metrics(run_dir / "metrics.json", metrics, seed=seed,
                   config={**COMMON, **cfg, "lr": lr, "device": device, "labels": list(LABELS),
-                          "split_file": f"data/splits/silo1_seed{seed}.json"},
+                          "split_file": f"data/splits/silo1_seed{seed}.json", "environment": silo1_environment(device)},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
     return metrics
 
@@ -214,7 +215,8 @@ def finetune(seed: int, device: str, git: dict) -> None:
                               "max_ft_epochs": k, "candidate_epochs": list(range(k + 1)),
                               "selection": "per client: epoch with lowest loss on its own val set (0 = global model)",
                               "criterion": COMMON["class_weights"], "batch_size": COMMON["batch_size"],
-                              "generator": "seed*10000 + 5000 + client_index", "device": device},
+                              "generator": "seed*10000 + 5000 + client_index", "device": device,
+                              "environment": silo1_environment(device)},
                       split_sizes=part.split_sizes(), runtime_s=runtime)
         print(f"  FT seed {seed} k={k}: pooled macro-F1 {metrics['pooled_test_macro_f1']:.4f}, "
               f"{metrics['ft']['n_clients_fine_tuned']}/10 clients fine-tuned", flush=True)
@@ -255,6 +257,8 @@ def summarize(seeds: list[int]) -> dict:
             base[m] = runs
     fl = {n: {s: _load(EXPERIMENT_DIR / f"{n}_seed{s}" / "metrics.json") for s in seeds} for n in [*CONFIGS, *FT_NAMES]}
     fl = {n: runs for n, runs in fl.items() if all(runs.values())}
+    cache_sha = require_single_cache({f"{n}_seed{s}": r for n, runs in {**base, **fl}.items() for s, r in runs.items()},
+                                     "silo1_fl summary")
 
     local, central = base["local_only"], base["centralized"]
     pooled = lambda runs, s: runs[s]["metrics"]["pooled_test_macro_f1"]
@@ -327,7 +331,8 @@ def summarize(seeds: list[int]) -> dict:
 
     ft_info = {n: _ms([fl[n][s]["metrics"]["ft"]["n_clients_fine_tuned"] for s in seeds]) for n in FT_NAMES if n in fl}
     comm = {n: fl[n][seeds[0]]["metrics"]["fl"] for n in CONFIGS if n in fl}
-    summary = {"seeds": seeds, "rows": rows, "headline": headline, "appendix_only": appendix,
+    summary = {"seeds": seeds, "embedding_cache_sha256": cache_sha, "rows": rows, "headline": headline,
+               "appendix_only": appendix,
                "headline_selection": "min mean best federated val loss over seeds",
                "per_client_delta_vs_local": per_client, "ft_clients_fine_tuned": ft_info,
                f"paired_delta_{PAIRED_FL}_vs": paired,

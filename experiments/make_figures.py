@@ -28,6 +28,8 @@ import numpy as np  # noqa: E402
 from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
 from scipy import stats  # noqa: E402
 
+from experiments.silo1_embed_cache import require_single_cache  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 RESULTS = REPO / "results"
 OUT = REPO / "paper" / "figures"
@@ -61,8 +63,17 @@ plt.rcParams.update({
 
 # ── data access (results JSON only) ────────────────────────────────────────
 
+_USED: dict[str, dict] = {}   # every run the figure being drawn has read; save() requires one embedding cache
+
+
+def _payload(path: Path) -> dict:
+    d = json.loads(path.read_text(encoding="utf-8"))
+    _USED[str(path.parent.relative_to(RESULTS)).replace("\\", "/")] = d
+    return d
+
+
 def _metrics(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))["metrics"]
+    return _payload(path)["metrics"]
 
 
 def runs(group: str, name: str) -> list[dict]:
@@ -79,7 +90,17 @@ def ms(x) -> tuple[float, float]:
 
 
 def save(fig, name: str, provenance: str, caption: str | None = None) -> Path:
-    """Footer below everything already drawn: optional caption, then the provenance line (stacked, never overlapping)."""
+    """Footer below everything already drawn: optional caption, then the provenance line (stacked, never overlapping).
+    Refuses (ValueError, nothing written) if the runs this figure read do not share one recorded embedding cache."""
+    used = dict(_USED)
+    _USED.clear()
+    if used:
+        try:
+            sha = require_single_cache(used, name)
+        except ValueError:
+            plt.close(fig)
+            raise
+        provenance += f" · emb cache {sha[:12]}"
     fig_h = fig.get_size_inches()[1]
     y = min(-0.01, fig.get_tightbbox(fig.canvas.get_renderer()).y0 / fig_h - 0.015)   # below tick/axis labels
     if caption:
@@ -98,7 +119,7 @@ def provenance_of(*groups_names: tuple[str, str]) -> str:
     commits = set()
     for g, n in groups_names:
         for s in SEEDS:
-            d = json.loads((RESULTS / g / f"{n}_seed{s}" / "metrics.json").read_text(encoding="utf-8"))
+            d = _payload(RESULTS / g / f"{n}_seed{s}" / "metrics.json")
             commits.add(d["git"]["commit"][:7] + ("" if not d["git"]["dirty"] else "-dirty"))
     return "source: results/*.json · commit " + ", ".join(sorted(commits)) + " · seeds 0–4"
 
@@ -349,6 +370,8 @@ def fig_f() -> Path:
     """Pooled test macro-F1 (final-round model) vs client-level ε at δ = 1e-5, from results/silo1_dp/*/metrics.json."""
     q_color = {1.0: BLUE, 0.5: ORANGE}
     c_marker = {C: m for C, m in zip(DP_C, ("s", "o", "^"))}          # 0.1, 1.0, then the calibrated C
+    if _DP_CAL.exists():
+        _payload(_DP_CAL)                                             # C_cal comes from this run: same cache required
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     eps_max = 0.0
     used = []
@@ -401,8 +424,15 @@ def fig_f() -> Path:
 
 
 def main() -> None:
+    refused = []
     for fn in (fig_a, fig_a2, fig_b, fig_c, fig_d, fig_e, fig_f):
-        print("wrote", fn().relative_to(REPO))
+        _USED.clear()
+        try:
+            print("wrote", fn().relative_to(REPO))
+        except ValueError as e:             # mixed / unrecorded embedding caches: that figure is not (re)written
+            refused.append(f"{fn.__name__}: {e}")
+    if refused:
+        raise SystemExit("NOT written (embedding cache check):\n  " + "\n  ".join(refused))
 
 
 if __name__ == "__main__":

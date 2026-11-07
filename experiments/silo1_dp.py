@@ -42,6 +42,7 @@ from scipy import stats
 
 from experiments.silo1_baselines import EXPERIMENT_DIR as BASELINE_DIR
 from experiments.silo1_baselines import compute_metrics
+from experiments.silo1_embed_cache import require_single_cache, silo1_environment
 from experiments.silo1_fl import COMMON as FL_COMMON
 from experiments.silo1_fl import EXPERIMENT_DIR as FL_DIR
 from experiments.silo1_fl import SWEEP_DIR as FL_SWEEP_DIR
@@ -126,7 +127,7 @@ def run_one(run_dir: Path, part, cfg: dict, lr: float, seed: int, device: str, g
                           "class_weights": "client-local (inside the DP boundary)",
                           "aggregation": "unweighted mean of clipped deltas, fixed denominator q*K, Gaussian noise",
                           "client_sampling": "Poisson, rate q", "device": device, "labels": list(LABELS),
-                          "split_file": f"data/splits/silo1_seed{seed}.json"},
+                          "split_file": f"data/splits/silo1_seed{seed}.json", "environment": silo1_environment(device)},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
     return metrics
 
@@ -161,7 +162,8 @@ def calibrate_clip(device: str, git: dict) -> dict:
                           "noise_multiplier": 0.0, "client_fraction": 1.0, "rounds": ROUNDS,
                           "local_epochs": LOCAL_EPOCHS, "lr": lr, "batch_size": FL_COMMON["batch_size"],
                           "head": FL_COMMON["head"], "class_weights": "client-local", "device": device,
-                          "split_file": f"data/splits/silo1_seed{CALIBRATION_SEED}.json"},
+                          "split_file": f"data/splits/silo1_seed{CALIBRATION_SEED}.json",
+                          "environment": silo1_environment(device)},
                   split_sizes=part.split_sizes(), runtime_s=runtime)
     print(f"clip calibration: median pre-clip norm {median:.4f} over {norms.size} updates "
           f"(p25 {metrics['percentiles']['p25']:.3f}, p75 {metrics['percentiles']['p75']:.3f}) -> C_cal = "
@@ -191,14 +193,22 @@ def _ms(vals):
 
 
 def summarize(seeds: list[int]) -> dict:
-    ref = {name: [_load(d / f"{name}_seed{s}" / "metrics.json")["metrics"]["pooled_test_macro_f1"] for s in seeds]
+    payloads = {f"{d.name}/{name}_seed{s}": _load(d / f"{name}_seed{s}" / "metrics.json") for s in seeds
+                for name, d in (("fedavg_E1", FL_DIR), ("local_only", BASELINE_DIR), ("centralized", BASELINE_DIR))}
+    ref = {name: [payloads[f"{d.name}/{name}_seed{s}"]["metrics"]["pooled_test_macro_f1"] for s in seeds]
            for name, d in (("fedavg_E1", FL_DIR), ("local_only", BASELINE_DIR), ("centralized", BASELINE_DIR))}
     ref = {k: np.array(v) for k, v in ref.items()}
-    rows = {}
-    for name, cfg in CONFIGS.items():
+    rows, grid = {}, {}
+    for name in CONFIGS:
         ms = [_load(EXPERIMENT_DIR / f"{name}_seed{s}" / "metrics.json") for s in seeds]
-        if not all(ms):
-            continue
+        if all(ms):
+            grid[name] = ms
+            payloads.update({f"silo1_dp/{name}_seed{s}": m for s, m in zip(seeds, ms)})
+    if calibrated_clip() is not None:        # C_cal comes from this run, so it must share the cache too
+        payloads["silo1_dp/clip_calibration"] = _load(CALIBRATION_DIR / "metrics.json")
+    cache_sha = require_single_cache(payloads, "silo1_dp summary")
+    for name, ms in grid.items():
+        cfg = CONFIGS[name]
         ms = [m["metrics"] for m in ms]
         f1 = np.array([m["pooled_test_macro_f1"] for m in ms])
         eps = {m["dp"]["epsilon_final"] for m in ms}
@@ -215,7 +225,8 @@ def summarize(seeds: list[int]) -> dict:
             "mean_clients_sampled": float(np.mean([m["dp"]["mean_clients_sampled"] for m in ms])),
             "empty_rounds": int(sum(m["dp"]["empty_rounds"] for m in ms)),
         }
-    summary = {"seeds": seeds, "delta": DEFAULT_DELTA, "rounds": ROUNDS, "privacy_unit": "client (disaster event)",
+    summary = {"seeds": seeds, "embedding_cache_sha256": cache_sha, "delta": DEFAULT_DELTA, "rounds": ROUNDS,
+               "privacy_unit": "client (disaster event)",
                "references": {k: _ms(v) for k, v in ref.items()}, "rows": rows,
                "note": "PRIMARY metric = final-round model. epsilon=None means no noise (epsilon = infinity)."}
     EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)

@@ -68,6 +68,7 @@ from experiments.silo1_baselines import CONFIG as BASELINE_CONFIG
 from experiments.silo1_baselines import EXPERIMENT_DIR as BASELINE_DIR
 from experiments.silo1_baselines import SWEEP_DIR as BASELINE_SWEEP_DIR
 from experiments.silo1_baselines import client_arrays, predict, train_sgd
+from experiments.silo1_embed_cache import require_single_cache, silo1_environment
 from experiments.silo1_fl import COMMON as FL_COMMON
 from experiments.silo1_fl import CONFIGS as FL_CONFIGS
 from experiments.silo1_fl import SWEEP_DIR as FL_SWEEP_DIR
@@ -244,7 +245,8 @@ def _config(method: str, lr: float, seed: int, device: str, lr_meta: dict, **ext
     return {"method": method, "protocol": "leave-one-event-out (unseen disaster)", **recipe, "lr": lr, **lr_meta,
             "heldout_rows": "all rows of the held-out event (train+val+test of its split); never used for training, "
                             "class weights or checkpoint selection",
-            "device": device, "labels": list(LABELS), "split_file": f"data/splits/silo1_seed{seed}.json", **extra}
+            "device": device, "labels": list(LABELS), "split_file": f"data/splits/silo1_seed{seed}.json",
+            "environment": silo1_environment(device), **extra}
 
 
 def run_local(part, data: dict, seed: int, lrs: dict, device: str, git: dict, ckpt_dir: Path) -> None:
@@ -350,7 +352,8 @@ def sweep_run(method: str, part, data: dict, holdout: str, lr: float, device: st
     write_metrics(run_dir / "metrics.json", metrics, seed=SWEEP_SEED,
                   config={"method": method, "purpose": "per-fold lr sweep (val loss of the 9 training events only)",
                           "lr": lr, "grid": LR_SWEEP_GRID, "device": device, "holdout_event": holdout,
-                          "split_file": f"data/splits/silo1_seed{SWEEP_SEED}.json"},
+                          "split_file": f"data/splits/silo1_seed{SWEEP_SEED}.json",
+                          "environment": silo1_environment(device)},
                   split_sizes={e: part.split_sizes()[e] for e in train_events}, runtime_s=runtime)
     print(f"  sweep {method:12s} holdout {holdout:36s} lr {lr:<6g} val loss {crit['val_loss']:.5f}  "
           f"best {crit['best_round_or_epoch']:3d}  ({runtime:.0f}s)", flush=True)
@@ -368,6 +371,9 @@ def lr_sweep(device: str, git: dict, guard: ResourceGuard, holdouts: list[str] |
             for lr in LR_SWEEP_GRID:
                 guard.check()
                 results[method].setdefault(h, {})[lr] = sweep_run(method, part, data, h, lr, device, git)
+    cache_sha = require_single_cache(
+        {f"{m}/{h}/lr{lr:g}": _load(SWEEP_DIR / f"{m}_holdout-{h}_lr{lr:g}_seed{SWEEP_SEED}" / "metrics.json")
+         for m, folds in results.items() for h, by_lr in folds.items() for lr in by_lr}, "silo1_unseen lr sweep")
     choice = {}
     for method, folds in results.items():
         choice[method] = {}
@@ -386,7 +392,8 @@ def lr_sweep(device: str, git: dict, guard: ResourceGuard, holdouts: list[str] |
                "all_folds_same_as_shared": complete and all(c["same_as_shared"] for m in choice.values()
                                                             for c in m.values()),
                "n_changed": {m: sum(not c["same_as_shared"] for c in v.values()) for m, v in choice.items()},
-               "shared_lrs": {m: shared[m] for m in choice}, "training_git": git, **choice}
+               "shared_lrs": {m: shared[m] for m in choice}, "training_git": git,
+               "embedding_cache_sha256": cache_sha, **choice}
     SWEEP_DIR.mkdir(parents=True, exist_ok=True)
     (SWEEP_DIR / "choice.json").write_text(json.dumps(payload, indent=1), encoding="utf-8")
     return payload
@@ -449,6 +456,17 @@ def per_fold_dir_resolver() -> callable:
             return shared_fold_dir(method, holdout, seed)
         return PER_FOLD_DIR / f"{method}_holdout-{holdout}_seed{seed}"
     return resolve
+
+
+def combined_runs(seeds: list[int], events: list[str], fold_dir, per_fold: bool) -> dict:
+    """Every run a summary combines, as {name: metrics.json payload}: the local models, both methods' fold runs, the
+    Review 1 local-only reference runs and, for per-fold lr, the sweep points the lrs were chosen from."""
+    paths = [EXPERIMENT_DIR / f"local_only_seed{s}" for s in seeds]
+    paths += [fold_dir(m, h, s) for m in (FL_NAME, "centralized") for h in events for s in seeds]
+    paths += [BASELINE_DIR / f"local_only_seed{s}" for s in seeds if (BASELINE_DIR / f"local_only_seed{s}").exists()]
+    if per_fold:
+        paths += sorted(p.parent for p in SWEEP_DIR.glob("*/metrics.json"))
+    return {str(p.relative_to(RESULTS_DIR)).replace("\\", "/"): _load(p / "metrics.json") for p in paths}
 
 
 def collect_seed(seed: int, events: list[str], fold_dir=shared_fold_dir) -> dict:
@@ -564,6 +582,8 @@ def fedavg_vs_centralized(per_seed: dict, seeds: list[int], events: list[str]) -
 def summarize(seeds: list[int], per_fold: bool = False) -> dict:
     events = sorted(_load(EXPERIMENT_DIR / f"local_only_seed{seeds[0]}" / "predictions.json")["heldout_rows"])
     fold_dir = per_fold_dir_resolver() if per_fold else shared_fold_dir
+    cache_sha = require_single_cache(combined_runs(seeds, events, fold_dir, per_fold),
+                                     f"silo1_unseen summary ({'per-fold' if per_fold else 'shared'} lr)")
     per_seed = {s: collect_seed(s, events, fold_dir) for s in seeds}
 
     def pooled(m, s, subset="all_rows"):
@@ -632,6 +652,7 @@ def summarize(seeds: list[int], per_fold: bool = False) -> dict:
         "protocol": "leave-one-event-out: train on 9 events, test on all rows of the held-out 10th; checkpoint "
                     "selection on the 9 training events' val sets only",
         "lr_mode": "per_fold" if per_fold else "shared",
+        "embedding_cache_sha256": cache_sha,
         "seeds": seeds, "events": events, "methods": list(METHODS),
         "lrs": lrs, "lr_notes": lr_notes,
         "run_sources": {m: {h: str(fold_dir(m, h, seeds[0]).relative_to(RESULTS_DIR)).replace(
