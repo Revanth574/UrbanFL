@@ -453,6 +453,78 @@ def lr_sweep(device, git, ckpt_base, stage1_root: Path, limit=None, out_dir=EXPE
     return choice
 
 
+# ── pre-registered follow-ups (docs/STAGE2_PROTOCOL.md): grid-edge check, sensitivity S1 / S2 ──────────────────
+
+EDGE_LR, EDGE_REF_LR, EDGE_MARGIN = 3e-5, 1e-4, 0.03
+EDGE_RULE = ("After all three seeds finish, run one extra sweep point at lr 3e-5 (centralized, split seed 0, 10 epochs, "
+             "best val loss). If its best val loss beats 1e-4's (0.9202) by more than 0.03, rerun stage 2 at 3e-5; "
+             "otherwise keep 1e-4 and report the grid-edge check as done.")
+SENSITIVITY = {"S1": {"lr": 1e-4, "rounds": 60, "what": "FedAvg, 60 rounds, lr 1e-4"},
+               "S2": {"lr": 3e-4, "rounds": 30, "what": "FedAvg, 30 rounds, lr 3e-4"}}
+SENSITIVITY_LABEL = ("sensitivity (pre-registered in docs/STAGE2_PROTOCOL.md, split seed 0 only); the 30-round, "
+                     "lr 1e-4 headline is unchanged whatever this shows")
+
+
+def edge_decision(edge_loss: float, ref_loss: float) -> bool:
+    """True = rerun stage 2 at EDGE_LR: only if it beats the reference by MORE than EDGE_MARGIN."""
+    return edge_loss < ref_loss - EDGE_MARGIN
+
+
+def edge_check(device, git, ckpt_base, stage1_root: Path, limit=None, out_dir=EXPERIMENT_DIR / "lr_sweep") -> dict:
+    """The pre-registered grid-edge check: one extra centralized sweep point at EDGE_LR, same procedure as the sweep;
+    the decision is computed here from the rule, against the committed sweep's EDGE_REF_LR value."""
+    choice = _load(out_dir / "choice.json")
+    if choice is None:
+        raise FileNotFoundError("the lr sweep must finish before the grid-edge check")
+    ref = choice["val_loss_by_lr"][str(EDGE_REF_LR)]
+    data = DmgData(0, limit)
+    run_dir = out_dir / f"centralized_lr{EDGE_LR:g}_seed0"
+    res = completed(run_dir, git, allow_dirty=limit is not None)
+    if res is None:
+        t0 = time.perf_counter()
+        res, _ = run_centralized(data, EDGE_LR, SWEEP_EPOCHS, device, git, ckpt_base, f"sweep_lr{EDGE_LR:g}",
+                                 stage1_root)
+        write_run(run_dir, "centralized", res, {}, data, EDGE_LR, git, time.perf_counter() - t0,
+                  {"epochs": SWEEP_EPOCHS, "purpose": "pre-registered grid-edge check"})
+        prune_run(res)
+    loss, threshold = res["selection"]["best_val_loss"], ref - EDGE_MARGIN
+    rerun = edge_decision(loss, ref)
+    out = {"rule": EDGE_RULE, "edge_lr": EDGE_LR, "edge_best_val_loss": loss,
+           "edge_best_epoch": res["selection"]["best_epoch"], "reference_lr": EDGE_REF_LR,
+           "reference_best_val_loss": ref, "margin": EDGE_MARGIN, "threshold": threshold,
+           "decision": f"rerun stage 2 at lr {EDGE_LR:g}" if rerun else
+                       f"keep lr {EDGE_REF_LR:g}; grid-edge check done",
+           "rerun_stage2": rerun, "sweep_training_commit": choice["training_git"]["commit"],
+           "edge_training_git": git}
+    (out_dir / "edge_check.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    print(f"grid-edge check: lr {EDGE_LR:g} best val loss {loss:.4f} vs threshold {threshold:.4f} -> {out['decision']}",
+          flush=True)
+    return out
+
+
+def run_sensitivity(name: str, device, git, ckpt_base, stage1_root: Path, limit=None, rounds_override=None,
+                    out_root=EXPERIMENT_DIR / "sensitivity") -> dict:
+    """S1 / S2: the campaign's FedAvg protocol on split seed 0 with only the rounds (S1) or the lr (S2) changed.
+    Own result directory and checkpoint tag, so a headline run is never overwritten or resumed."""
+    spec = SENSITIVITY[name]
+    lr, rounds = spec["lr"], rounds_override or spec["rounds"]
+    data = DmgData(0, limit)
+    run_dir = out_root / f"{name}_fedavg_R{rounds}_lr{lr:g}_seed0"
+    res = completed(run_dir, git, allow_dirty=limit is not None)
+    if res is not None:
+        print(f"{name}: already completed at this commit, skipping", flush=True)
+        return res
+    t0 = time.perf_counter()
+    res, b = run_fedavg(data, lr, rounds, device, git, ckpt_base, f"sens_{name}_fedavg", stage1_root)
+    res = {**res, "sensitivity": {"name": name, "what": spec["what"], "label": SENSITIVITY_LABEL}}
+    write_run(run_dir, "fedavg", res, b, data, lr, git, time.perf_counter() - t0,
+              {"rounds": rounds, "local_epochs": LOCAL_EPOCHS, "sensitivity": name})
+    prune_run(res)
+    print(f"{name}: test xView2 score {res['test_xview2_score']:.4f} (damage harmonic "
+          f"{res['test_pooled']['damage_f1_harmonic']:.4f}), best round {res['selection']['best_round']}", flush=True)
+    return res
+
+
 def class_stats(seeds: list[int]) -> dict:
     """Damage-pixel counts and the resulting class weights per split seed (pooled = federated sum, and per client)."""
     out = {"rule": CLASS_WEIGHTS, "classes": list(DAMAGE_CLASSES), "seeds": {}}
@@ -615,6 +687,9 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=None)
     ap.add_argument("--sweep-epochs", type=int, default=None)
     ap.add_argument("--ckpt-every", type=int, default=None)
+    ap.add_argument("--edge-check", action="store_true", help="pre-registered lr 3e-5 grid-edge check")
+    ap.add_argument("--sensitivity", nargs="+", choices=sorted(SENSITIVITY), help="pre-registered S1 / S2 (seed 0)")
+    ap.add_argument("--diagnostics", action="store_true", help="pre-registered D1 (experiments.silo2_dmg_diag)")
     args = ap.parse_args()
     if args.summarize:
         summarize(args.seeds)
@@ -644,6 +719,18 @@ def main() -> None:
     if args.lr_sweep:
         print(json.dumps(lr_sweep(device, git, args.checkpoint_dir, stage1_root, args.smoke, out_root / "lr_sweep"),
                          indent=1))
+        return
+    if args.edge_check:
+        edge_check(device, git, args.checkpoint_dir, stage1_root, args.smoke, out_root / "lr_sweep")
+        return
+    if args.sensitivity:
+        for name in args.sensitivity:
+            run_sensitivity(name, device, git, args.checkpoint_dir, stage1_root, args.smoke,
+                            args.rounds if args.smoke is not None else None, out_root / "sensitivity")
+        return
+    if args.diagnostics:
+        from experiments.silo2_dmg_diag import run_diagnostics
+        run_diagnostics(device, git, stage1_root, args.smoke, out_root)
         return
     choice = _load(out_root / "lr_sweep" / "choice.json")
     if choice is None:

@@ -36,6 +36,15 @@ METHODS = ("centralized", "local_only", "fedavg")
 EXPERIMENT_METHODS = {"silo2_loc": METHODS, "silo2_dmg": ("centralized", "local_only", "fedavg", "fedavg_ft")}
 
 
+# Pre-registered stage-2 follow-ups (docs/STAGE2_PROTOCOL.md), in their recorded order, after the campaign.
+DMG_POST_STEPS = (("edge_check_lr3e-05", ["--edge-check"]), ("S1_fedavg_R60_lr1e-4", ["--sensitivity", "S1"]),
+                  ("S2_fedavg_R30_lr3e-4", ["--sensitivity", "S2"]), ("D1_diagnostics", ["--diagnostics"]))
+
+
+def post_steps(extra: list[str] | None = None) -> list[tuple[str, list[str]]]:
+    return [(name, [*args, *(extra or [])]) for name, args in DMG_POST_STEPS]
+
+
 def campaign_steps(seeds=SEEDS, extra: list[str] | None = None, methods=METHODS) -> list[tuple[str, list[str]]]:
     extra = extra or []
     steps = [("lr_sweep", ["--lr-sweep", *extra])]
@@ -86,15 +95,19 @@ def main() -> None:
     ap.add_argument("--smoke", type=int, default=None, help="pass --smoke N --allow-dirty to every step (code check)")
     ap.add_argument("--checkpoint-dir", default=None, help="passed to every step (smoke tests: keep their "
                                                            "checkpoints away from the real ones)")
+    ap.add_argument("--post", action="store_true", help="silo2_dmg only: the pre-registered follow-ups (3e-5 "
+                                                        "grid-edge check, S1, S2, D1) instead of the campaign")
     ap.add_argument("--step-args", nargs=argparse.REMAINDER, default=[],
                     help="extra arguments for every step, smoke tests only (e.g. --epochs 3 --ckpt-every 5)")
     args = ap.parse_args()
     if args.step_args and args.smoke is None:
         raise SystemExit("--step-args is only allowed together with --smoke")
+    if args.post and args.experiment != "silo2_dmg":
+        raise SystemExit("--post is only defined for --experiment silo2_dmg")
     git = require_clean_tree(allow_dirty=args.smoke is not None)
     log_dir = Path(args.log_dir) if args.log_dir else resolve_checkpoint_dir(None, args.experiment)
     log_dir.mkdir(parents=True, exist_ok=True)
-    tag = git["commit"][:7] + ("_smoke" if args.smoke is not None else "")
+    tag = ("post_" if args.post else "") + git["commit"][:7] + ("_smoke" if args.smoke is not None else "")
     log_path, status_path = log_dir / f"campaign_{tag}.log", log_dir / f"campaign_{tag}_status.json"
     extra = ["--smoke", str(args.smoke), "--allow-dirty", *args.step_args] if args.smoke is not None else []
     if args.checkpoint_dir:
@@ -111,7 +124,12 @@ def main() -> None:
             return subprocess.call([sys.executable, "-u", "-m", f"experiments.{args.experiment}", *step_args],
                                    cwd=REPO_ROOT, stdout=f, stderr=subprocess.STDOUT)
 
-    log(f"campaign {args.experiment} start at commit {git['commit']} (dirty={git['dirty']}); log {log_path}")
+    log(f"campaign {args.experiment}{' --post' if args.post else ''} start at commit {git['commit']} "
+        f"(dirty={git['dirty']}); log {log_path}")
+    if args.post:                     # independent follow-ups: none is critical, no summary step
+        status = run_campaign(post_steps(extra), runner, log, status_path, critical=())
+        log("post steps finished: " + json.dumps({k: v["result"] for k, v in status["steps"].items()}))
+        return
     status = run_campaign(campaign_steps(args.seeds, extra, EXPERIMENT_METHODS[args.experiment]), runner, log,
                           status_path)
     if not status["aborted"] and args.smoke is None:
