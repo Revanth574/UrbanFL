@@ -73,3 +73,37 @@ How the rule is applied:
   validation schedule (every 2nd epoch plus the final one).
 - **Output.** It writes its own `metrics.json` under `results/silo2_dmg/lr_sweep/`, recording its commit. Whichever
   way the check goes, the result is reported.
+
+## Sensitivity and diagnostics (pre-registered)
+
+Recorded on 2026-11-07 at about 15:50, after the seed-0 results and before seeds 1–2 land.
+
+What we had seen: at seed 0, FedAvg scored 0.253 on test. Its damage harmonic mean was 0.021, because it almost never
+predicts minor or major damage (minor F1 0.006). Its federated val loss was still falling at round 30, the round it
+selected. The rule, verbatim as decided:
+
+> After the campaign and the 3e-5 check, on split seed 0 only, labelled as sensitivity/diagnostics. The 30-round,
+> lr 1e-4 headline is unchanged whatever they show. All are run and reported regardless of outcome:
+> D1. FedAvg vs centralized diagnostics on the saved best models: test confusion matrix on scored building pixels;
+>     mean softmax probability per class on true-minor and true-major pixels; a post-hoc per-class logit offset fitted
+>     on validation only (maximising val damage HM), applied to test.
+> S1. FedAvg, 60 rounds, lr 1e-4.
+> S2. FedAvg, 30 rounds, lr 3e-4 (FedAvg's lr was not tuned separately in Silo 2, unlike Silo 1).
+
+How these are run:
+
+- **Order.** First the 3e-5 grid-edge check, then S1, then S2, then D1. One job at a time, after the campaign
+  (including its summary step) has finished.
+- **S1 and S2.** Except for the rounds (S1) or the lr (S2), they follow the campaign's FedAvg protocol exactly: same
+  split, starting weights, class weights, E = 1, validation every 2nd round plus the final one, and selection by
+  federated val loss.
+  - They write to `results/silo2_dmg/sensitivity/`, so they never overwrite or mix with the headline runs.
+  - Their checkpoint directories are separate from the headline runs'.
+- **"Scored building pixels" (D1)** means the pixels the official score uses for damage: post-target building pixels
+  with a damage label. A pixel where the method's stage-1 model predicts no building counts as predicted
+  "not localised", as in the official score. The confusion matrix therefore has a "not localised" prediction column.
+- **Logit offsets (D1).**
+  - One additive offset per damage class, with no-damage fixed at 0.
+  - Fitted only on the validation split to maximise the validation damage harmonic mean (pooled TP/FP/FN, as in the
+    official score), then applied unchanged to test.
+  - Test scores are reported both without and with the offsets.
